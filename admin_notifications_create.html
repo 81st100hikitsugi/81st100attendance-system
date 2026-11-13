@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>通知作成 - 管理者</title>
+<style>
+  body { font-family: sans-serif; background:#f5f5f5; padding:20px; }
+  .container {
+    max-width: 500px;
+    margin: 40px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  h2 { text-align:center; }
+  label { display:block; margin-top: 10px; }
+  input, textarea, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  textarea { height: 120px; }
+  a.button {
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    background:#4a90e2;
+    color:white;
+    text-decoration:none;
+    border-radius:6px;
+    text-align:center;
+  }
+  #sendBtn { background:#4caf50; }
+  #logoutBtn { background:#e24a4a; }
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h2>通知作成</h2>
+  <p id="statusMessage">生徒一覧を読み込み中...</p>
+
+  <label>タイトル</label>
+  <input type="text" id="titleInput" placeholder="例：遅刻について">
+
+  <label>本文</label>
+  <textarea id="messageInput" placeholder="通知内容を入力してください"></textarea>
+
+  <label>対象生徒</label>
+  <select id="targetSelect">
+    <option value="">選択してください</option>
+  </select>
+
+  <a class="button" id="sendBtn">通知を送信する</a>
+  <a class="button" href="admin_home.html">管理者ホームへ戻る</a>
+  <a class="button" id="logoutBtn">ログアウト</a>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { 
+    getFirestore, collection, getDocs, addDoc, serverTimestamp 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { 
+    getAuth, onAuthStateChanged, signOut 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
+    authDomain: "attendance-system-eb7d1.firebaseapp.com",
+    projectId: "attendance-system-eb7d1",
+    storageBucket: "attendance-system-eb7d1.firebasestorage.app",
+    messagingSenderId: "803269635846",
+    appId: "1:803269635846:web:6e12018f4b2db2c0747887"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  // ログイン確認
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "index.html";
+    } else {
+      loadStudents();
+    }
+  });
+
+  // 生徒一覧読み込み
+  async function loadStudents() {
+    const snapshot = await getDocs(collection(db, "students"));
+    const select = document.getElementById("targetSelect");
+
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const option = document.createElement("option");
+      option.value = docSnap.id; // student01 など
+      option.textContent = data.name;
+      select.appendChild(option);
+    });
+
+    document.getElementById("statusMessage").textContent = "";
+  }
+
+  // 通知送信
+  document.getElementById("sendBtn").onclick = async () => {
+    const title = document.getElementById("titleInput").value.trim();
+    const message = document.getElementById("messageInput").value.trim();
+    const target = document.getElementById("targetSelect").value;
+
+    if (!title || !message || !target) {
+      alert("タイトル・本文・対象生徒をすべて入力してください");
+      return;
+    }
+
+    await addDoc(collection(db, "notifications"), {
+      title,
+      message,
+      target,
+      date: serverTimestamp()
+    });
+
+    document.getElementById("statusMessage").textContent =
+      "通知を送信しました！";
+  };
+
+  // ログアウト
+  document.getElementById("logoutBtn").onclick = () => {
+    signOut(auth).then(() => {
+      window.location.href = "index.html";
+    });
+  };
+</script>
+
+</body>
+</html>

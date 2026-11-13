@@ -1,0 +1,503 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>シフト確認 - 生徒用</title>
+
+<style>
+  body {
+    font-family: sans-serif;
+    background: #f5f5f5;
+    padding: 20px;
+    margin: 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 40px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  h2 {
+    text-align: center;
+  }
+
+  .week-area {
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .week-area input {
+    padding: 8px;
+    font-size: 16px;
+  }
+
+  #selectedWeekLabel {
+    font-weight: bold;
+  }
+
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 850px;
+    margin-top: 20px;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 12px 8px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  th {
+    background: #f0f0f0;
+  }
+
+  .date-header {
+    background: #e0e0e0;
+  }
+
+  .selected {
+    color: #219653;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  a.button {
+    display: block;
+    padding: 12px;
+    margin: 10px 0;
+    background: #4a90e2;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  #logoutBtn {
+    background: #e24a4a;
+  }
+
+  #statusMessage {
+    text-align: center;
+    min-height: 20px;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>シフト確認</h2>
+
+  <p id="statusMessage">ログイン確認中...</p>
+
+  <div class="week-area">
+    <label for="weekSelector">対象週：</label>
+    <input type="week" id="weekSelector">
+    <p id="selectedWeekLabel"></p>
+  </div>
+
+  <div class="table-wrap">
+    <table id="shiftTable"></table>
+  </div>
+
+  <a class="button" href="employee_home.html">
+    ホームへ戻る
+  </a>
+
+  <a class="button" id="logoutBtn">
+    ログアウト
+  </a>
+
+</div>
+
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where,
+  Timestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+
+// ==================================
+// Firebase設定
+// ==================================
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
+  authDomain: "attendance-system-eb7d1.firebaseapp.com",
+  projectId: "attendance-system-eb7d1",
+  storageBucket: "attendance-system-eb7d1.firebasestorage.app",
+  messagingSenderId: "803269635846",
+  appId: "1:803269635846:web:6e12018f4b2db2c0747887"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+
+// ==================================
+// 基本設定
+// ==================================
+
+let currentUserId = null;
+
+const weekSelector =
+  document.getElementById("weekSelector");
+
+const shiftTable =
+  document.getElementById("shiftTable");
+
+const statusMessage =
+  document.getElementById("statusMessage");
+
+const shifts = [
+  { label: "8:00〜10:00", value: "8:00-10:00" },
+  { label: "10:00〜12:00", value: "10:00-12:00" },
+  { label: "12:30〜14:15", value: "12:30-14:15" },
+  { label: "14:15〜16:00", value: "14:15-16:00" }
+];
+
+const dayLabels = [
+  "月", "火", "水", "木", "金", "土", "日"
+];
+
+
+// ==================================
+// 日付関連
+// ==================================
+
+function getISOWeekId(date) {
+
+  const d = new Date(Date.UTC(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  ));
+
+  d.setUTCDate(
+    d.getUTCDate() + 4 - (d.getUTCDay() || 7)
+  );
+
+  const yearStart = new Date(
+    Date.UTC(d.getUTCFullYear(), 0, 1)
+  );
+
+  const week = Math.ceil(
+    (((d - yearStart) / 86400000) + 1) / 7
+  );
+
+  return `${d.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+}
+
+
+function getWeekDates(weekId) {
+
+  const [year, week] = weekId.split("-W").map(Number);
+
+  const jan4 = new Date(Date.UTC(year, 0, 4));
+
+  const monday = new Date(jan4);
+
+  monday.setUTCDate(
+    jan4.getUTCDate()
+    - ((jan4.getUTCDay() + 6) % 7)
+    + (week - 1) * 7
+  );
+
+  return Array.from({ length: 7 }, (_, i) => {
+
+    const d = new Date(monday);
+
+    d.setUTCDate(monday.getUTCDate() + i);
+
+    return new Date(
+      d.getUTCFullYear(),
+      d.getUTCMonth(),
+      d.getUTCDate()
+    );
+
+  });
+}
+
+
+function dateToKey(date) {
+
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
+
+}
+
+
+// ==================================
+// ログイン確認
+// ==================================
+
+onAuthStateChanged(auth, async (user) => {
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  currentUserId = user.uid;
+
+  statusMessage.textContent =
+    `${user.email} さんのシフト`;
+
+  const currentWeek = getISOWeekId(new Date());
+
+  weekSelector.value = currentWeek;
+
+  try {
+    await loadShift(currentWeek);
+  } catch (error) {
+    console.error(error);
+    statusMessage.textContent =
+      "シフトの読み込みに失敗しました。";
+  }
+
+});
+
+
+// ==================================
+// シフト読み込み
+// ==================================
+
+async function loadShift(weekId) {
+
+  if (!currentUserId || !weekId) return;
+
+  statusMessage.textContent = "シフトを読み込み中...";
+
+  shiftTable.innerHTML = "";
+
+  const weekDates = getWeekDates(weekId);
+
+  const startDate = weekDates[0];
+
+  const endDate = new Date(weekDates[6]);
+
+  endDate.setDate(endDate.getDate() + 1);
+
+  const startTimestamp = Timestamp.fromDate(startDate);
+  const endTimestamp = Timestamp.fromDate(endDate);
+
+  document.getElementById("selectedWeekLabel").textContent =
+    `${dateToKey(weekDates[0])} 〜 ${dateToKey(weekDates[6])}`;
+
+
+  // 管理者ページと同じattendanceItemsを取得
+  const attendanceQuery = query(
+    collection(db, "attendanceItems"),
+    where("date", ">=", startTimestamp),
+    where("date", "<", endTimestamp)
+  );
+
+  const snapshot = await getDocs(attendanceQuery);
+
+
+  // 本人の出勤予定を整理
+  const scheduledCells = new Set();
+
+  snapshot.docs.forEach(docSnap => {
+
+    const data = docSnap.data();
+
+    if (data.userId !== currentUserId) return;
+
+    if (data.state !== "出勤予定") return;
+
+    if (!data.date || !data.shift) return;
+
+    const dateKey = dateToKey(data.date.toDate());
+
+    scheduledCells.add(
+      `${dateKey}|${data.shift}`
+    );
+
+  });
+
+
+  // 表を作成
+  buildShiftTable(weekDates, scheduledCells);
+
+  if (scheduledCells.size === 0) {
+    statusMessage.textContent =
+      "この週のシフトは登録されていません。";
+  } else {
+    statusMessage.textContent =
+      "シフトを表示しています。";
+  }
+
+}
+
+
+// ==================================
+// シフト表作成
+// ==================================
+
+function buildShiftTable(weekDates, scheduledCells) {
+
+  shiftTable.innerHTML = "";
+
+  const thead = document.createElement("thead");
+
+  // 日付行
+  const dateRow = document.createElement("tr");
+
+  const dateTitle = document.createElement("th");
+
+  dateTitle.textContent = "時間帯";
+
+  dateTitle.rowSpan = 2;
+
+  dateRow.appendChild(dateTitle);
+
+
+  weekDates.forEach((date, i) => {
+
+    const th = document.createElement("th");
+
+    th.colSpan = 4;
+
+    th.className = "date-header";
+
+    th.textContent =
+      `${dayLabels[i]}曜日 (${date.getMonth() + 1}/${date.getDate()})`;
+
+    dateRow.appendChild(th);
+
+  });
+
+  thead.appendChild(dateRow);
+
+
+  // 時間帯行
+  const shiftRow = document.createElement("tr");
+
+  weekDates.forEach(() => {
+
+    shifts.forEach(shift => {
+
+      const th = document.createElement("th");
+
+      th.textContent = shift.label;
+
+      shiftRow.appendChild(th);
+
+    });
+
+  });
+
+  thead.appendChild(shiftRow);
+
+  shiftTable.appendChild(thead);
+
+
+  // 本人のシフト表示
+  const tbody = document.createElement("tbody");
+
+  const row = document.createElement("tr");
+
+  const labelCell = document.createElement("td");
+
+  labelCell.textContent = "出勤予定";
+
+  row.appendChild(labelCell);
+
+
+  weekDates.forEach(date => {
+
+    const dateKey = dateToKey(date);
+
+    shifts.forEach(shift => {
+
+      const td = document.createElement("td");
+
+      const key = `${dateKey}|${shift.value}`;
+
+      if (scheduledCells.has(key)) {
+        td.textContent = "○";
+        td.className = "selected";
+      }
+
+      row.appendChild(td);
+
+    });
+
+  });
+
+  tbody.appendChild(row);
+
+  shiftTable.appendChild(tbody);
+
+}
+
+
+// ==================================
+// 週変更
+// ==================================
+
+weekSelector.addEventListener("change", async () => {
+
+  if (!weekSelector.value) return;
+
+  try {
+    await loadShift(weekSelector.value);
+  } catch (error) {
+    console.error(error);
+    statusMessage.textContent =
+      "シフトの読み込みに失敗しました。";
+  }
+
+});
+
+
+// ==================================
+// ログアウト
+// ==================================
+
+document.getElementById("logoutBtn").onclick = async () => {
+
+  await signOut(auth);
+
+  window.location.href = "index.html";
+
+};
+
+</script>
+
+</body>
+</html>

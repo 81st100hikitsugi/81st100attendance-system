@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>共有タブレット（正式版）</title>
+<style>
+  body { font-family: sans-serif; background:#f5f5f5; padding:20px; }
+  .mock { background:white; padding:20px; margin-bottom:40px;
+          border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); width:600px; }
+  a.button { display:block; padding:10px; margin-top:10px;
+             background:#4a90e2; color:white; text-align:center;
+             border-radius:6px; text-decoration:none; }
+  .hidden { display:none; }
+</style>
+</head>
+
+<body>
+
+<div class="mock" id="tablet-home">
+  <h2>共有タブレット：生徒一覧</h2>
+  <div id="studentList">読み込み中...</div>
+</div>
+
+<div class="mock hidden" id="tablet-select">
+  <h2>共有タブレット：生徒選択</h2>
+  <p id="selectedStudentLabel"></p>
+
+  <a class="button" id="clockInBtn">出勤する</a>
+  <a class="button" style="background:#e24a4a;" id="clockOutBtn">退勤する</a>
+  <a class="button" style="background:#777;" id="backFromSelectBtn">生徒一覧へ戻る</a>
+</div>
+
+<div class="mock hidden" id="tablet-action">
+  <h2>共有タブレット：打刻完了</h2>
+  <p>打刻が完了しました。</p>
+  <a class="button" style="background:#777;" id="backFromActionBtn">生徒一覧へ戻る</a>
+</div>
+
+<div class="mock hidden" id="tablet-error">
+  <h2>共有タブレット：エラー</h2>
+  <p>打刻に失敗しました。</p>
+  <a class="button" style="background:#777;" id="backFromErrorBtn">生徒一覧へ戻る</a>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { 
+    getFirestore, collection, getDocs, doc, setDoc, serverTimestamp 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
+    authDomain: "attendance-system-eb7d1.firebaseapp.com",
+    projectId: "attendance-system-eb7d1",
+    storageBucket: "attendance-system-eb7d1.firebasestorage.app",
+    messagingSenderId: "803269635846",
+    appId: "1:803269635846:web:6e12018f4b2db2c0747887"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let selectedStudent = null;
+
+  // 生徒一覧読み込み
+  async function loadStudents() {
+    const list = document.getElementById("studentList");
+    list.innerHTML = "";
+
+    const snapshot = await getDocs(collection(db, "students"));
+
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+
+      // 🔥 ここが重要：Firestore のドキュメントIDを使う
+      const student = {
+        id: docSnap.id,     // ← これだけ使う
+        name: data.name
+      };
+
+      const a = document.createElement("a");
+      a.className = "button";
+      a.textContent = student.name;
+      a.onclick = () => selectStudent(student);
+      list.appendChild(a);
+    });
+  }
+
+  // 生徒選択
+  function selectStudent(student) {
+    selectedStudent = student;
+    document.getElementById("selectedStudentLabel").textContent =
+      `選択中：${student.name} さん`;
+    showScreen("tablet-select");
+  }
+
+  // 出勤／退勤保存
+  async function saveAttendance(state) {
+    try {
+      const now = new Date();
+
+      await setDoc(doc(db, "attendanceItems", `${selectedStudent.id}_${now.getTime()}`), {
+        userId: selectedStudent.id,
+        date: serverTimestamp(),
+        shift: "未設定",
+        state: state,
+        time: now.toLocaleString(),
+        notes: "",
+        check: true,
+        history: []
+      });
+
+      showScreen("tablet-action");
+    } catch (e) {
+      console.error(e);
+      showScreen("tablet-error");
+    }
+  }
+
+  // 画面切り替え
+  function showScreen(id) {
+    document.querySelectorAll(".mock").forEach(div => div.classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+  }
+
+  function showHome() {
+    showScreen("tablet-home");
+  }
+
+  // ボタンイベント
+  document.getElementById("clockInBtn").onclick = () => saveAttendance("出勤");
+  document.getElementById("clockOutBtn").onclick = () => saveAttendance("退勤");
+
+  document.getElementById("backFromSelectBtn").onclick = showHome;
+  document.getElementById("backFromActionBtn").onclick = showHome;
+  document.getElementById("backFromErrorBtn").onclick = showHome;
+
+  // 初期表示
+  loadStudents();
+</script>
+
+</body>
+</html>

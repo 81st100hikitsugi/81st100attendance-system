@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>従業員画面 - 出勤管理</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>従業員画面</h1>
+    <h2>打刻</h2>
+
+    <div class="login-box">
+      <button id="clockInBtn">出勤する</button>
+      <button id="clockOutBtn">退勤する</button>
+    </div>
+
+    <p id="message"></p>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+    // ★ あなたの Firebase 設定を貼り付ける場所 ★
+    const firebaseConfig = {
+  apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
+  authDomain: "attendance-system-eb7d1.firebaseapp.com",
+  projectId: "attendance-system-eb7d1",
+  storageBucket: "attendance-system-eb7d1.firebasestorage.app",
+  messagingSenderId: "803269635846",
+  appId: "1:803269635846:web:6e12018f4b2db2c0747887"
+};
+
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let currentUser = null;
+
+    // ログインしているユーザーを確認
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+      } else {
+        window.location.href = "index.html"; // ログインしていなければ戻す
+      }
+    });
+
+    // 出勤ボタン
+    document.getElementById("clockInBtn").addEventListener("click", async () => {
+      if (!currentUser) return;
+
+      await setDoc(doc(db, "attendance", currentUser.uid + "_clockin"), {
+        type: "clockin",
+        timestamp: serverTimestamp()
+      });
+
+      document.getElementById("message").innerText = "出勤を記録しました！";
+    });
+
+    // 退勤ボタン
+    document.getElementById("clockOutBtn").addEventListener("click", async () => {
+      if (!currentUser) return;
+
+      await setDoc(doc(db, "attendance", currentUser.uid + "_clockout"), {
+        type: "clockout",
+        timestamp: serverTimestamp()
+      });
+
+      document.getElementById("message").innerText = "退勤を記録しました！";
+    });
+  </script>
+</body>
+</html>
