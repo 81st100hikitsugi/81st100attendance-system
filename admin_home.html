@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -6,8 +7,14 @@
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#4caf50">
 <title>管理者ホーム</title>
+
 <style>
-  body { font-family: sans-serif; background:#f5f5f5; padding:20px; }
+  body {
+    font-family: sans-serif;
+    background: #f5f5f5;
+    padding: 20px;
+  }
+
   .container {
     max-width: 400px;
     margin: 40px auto;
@@ -17,35 +24,100 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     text-align: center;
   }
+
   a.button {
-    display:block;
-    padding:12px;
-    margin:10px 0;
-    background:#4a90e2;
-    color:white;
-    text-decoration:none;
-    border-radius:6px;
+    display: block;
+    padding: 12px;
+    margin: 10px 0;
+    background: #4a90e2;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
   }
-  #logoutBtn { background:#e24a4a; }
+
+  .section-title {
+    margin-top: 25px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #ddd;
+    text-align: left;
+  }
+
+  #logoutBtn {
+    background: #e24a4a;
+    cursor: pointer;
+  }
 </style>
 </head>
 
 <body>
+
 <div class="container">
+
   <h2 id="adminName">管理者ホーム</h2>
 
-  <a class="button" href="admin_students.html">生徒名簿</a>
-  <a class="button" href="admin_shift_create.html">週シフト作成</a>
-  <a class="button" href="admin_notifications_create.html">通知作成</a>
-  <a class="button" href="admin_attendance_all.html">全生徒の打刻履歴</a>
-  <a class="button" href="admin_late_early.html">遅刻・早退確認</a>
+  <h3 class="section-title">従業員機能</h3>
 
-  <a class="button" id="logoutBtn">ログアウト</a>
+  <a class="button" href="employee_attendance.html">
+    出勤・退勤
+  </a>
+
+  <a class="button" href="employee_history.html">
+    打刻履歴
+  </a>
+
+  <a class="button" href="employee_shift.html">
+    シフト確認
+  </a>
+
+  <a class="button" href="employee_notifications.html">
+    通知一覧
+  </a>
+
+  <h3 class="section-title">管理者機能</h3>
+
+  <a class="button" href="admin_students.html">
+    生徒名簿
+  </a>
+
+  <a class="button" href="admin_shift_create.html">
+    週シフト作成
+  </a>
+
+  <a class="button" href="admin_notifications_create.html">
+    通知作成
+  </a>
+
+  <a class="button" href="admin_attendance_all.html">
+    全生徒の打刻履歴
+  </a>
+
+  <a class="button" href="admin_late_early.html">
+    遅刻・早退確認
+  </a>
+
+  <a class="button" id="logoutBtn">
+    ログアウト
+  </a>
+
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  import {
+    initializeApp
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  import {
+    getFirestore,
+    doc,
+    getDoc
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
@@ -58,23 +130,55 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
 
   // ログイン確認
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
+
     if (!user) {
       window.location.href = "index.html";
-    } else {
+      return;
+    }
+
+    try {
+      const userDoc = await getDoc(
+        doc(db, "students", user.uid)
+      );
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+
+        document.getElementById("adminName").textContent =
+          `管理者ホーム（${data.name || user.email}）`;
+
+      } else {
+        document.getElementById("adminName").textContent =
+          `管理者ホーム（${user.email}）`;
+      }
+
+    } catch (error) {
+      console.error("ユーザー情報取得エラー:", error);
+
       document.getElementById("adminName").textContent =
         `管理者ホーム（${user.email}）`;
     }
+
   });
 
   // ログアウト
-  document.getElementById("logoutBtn").onclick = () => {
-    signOut(auth).then(() => {
+  document.getElementById("logoutBtn").onclick = async () => {
+
+    try {
+      await signOut(auth);
       window.location.href = "index.html";
-    });
+
+    } catch (error) {
+      console.error("ログアウトエラー:", error);
+      alert("ログアウトに失敗しました。");
+    }
+
   };
+
 </script>
 
 </body>
