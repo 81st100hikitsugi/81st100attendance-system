@@ -307,11 +307,11 @@
     setMessage("方式"+mode+"を選択中です。");
   }
   function findByPin(value) {
-    return students.find(s=>String(s.pin ?? s.attendancePin ?? "")===value);
+    return students.find(s=>String(s.pin ?? s.attendancePin ?? "").trim()===String(value || "").trim());
   }
   function findByQr(value) {
     const raw=String(value || "").trim();
-    return students.find(s=>[s.qrCode,s.qrToken,s.pin,s.attendancePin,s.id].some(v=>v!=null && String(v)===raw));
+    return students.find(s=>[s.qrToken,s.qrCode,s.pin,s.attendancePin,s.id].some(v=>v!=null && String(v).trim()===raw));
   }
   function confirmIdentity(student, mode) {
     if (!student) { setMessage("該当する利用者が見つかりません。登録情報を確認してください。",true); return; }
