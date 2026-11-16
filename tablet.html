@@ -367,10 +367,12 @@
   $("searchA").addEventListener("input",renderAllPeople);
   $("searchC").addEventListener("input",renderStatus);
   $("pinSubmit").addEventListener("click",()=>confirmIdentity(findByPin($("pinInput").value.trim()),"D"));
+  $("pinInput").addEventListener("input",()=>{selected.D=null;$("selectedD").classList.add("hidden");});
   $("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter") $("pinSubmit").click();});
   $("startCamera").addEventListener("click",startCamera);
   $("stopCamera").addEventListener("click",stopCamera);
   $("qrManualSubmit").addEventListener("click",()=>confirmIdentity(findByQr($("qrManual").value),"E"));
+  $("qrManual").addEventListener("input",()=>{selected.E=null;$("selectedE").classList.add("hidden");});
   $("qrManual").addEventListener("keydown",e=>{if(e.key==="Enter") $("qrManualSubmit").click();});
   window.addEventListener("beforeunload",stopCamera);
   clockText(); setInterval(clockText,1000);
