@@ -11,7 +11,9 @@ export function mountAppShell({
   active = "",
   profile = {},
   links = DEFAULT_LINKS,
-  root = document.body
+  root = document.body,
+  homeHref = "../home.html",
+  logoutUrl = "../index.html"
 } = {}) {
   const shell = document.createElement("div");
   shell.className = "app-shell";
@@ -21,7 +23,7 @@ export function mountAppShell({
 
   const brand = document.createElement("a");
   brand.className = "app-brand";
-  brand.href = "../home.html";
+  brand.href = homeHref;
   brand.textContent = "業務管理";
 
   const userArea = document.createElement("div");
@@ -38,7 +40,7 @@ export function mountAppShell({
   logoutButton.addEventListener("click", async () => {
     logoutButton.disabled = true;
     try {
-      await logout("../index.html");
+      await logout(logoutUrl);
     } catch (error) {
       console.error("ログアウトに失敗しました:", error);
       logoutButton.disabled = false;
