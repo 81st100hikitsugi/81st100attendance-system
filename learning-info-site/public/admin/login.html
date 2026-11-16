@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理者ログイン - 学習情報管理</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div>
+      <h1>学習情報管理</h1>
+      <p>管理者ログイン</p>
+    </div>
+  </header>
+
+  <main class="login-container">
+    <section class="login-card">
+      <h2>管理者ログイン</h2>
+      <p class="login-description">
+        管理者用パスワードを入力してください。
+      </p>
+
+      <form id="loginForm">
+        <label for="passwordInput">パスワード</label>
+
+        <input
+          type="password"
+          id="passwordInput"
+          autocomplete="current-password"
+          placeholder="パスワードを入力"
+          required
+        >
+
+        <p id="errorMessage" class="error-message" role="alert" hidden></p>
+
+        <button type="submit" id="loginButton">
+          ログイン
+        </button>
+      </form>
+
+      <a href="../index.html" class="back-link">
+        ＜ トップページに戻る
+      </a>
+    </section>
+  </main>
+
+  
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/login.js"></script>
+
+</body>
+</html>

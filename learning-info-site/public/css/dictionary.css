@@ -1,0 +1,108 @@
+/* 辞書管理ページ */
+.container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+.container section {
+  background: #fff;
+  padding: 24px;
+  margin-bottom: 24px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.container h2 {
+  margin-top: 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+#dictionaryForm > div {
+  margin-bottom: 20px;
+}
+
+#dictionaryForm label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+#dictionaryForm input,
+#dictionaryForm textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font: inherit;
+}
+
+#dictionaryForm textarea {
+  resize: vertical;
+}
+
+#dictionaryForm p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+#dictionaryForm button,
+.dictionary-item button {
+  padding: 9px 18px;
+  margin-right: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+}
+
+#saveDictionaryButton {
+  background: #2563eb;
+  color: white;
+}
+
+#cancelDictionaryButton {
+  background: #e5e7eb;
+  color: #333;
+}
+
+.dictionary-item {
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.dictionary-item h3 {
+  margin: 0 0 8px;
+}
+
+.dictionary-item p {
+  overflow-wrap: anywhere;
+}
+
+.dictionary-item button:first-of-type {
+  background: #e5e7eb;
+}
+
+.dictionary-item button:last-of-type {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+#dictionaryError {
+  color: #dc2626;
+  margin: 12px 0;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 12px;
+  }
+
+  .container section {
+    padding: 16px;
+  }
+}
