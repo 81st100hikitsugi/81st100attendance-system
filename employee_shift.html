@@ -4,6 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="./shared/app-shell.css">
 <title>シフト確認 - 生徒用</title>
 
 <style>
@@ -114,24 +115,11 @@
     <table id="shiftTable"></table>
   </div>
 
-  <a class="button" href="employee_home.html">
-    ホームへ戻る
-  </a>
-
-  <a class="button" id="logoutBtn">
-    ログアウト
-  </a>
-
 </div>
 
 <script type="module">
 
 import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
-import {
-  getFirestore,
   collection,
   getDocs,
   query,
@@ -139,29 +127,16 @@ import {
   Timestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 
 // ==================================
 // Firebase設定
 // ==================================
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
-  authDomain: "attendance-system-eb7d1.firebaseapp.com",
-  projectId: "attendance-system-eb7d1",
-  storageBucket: "attendance-system-eb7d1.firebasestorage.app",
-  messagingSenderId: "803269635846",
-  appId: "1:803269635846:web:6e12018f4b2db2c0747887"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+import { auth, db } from "./shared/firebase.js";
+  import { getUserProfile } from "./shared/auth.js";
+  import { mountAppShell } from "./shared/app-shell.js";
 
 
 // ==================================
@@ -272,6 +247,18 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   currentUserId = user.uid;
+
+    const profile = await getUserProfile(user);
+    if (!profile) {
+      window.location.replace("./index.html");
+      return;
+    }
+    mountAppShell({ active: "attendance", profile, homeHref: "./home.html", logoutUrl: "./index.html", links: [
+      { id: "home", label: "ホーム", href: "./home.html" },
+      { id: "attendance", label: "出勤", href: "./employee_home.html" },
+      { id: "learning", label: "学習", href: "./learning/index.html" },
+      { id: "wood", label: "木材", href: "./wood/index.html" }
+    ] });
 
   statusMessage.textContent =
     `${user.email} さんのシフト`;
@@ -486,17 +473,6 @@ weekSelector.addEventListener("change", async () => {
 
 
 // ==================================
-// ログアウト
-// ==================================
-
-document.getElementById("logoutBtn").onclick = async () => {
-
-  await signOut(auth);
-
-  window.location.href = "index.html";
-
-};
-
 </script>
 
 </body>
