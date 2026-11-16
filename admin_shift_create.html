@@ -4,6 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="./shared/app-shell.css">
 <title>週シフト作成 - 管理者</title>
 
 <style>
@@ -169,10 +170,6 @@
 <script type="module">
 
 import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
-import {
   getFirestore,
   collection,
   getDocs,
@@ -186,29 +183,16 @@ import {
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
 
 
 // ==================================
 // Firebase設定
 // ==================================
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
-  authDomain: "attendance-system-eb7d1.firebaseapp.com",
-  projectId: "attendance-system-eb7d1",
-  storageBucket: "attendance-system-eb7d1.firebasestorage.app",
-  messagingSenderId: "803269635846",
-  appId: "1:803269635846:web:6e12018f4b2db2c0747887"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+import { db } from "./shared/firebase.js";
+import { requireAdmin } from "./shared/auth.js";
+import { mountAppShell } from "./shared/app-shell.js";
 
 
 // ==================================
@@ -318,68 +302,31 @@ function makeCellKey(userId, dateKey, shift) {
 }
 
 // ==================================
-// 管理者権限判定
+// 管理者権限確認と共通ナビゲーション
 // ==================================
 
-function hasAdminPermission(userData) {
+requireAdmin({
+  loginUrl: "./index.html",
+  deniedUrl: "./employee_home.html",
+  onReady: async ({ profile }) => {
+    mountAppShell({ active: "attendance", profile, homeHref: "./home.html", logoutUrl: "./index.html", links: [
+      { id: "home", label: "ホーム", href: "./home.html" },
+      { id: "attendance", label: "出勤", href: "./employee_home.html" },
+      { id: "learning", label: "学習", href: "./learning/index.html" },
+      { id: "wood", label: "木材", href: "./wood/index.html" }
+    ] });
 
-  // 将来的にisAdminが設定された場合はそちらを優先
-  if (typeof userData.isAdmin === "boolean") {
-    return userData.isAdmin;
+    try {
+      await loadStudents();
+      const currentWeek = getISOWeekId(new Date());
+      weekSelector.value = currentWeek;
+      await loadWeek(currentWeek);
+    } catch (error) {
+      console.error(error);
+      statusMessage.textContent = "データの読み込みに失敗しました。";
+    }
   }
-
-  // 現時点ではroleで管理者を判定
-  return userData.role === "attendance";
-
-}
-
-// ==================================
-// ログイン確認
-// ==================================
-
-onAuthStateChanged(auth, async (user) => {
-
-  if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
-
-  try {
-
-    // 管理者権限を確認
-    const adminDoc = await getDoc(
-      doc(db, "students", user.uid)
-    );
-
-    if (
-  !adminDoc.exists() ||
-  !hasAdminPermission(adminDoc.data())
-) {
-  statusMessage.textContent =
-    "管理者権限がありません。";
-
-  return;
-}
-
-    await loadStudents();
-
-    const currentWeek = getISOWeekId(new Date());
-
-    weekSelector.value = currentWeek;
-
-    await loadWeek(currentWeek);
-
-  } catch (error) {
-
-    console.error(error);
-
-    statusMessage.textContent =
-      "データの読み込みに失敗しました。";
-
-  }
-
 });
-
 
 // ==================================
 // 生徒一覧読み込み
@@ -847,30 +794,6 @@ weekSelector.addEventListener("change", async () => {
 
 });
 
-
-// ==================================
-// 管理者ホーム
-// ==================================
-
-document.getElementById("homeBtn").onclick = () => {
-
-  window.location.href = "admin_home.html";
-
-};
-
-
-// ==================================
-// ログアウト
-// ==================================
-
-document.getElementById("logoutBtn").onclick =
-async () => {
-
-  await signOut(auth);
-
-  window.location.href = "index.html";
-
-};
 
 </script>
 
