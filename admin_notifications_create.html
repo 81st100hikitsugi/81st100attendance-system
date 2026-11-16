@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<link rel="stylesheet" href="./shared/app-shell.css">
 <title>通知作成 - 管理者</title>
 <style>
   body { font-family: sans-serif; background:#f5f5f5; padding:20px; }
@@ -55,38 +56,29 @@
   </select>
 
   <a class="button" id="sendBtn">通知を送信する</a>
-  <a class="button" href="admin_home.html">管理者ホームへ戻る</a>
-  <a class="button" id="logoutBtn">ログアウト</a>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { 
     getFirestore, collection, getDocs, addDoc, serverTimestamp 
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { 
-    getAuth, onAuthStateChanged, signOut 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
-    authDomain: "attendance-system-eb7d1.firebaseapp.com",
-    projectId: "attendance-system-eb7d1",
-    storageBucket: "attendance-system-eb7d1.firebasestorage.app",
-    messagingSenderId: "803269635846",
-    appId: "1:803269635846:web:6e12018f4b2db2c0747887"
-  };
+  import { db } from "./shared/firebase.js";
+  import { requireAdmin } from "./shared/auth.js";
+  import { mountAppShell } from "./shared/app-shell.js";
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-
-  // ログイン確認
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "index.html";
-    } else {
-      loadStudents();
+  requireAdmin({
+    loginUrl: "./index.html",
+    deniedUrl: "./employee_home.html",
+    onReady: async ({ profile }) => {
+      mountAppShell({ active: "attendance", profile, homeHref: "./home.html", logoutUrl: "./index.html", links: [
+        { id: "home", label: "ホーム", href: "./home.html" },
+        { id: "attendance", label: "出勤", href: "./employee_home.html" },
+        { id: "learning", label: "学習", href: "./learning/index.html" },
+        { id: "wood", label: "木材", href: "./wood/index.html" }
+      ] });
+    await loadStudents();
     }
   });
 
@@ -126,13 +118,6 @@
 
     document.getElementById("statusMessage").textContent =
       "通知を送信しました！";
-  };
-
-  // ログアウト
-  document.getElementById("logoutBtn").onclick = () => {
-    signOut(auth).then(() => {
-      window.location.href = "index.html";
-    });
   };
 </script>
 
