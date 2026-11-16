@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2878c8">
+  <link rel="manifest" href="./manifest.json">
+  <title>ホーム - 業務管理</title>
+  <link rel="stylesheet" href="./shared/app-shell.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #202833; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #f3f5f8; }
+    main { width: min(1080px, calc(100% - 32px)); margin: 28px auto 48px; }
+    .welcome { margin: 0 0 22px; }
+    .welcome h1 { margin: 0 0 6px; font-size: clamp(1.45rem, 4vw, 2rem); }
+    .welcome p { margin: 0; color: #667085; }
+    .dashboard { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .panel { min-width: 0; padding: 20px; background: #fff; border: 1px solid #e1e6ed; border-radius: 14px; box-shadow: 0 2px 8px #172b4d0a; }
+    .panel-wide { grid-column: 1 / -1; }
+    .panel h2 { margin: 0 0 14px; font-size: 1.1rem; }
+    .muted { color: #667085; }
+    .item { padding: 12px 0; border-top: 1px solid #edf0f4; }
+    .item:first-child { border-top: 0; padding-top: 0; }
+    .item strong { display: block; margin-bottom: 4px; }
+    .empty { margin: 0; padding: 10px 0; color: #667085; }
+    .system-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .system-link { display: block; padding: 18px; border: 1px solid #dce4ee; border-radius: 12px; color: #202833; text-decoration: none; background: #f9fbfd; }
+    .system-link:hover { border-color: #2878c8; background: #f1f7ff; }
+    .system-link strong { display: block; margin-bottom: 5px; color: #2469ad; }
+    .system-link span { font-size: .88rem; color: #667085; }
+    #loadStatus { margin: 18px 0 0; font-size: .85rem; color: #667085; }
+    @media (max-width: 680px) {
+      main { margin-top: 20px; }
+      .dashboard { grid-template-columns: 1fr; }
+      .panel-wide { grid-column: auto; }
+      .system-links { grid-template-columns: 1fr; }
+      .system-link { padding: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="welcome">
+      <h1 id="welcomeTitle">ホーム</h1>
+      <p id="todayLabel"></p>
+    </section>
+
+    <div class="dashboard">
+      <section class="panel panel-wide" aria-labelledby="workTitle">
+        <h2 id="workTitle">今日の全体作業内容</h2>
+        <div id="workPlans"><p class="empty">読み込み中...</p></div>
+      </section>
+
+      <section class="panel" aria-labelledby="shiftTitle">
+        <h2 id="shiftTitle">今日の自分のシフト</h2>
+        <div id="todayShift"><p class="empty">読み込み中...</p></div>
+        <a href="./employee_shift.html">シフトを確認する →</a>
+      </section>
+
+      <section class="panel" aria-labelledby="woodTitle">
+        <h2 id="woodTitle">予約中の木材</h2>
+        <div id="reservedWood"><p class="empty">読み込み中...</p></div>
+        <a href="./wood/index.html">木材管理を開く →</a>
+      </section>
+
+      <section class="panel panel-wide" aria-labelledby="systemsTitle">
+        <h2 id="systemsTitle">システム</h2>
+        <div class="system-links">
+          <a class="system-link" href="./employee_home.html">
+            <strong>出勤管理</strong>
+            <span>出退勤・打刻履歴・シフト・通知</span>
+          </a>
+          <a class="system-link" href="./learning/index.html">
+            <strong>学習情報管理</strong>
+            <span>学習情報の検索・確認</span>
+          </a>
+          <a class="system-link" href="./wood/index.html">
+            <strong>木材管理</strong>
+            <span>木材の状態・担当・履歴</span>
+          </a>
+        </div>
+      </section>
+    </div>
+    <p id="loadStatus" role="status"></p>
+  </main>
+
+  <script type="module">
+    import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { db } from "./shared/firebase.js";
+    import { requireUser } from "./shared/auth.js";
+    import { mountAppShell } from "./shared/app-shell.js";
+
+    const byId = (id) => document.getElementById(id);
+    const today = new Date();
+    const dateKey = [today.getFullYear(), String(today.getMonth() + 1).padStart(2, "0"), String(today.getDate()).padStart(2, "0")].join("-");
+    byId("todayLabel").textContent = today.toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "long" });
+
+    function dateKeyOf(value) {
+      if (!value) return "";
+      const date = typeof value.toDate === "function" ? value.toDate() : new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+    }
+
+    function addItem(container, title, detail = "") {
+      const item = document.createElement("div");
+      item.className = "item";
+      const heading = document.createElement("strong");
+      heading.textContent = title;
+      item.append(heading);
+      if (detail) {
+        const description = document.createElement("div");
+        description.className = "muted";
+        description.textContent = detail;
+        item.append(description);
+      }
+      container.append(item);
+    }
+
+    function showEmpty(container, message) {
+      container.replaceChildren();
+      const p = document.createElement("p");
+      p.className = "empty";
+      p.textContent = message;
+      container.append(p);
+    }
+
+    async function loadWorkPlans() {
+      const target = byId("workPlans");
+      try {
+        const snapshot = await getDocs(collection(db, "dailyWorkPlans"));
+        const plans = snapshot.docs.map((entry) => entry.data()).filter((plan) => dateKeyOf(plan.date) === dateKey)
+          .sort((a, b) => String(a.startTime || "").localeCompare(String(b.startTime || "")));
+        target.replaceChildren();
+        if (!plans.length) return showEmpty(target, "今日の全体作業内容はまだ登録されていません。");
+        for (const plan of plans) {
+          const time = [plan.startTime, plan.endTime].filter(Boolean).join("〜");
+          addItem(target, plan.title || "作業予定", [time, plan.description].filter(Boolean).join(" / "));
+        }
+      } catch (error) {
+        console.error("全体作業内容の読み込みに失敗しました:", error);
+        showEmpty(target, "作業内容を読み込めませんでした。");
+      }
+    }
+
+    async function loadTodayShift(uid) {
+      const target = byId("todayShift");
+      try {
+        const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const end = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+        const snapshot = await getDocs(query(collection(db, "attendanceItems"), where("date", ">=", start), where("date", "<", end)));
+        const shifts = snapshot.docs.map((entry) => entry.data())
+          .filter((item) => item.userId === uid && item.state === "出勤予定" && dateKeyOf(item.date) === dateKey)
+          .sort((a, b) => String(a.shift || "").localeCompare(String(b.shift || "")));
+        target.replaceChildren();
+        if (!shifts.length) return showEmpty(target, "今日はシフトが登録されていません。");
+        for (const shift of shifts) addItem(target, shift.shift || "時間帯未設定", shift.notes || "");
+      } catch (error) {
+        console.error("本日のシフト読み込みに失敗しました:", error);
+        showEmpty(target, "シフトを読み込めませんでした。");
+      }
+    }
+
+    async function loadReservedWood(uid) {
+      const target = byId("reservedWood");
+      try {
+        const snapshot = await getDocs(query(collection(db, "woodItems"), where("reservedBy", "==", uid)));
+        const reserved = snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() }));
+        target.replaceChildren();
+        if (!reserved.length) return showEmpty(target, "現在予約中の木材はありません。");
+        for (const item of reserved) {
+          const label = item.name || item.material || item.itemName || ("木材 #" + item.id.slice(0, 6));
+          const detail = [item.process, item.progress, item.notes].filter(Boolean).join(" / ");
+          addItem(target, label, detail);
+        }
+      } catch (error) {
+        console.error("予約中の木材の読み込みに失敗しました:", error);
+        showEmpty(target, "予約中の木材を読み込めませんでした。");
+      }
+    }
+
+    requireUser({
+      loginUrl: "./index.html",
+      onReady: async ({ user, profile }) => {
+        byId("welcomeTitle").textContent = "ようこそ、" + (profile.name || user.email || "ユーザー") + " さん";
+        mountAppShell({
+          active: "home",
+          profile,
+          homeHref: "./home.html",
+          logoutUrl: "./index.html",
+          links: [
+            { id: "home", label: "ホーム", href: "./home.html" },
+            { id: "attendance", label: "出勤", href: "./employee_home.html" },
+            { id: "learning", label: "学習", href: "./learning/index.html" },
+            { id: "wood", label: "木材", href: "./wood/index.html" }
+          ]
+        });
+        await Promise.all([loadWorkPlans(), loadTodayShift(user.uid), loadReservedWood(user.uid)]);
+        byId("loadStatus").textContent = "表示内容は本日の登録状況に基づいています。";
+      },
+      onError: (error) => {
+        console.error(error);
+        byId("loadStatus").textContent = "ユーザー情報を確認できませんでした。管理者にお問い合わせください。";
+      }
+    });
+  </script>
+</body>
+</html>
