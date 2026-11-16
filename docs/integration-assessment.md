@@ -163,6 +163,6 @@ Firebase AuthenticationとFirestoreを使用し、フロントエンドはFireba
 
 この4ファイルは追加済みだが、既存のindex.html、admin_home.html、employee_home.htmlその他の画面からはまだ読み込んでいない。したがって既存画面の挙動には影響しない。ナビゲーションのリンク先（home.html、learning/index.html、wood/index.html）は統合ページを実装する段階で作成・接続する。
 
-### 学習情報管理のソースについて
+### 学習情報管理のソースについて（2026-11-17更新）
 
-過去の会話で学習情報管理のファイル構成および一部JSの実装内容は共有されているが、現時点でGitHubリポジトリにはソース一式が存在しない。既存サイト https://learning-info-site.web.app は稼働先として把握している。コードを正確に移植するには、実ファイルの再取得が必要。既存の会話で共有済みの仕様・コレクション構造を再質問せず、取得できていないファイルだけを対象にする。
+学習情報管理のソース一式がintegration-developmentのlearning-info-site/public/へ追加されたため、主要HTML・JavaScript・CSS・Service Workerの調査を開始した。調査結果と移行計画はdocs/learning-integration-plan.mdを参照。旧Firebaseプロジェクト、Firestore実データ、Security Rulesは未変更であり、実データ移行と権限切替は未実施。
