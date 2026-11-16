@@ -173,7 +173,8 @@
     const name = document.createElement("strong");
     name.textContent = student.name || "名前未設定";
     const role = document.createElement("small");
-    role.textContent = student.role || "役割未設定";
+    const status = latestStatus(student.id);
+    role.textContent = (student.role || "役割未設定") + " / " + status.state;
     button.append(name, role);
     button.addEventListener("click", () => selectPerson(student, mode));
     return button;
