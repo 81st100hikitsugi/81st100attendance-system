@@ -93,3 +93,52 @@ Firebase AuthenticationとFirestoreを使用し、フロントエンドはFireba
 ## この時点での変更
 
 このメモの追加以外、既存HTML、Firebase設定、Firestoreデータ、Security Rules、本番公開設定には変更を加えていない。
+
+
+## 追加調査: 主要画面の実装確認
+
+### ログイン・遷移
+- index.html はメールアドレス・パスワードでFirebase Authenticationにログインし、students/{uid}を取得して遷移先を決定する。
+- 管理者判定は isAdmin がbooleanならその値、未設定なら role === "attendance" を使用する。統合方針ではこのフォールバックを段階的に廃止する必要がある。
+- students/{uid} がない場合 unknown_user.html に遷移するが、現ブランチのファイル一覧には unknown_user.html がない。
+- Service Workerはindex.htmlから登録される。
+
+### 管理者ホーム
+- admin_home.html はログイン状態だけを確認し、管理者かどうかを検証していない。
+- 「全生徒の打刻履歴」のリンク先は admin_attendance_all.html だが、実在するファイルは admin_shift_attendance_all.html。
+- 管理者ホームは従業員機能と管理者機能を一画面に縦並びで配置している。
+
+### 管理者向け機能の権限
+- admin_students.html、admin_notifications_create.html、admin_shift_attendance_all.html、admin_late_early.html は、ログイン確認はあるが管理者権限の検証がない。
+- これらは統合時に共通の権限判定へ置き換える。ただし最終的な保護はFirestore Security Rules側で行う。
+
+### シフト・遅刻早退
+- admin_shift_create.html は attendanceGroups/{weekId} に週情報を保存し、attendanceItems に state="出勤予定" のレコードを作成・削除する。
+- employee_shift.html は attendanceItems から対象週の state="出勤予定" を取得する構造。
+- admin_late_early.html は weeklyShifts コレクションを参照しており、シフト作成画面とデータモデルが一致していない。現行運用データを調べずに単純置換しない。
+- admin_shift_create.html は role が "attendance" または "admin" のユーザーをシフト対象から除外する。roleとisAdminの分離方針に合わせて見直す必要がある。
+
+### 通知
+- admin_notifications_create.html は notifications に title, message, target, date を追加する。
+- employee_notifications.html は target == ログインUID で取得する。
+- 通知作成画面に管理者権限検証がない。
+
+### 共有タブレット
+- tablet.html はFirebase Authenticationを使わず、students一覧を読み込み、選択されたUIDを使ってattendanceItemsへ直接書き込む。
+- 現行Firestore Rulesが未認証書き込みを許可している場合にのみ動作する設計と考えられる。安全な代替フローを決めるまで統合版でそのまま再利用しない。
+
+### 旧画面
+- admin.html / user.html はFirebase SDK 10.7.0を使用し、user.htmlはattendanceコレクションへ記録する旧形式。
+- 現行のemployee_attendance.htmlはattendanceItemsへ記録する。旧画面が利用中か確認し、未使用と確認できた後に整理する。
+
+## 要件定義書・設計書について
+
+リポジトリには次の2つのDOCXファイルが存在することを確認した。
+- 📘 出勤管理システム 要件定義書 Ver.docx
+- 📗 出勤管理システム 実装向け設計書 Ver.docx
+
+ただしGitHub Connectorのファイル取得ではDOCXのバイナリ本文をテキストとして解析できなかったため、内容の照合は未完了。正確に照合するため、この2ファイルだけをこのチャットに添付してもらう必要がある。
+
+## 追加調査後の判断
+
+ここでは既存の画面・データを変更していない。特に権限・シフトデータ・共有タブレットの挙動は、要件書と実データを確認してから修正方針を確定する。
