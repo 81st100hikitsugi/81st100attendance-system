@@ -132,7 +132,9 @@
 
 <script type="module">
   import { collection, getDocs, query, where, doc, setDoc, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { db } from "./shared/firebase.js";
+  import { auth, db } from "./shared/firebase.js";
+  import { requireAdmin } from "./shared/auth.js";
+  import { mountAppShell } from "./shared/app-shell.js";
 
   const $ = (id) => document.getElementById(id);
   let students = [];
@@ -376,11 +378,35 @@
   $("qrManual").addEventListener("keydown",e=>{if(e.key==="Enter") $("qrManualSubmit").click();});
   window.addEventListener("beforeunload",stopCamera);
   clockText(); setInterval(clockText,1000);
-  refreshData().catch(error=>{
-    console.error("初期データ読み込みエラー:",error);
-    setMessage("データを読み込めませんでした。接続状態とFirestoreの設定を確認してください。",true);
-    $("allPeople").textContent="読み込みに失敗しました。";
-    $("shiftPeople").textContent="読み込みに失敗しました。";
+  requireAdmin({
+    loginUrl: "./index.html",
+    deniedUrl: "./employee_home.html",
+    onReady: async ({ profile }) => {
+      mountAppShell({
+        active: "attendance",
+        profile,
+        homeHref: "./home.html",
+        logoutUrl: "./index.html",
+        links: [
+          { id: "home", label: "ホーム", href: "./home.html" },
+          { id: "attendance", label: "出勤", href: "./employee_home.html" },
+          { id: "learning", label: "学習", href: "./learning/index.html" },
+          { id: "wood", label: "木材", href: "./wood/index.html" }
+        ]
+      });
+      try {
+        await refreshData();
+      } catch(error) {
+        console.error("初期データ読み込みエラー:",error);
+        setMessage("データを読み込めませんでした。接続状態とFirestoreの設定を確認してください。",true);
+        $("allPeople").textContent="読み込みに失敗しました。";
+        $("shiftPeople").textContent="読み込みに失敗しました。";
+      }
+    },
+    onError: (error) => {
+      console.error("タブレット画面のログイン確認エラー:", error);
+      setMessage("ログイン情報を確認できませんでした。ログインし直してください。", true);
+    }
   });
 </script>
 </body>
