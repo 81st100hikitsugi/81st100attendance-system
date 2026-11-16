@@ -38,6 +38,7 @@
 
   <a class="button" id="clockInBtn">出勤する</a>
   <a class="button" style="background:#e24a4a;" id="clockOutBtn">退勤する</a>
+  <a class="button" href="./home.html">統合ホームへ戻る</a>
 </div>
 
 <script type="module">
@@ -93,12 +94,7 @@
 
       const data = userDoc.data();
 
-      const isAdmin = typeof data.isAdmin === "boolean"
-        ? data.isAdmin
-        : data.role === "attendance";
-
-      document.getElementById("homeBtn").href =
-        isAdmin ? "admin_home.html" : "employee_home.html";
+      // 共通ホームへ戻る導線は共通ナビゲーションで提供します。
 
     } catch (error) {
       console.error("ユーザー情報取得エラー:", error);
