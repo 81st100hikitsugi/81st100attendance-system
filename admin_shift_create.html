@@ -337,13 +337,7 @@ async function loadStudents() {
       name: docSnap.data().name,
       role: docSnap.data().role
     }))
-
-    .filter(student =>
-  student.role !== "attendance" &&
-  student.role !== "admin"
-)
-
-    .sort((a, b) =>
+.sort((a, b) =>
       (a.name || "").localeCompare(
         b.name || "",
         "ja"
