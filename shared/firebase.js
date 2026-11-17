@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, enableMultiTabIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
@@ -15,3 +15,12 @@ const firebaseConfig = {
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Enable shared IndexedDB cache for read-only offline access where supported.
+// The application still disables all write controls while navigator.onLine is false.
+export const persistenceReady = enableMultiTabIndexedDbPersistence(db)
+  .then(() => true)
+  .catch((error) => {
+    console.warn("Firestore offline cache is unavailable:", error);
+    return false;
+  });
