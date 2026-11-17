@@ -67,7 +67,7 @@ async function load(){
  status("データを読み込んでいます...");
  const [g,i]=await Promise.all([getDocs(collection(db,"woodGroups")),getDocs(collection(db,"woodItems"))]);
  groups=g.docs.map(d=>({id:d.id,...d.data()}));items=i.docs.map(d=>({id:d.id,...d.data()}));
- refreshAssigneeOptions();restoreFilters();if(!Object.keys(activeFilters).length)clear();else render();status("読み込み完了");
+ refreshAssigneeOptions();restoreFilters();if(!Object.keys(activeFilters).length)clear();else render();if(!online)status("オフライン中のため閲覧のみ利用できます。");else status("読み込み完了");
 }
 function selectedValues(id){return [...$(id).selectedOptions].map(o=>o.value)}
 function render(){
