@@ -59,15 +59,18 @@ function renderLogs(){const box=$("historyList");box.replaceChildren();if(!logs.
 async function saveItems(changes){
  if(!changes.length)return;status("保存しています...");
  try{
-  const batch=writeBatch(db),now=serverTimestamp();
-  for(const c of changes){
-   const old=c.item,newState=[c.process,c.progress].filter(Boolean).join(" / ")||"未着手",oldState=stateName(old),changed=oldState!==newState||assigneeName(old)!==c.assignee||String(old.notes||"")!==c.notes;
-   if(!changed)continue;
-   const itemRef=doc(db,"woodItems",old.id),historyEntry={oldState,newState,updatedBy:user.uid,updatedByName:profile.name||user.email||"",updatedAt:new Date().toISOString(),notes:c.notes};
-   batch.update(itemRef,{process:c.process,progress:c.process==="未着手"||c.process==="完了"?null:c.progress||"予約",assignee:c.assignee,assigneeName:c.assignee,notes:c.notes,updatedBy:user.uid,updatedAt:now,history:[...(old.history||[]),historyEntry]});
-   const logRef=doc(collection(db,"historyLogs"));batch.set(logRef,{itemId:old.id,groupId,oldProcess:old.process||"未着手",newProcess:c.process,oldProgress:old.progress||null,newProgress:c.process==="未着手"||c.process==="完了"?null:c.progress||"予約",oldState,newState,updatedBy:user.uid,updatedByName:profile.name||user.email||"",updatedAt:now,notes:c.notes});
+  const now=serverTimestamp();
+  for(let offset=0;offset<changes.length;offset+=200){
+   const batch=writeBatch(db);
+   for(const c of changes.slice(offset,offset+200)){
+    const old=c.item,newState=[c.process,c.progress].filter(Boolean).join(" / ")||"未着手",oldState=stateName(old),changed=oldState!==newState||assigneeName(old)!==c.assignee||String(old.notes||"")!==c.notes;
+    if(!changed)continue;
+    const itemRef=doc(db,"woodItems",old.id),historyEntry={oldState,newState,updatedBy:user.uid,updatedByName:profile.name||user.email||"",updatedAt:new Date().toISOString(),notes:c.notes};
+    batch.update(itemRef,{process:c.process,progress:c.process==="未着手"||c.process==="完了"?null:c.progress||"予約",assignee:c.assignee,assigneeName:c.assignee,notes:c.notes,updatedBy:user.uid,updatedAt:now,history:[...(old.history||[]),historyEntry]});
+    const logRef=doc(collection(db,"historyLogs"));batch.set(logRef,{itemId:old.id,groupId,oldProcess:old.process||"未着手",newProcess:c.process,oldProgress:old.progress||null,newProgress:c.process==="未着手"||c.process==="完了"?null:c.progress||"予約",oldState,newState,updatedBy:user.uid,updatedByName:profile.name||user.email||"",updatedAt:now,notes:c.notes});
+   }
+   await batch.commit();
   }
-  await batch.commit();
   const refreshed=await getDocs(query(collection(db,"woodItems"),where("groupId","==",groupId))),next=refreshed.docs.map(d=>({id:d.id,...d.data()}));
   await updateDoc(doc(db,"woodGroups",groupId),{representativeState:representative(next),check:next.length>0&&next.every(i=>i.check===true),updatedAt:now});
   await load();status(changes.length+" 件の更新を保存しました。");
