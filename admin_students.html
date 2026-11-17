@@ -119,14 +119,16 @@
             const nextQr = qr.value.trim();
             const duplicate = [...identifierRecords.entries()].find(([otherId, otherData]) => {
               if (otherId === id) return false;
-              return (nextPin && otherData.pin === nextPin) || (nextQr && otherData.qr === nextQr);
+              const otherIdentifiers = [otherId, otherData.pin, otherData.qr].filter(Boolean);
+              return [nextPin, nextQr].filter(Boolean).some(value => otherIdentifiers.includes(value));
             });
             if (duplicate) {
               const [duplicateId, duplicateData] = duplicate;
               const duplicateName = duplicateData.name || duplicateId;
               const conflicts = [];
-              if (nextPin && duplicateData.pin === nextPin) conflicts.push("PIN");
-              if (nextQr && duplicateData.qr === nextQr) conflicts.push("QR識別値");
+              const otherIdentifiers = [duplicateId, duplicateData.pin, duplicateData.qr];
+              if (nextPin && otherIdentifiers.includes(nextPin)) conflicts.push("PIN");
+              if (nextQr && otherIdentifiers.includes(nextQr)) conflicts.push("QR識別値");
               $( "statusMessage" ).textContent = conflicts.join("・") + "が「" + duplicateName + "」さんと重複しています。別の値を設定してください。";
               return;
             }
