@@ -166,3 +166,17 @@ Firebase AuthenticationとFirestoreを使用し、フロントエンドはFireba
 ### 学習情報管理のソースについて（2026-11-17更新）
 
 学習情報管理のソース一式がintegration-developmentのlearning-info-site/public/へ追加されたため、主要HTML・JavaScript・CSS・Service Workerの調査を開始した。調査結果と移行計画はdocs/learning-integration-plan.mdを参照。旧Firebaseプロジェクト、Firestore実データ、Security Rulesは未変更であり、実データ移行と権限切替は未実施。
+
+
+## 木材管理の統合実装状況（2026-11-18更新）
+
+木材管理の初期画面を `wood/` に追加した。
+
+- `wood/index.html`: グループ一覧、一覧フィルター、管理者によるまとめ行CRUD
+- `wood/detail.html`: 個別木材の状態・担当・備考・確認更新、一括更新、予約、履歴、管理者による個別行追加・削除
+- `docs/wood-management-implementation.md`: 仕様、データ項目、実装範囲、未検証事項
+- `firestore.rules`: 木材の一般ユーザー更新を許可する開発用Rules案を追加。個別木材の許可フィールド、工程・進行値、予約者、履歴追加を検証する。
+
+共通ナビゲーションの木材リンクと、統合ホームの予約中木材表示から接続できる構成にした。
+
+現時点では静的JavaScript構文チェックまで。Firebase実機接続、Rules Emulator、既存データ互換性、オフライン読み取り専用化は未検証。Rulesデプロイ、実データ変更、mainへのマージ、本番公開は行っていない。
