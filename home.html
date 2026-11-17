@@ -194,7 +194,8 @@
     requireUser({
       loginUrl: "./index.html",
       onReady: async ({ user, profile }) => {
-        byId("welcomeTitle").textContent = "ようこそ、" + (profile.name || user.email || "ユーザー") + " さん";\n        byId("adminPanel").hidden = profile.isAdmin !== true;
+        byId("welcomeTitle").textContent = "ようこそ、" + (profile.name || user.email || "ユーザー") + " さん";
+        byId("adminPanel").hidden = profile.isAdmin !== true;
         mountAppShell({
           active: "home",
           profile,
