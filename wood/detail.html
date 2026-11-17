@@ -61,7 +61,8 @@ function render(){
 }
 function renderLogs(){const box=$("historyList");box.replaceChildren();if(!logs.length){const p=document.createElement("p");p.className="empty";p.textContent="履歴はまだありません。";box.append(p);return}for(const log of logs){const e=document.createElement("div");e.className="history-entry";const title=document.createElement("strong");title.textContent=(log.itemName||"個別木材")+"： "+(log.oldState||"—")+" → "+(log.newState||"—");const detail=document.createElement("div");detail.className="muted";detail.textContent=[log.updatedByName||log.updatedBy||"",dateValue(log.updatedAt),log.notes||""].filter(Boolean).join(" / ");e.append(title,detail);box.append(e)}}
 async function saveItems(changes){
- if(!changes.length)return;status("保存しています...");
+  if(!online){status("オフライン中は更新できません。",true);return}
+  if(!changes.length)return;status("保存しています...");
  try{
   const now=serverTimestamp();
   for(let offset=0;offset<changes.length;offset+=200){
