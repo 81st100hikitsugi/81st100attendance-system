@@ -141,6 +141,7 @@
   let cameraStream = null;
   let scanTimer = null;
   let currentMode = "A";
+  const stampingUsers = new Set();
   const recentActions = [];
 
   function todayRange() {
@@ -271,8 +272,14 @@
   async function stamp(state, mode) {
     const student=selected[mode];
     if (!student) { setMessage("先に対象者を選択してください。",true); return; }
+    if (stampingUsers.has(student.id)) {
+      setMessage((student.name || "対象者")+" さんの打刻を処理中です。少しお待ちください。",true);
+      return;
+    }
+    stampingUsers.add(student.id);
     const now=new Date();
-    const docId=student.id+"_"+now.getTime();
+    const uniquePart=globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2);
+    const docId=student.id+"_"+now.getTime()+"_"+uniquePart;
     const buttons=document.querySelectorAll("#mode"+mode+" button[data-stamp]");
     buttons.forEach(b=>b.disabled=true);
     try {
@@ -296,6 +303,7 @@
       console.error("打刻保存エラー:",error);
       setMessage("打刻に失敗しました。通信状況を確認してください。",true);
     } finally {
+      stampingUsers.delete(student.id);
       buttons.forEach(b=>b.disabled=false);
     }
   }
