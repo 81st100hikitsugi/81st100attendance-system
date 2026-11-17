@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#2878c8"><title>木材管理</title>
+<link rel="stylesheet" href="../shared/app-shell.css">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#202833;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+main{width:min(1240px,calc(100% - 28px));margin:24px auto 90px}.heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.heading h1{margin:0 0 6px;font-size:1.7rem}.muted{color:#667085}.panel{background:#fff;border:1px solid #e1e6ed;border-radius:14px;padding:18px;margin:16px 0;box-shadow:0 2px 8px #172b4d08}
+button,a.button{border:0;border-radius:8px;padding:10px 14px;background:#2878c8;color:#fff;font:inherit;font-weight:650;cursor:pointer;text-decoration:none;display:inline-block}button.secondary,a.secondary{background:#e9eef5;color:#334155}button.danger{background:#b93838}button:disabled{opacity:.55;cursor:not-allowed}
+.filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:5px;min-width:0}.field label{font-size:.86rem;color:#526174;font-weight:650}.field input,.field select{width:100%;min-width:0;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;font:inherit}.filter-actions{display:flex;gap:8px;align-items:end}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:850px}th,td{padding:11px 10px;border-bottom:1px solid #edf0f4;text-align:left;vertical-align:middle}th{background:#f7f9fc;font-size:.84rem;color:#526174;white-space:nowrap}tbody tr:hover{background:#f8fbff}.group-link{font-weight:700;color:#1767ae;text-decoration:none}.pill{display:inline-block;padding:3px 8px;border-radius:99px;background:#edf2f7;font-size:.82rem}.empty{padding:22px;text-align:center;color:#667085}.status{min-height:24px;color:#526174}.admin-tools{display:flex;gap:8px;flex-wrap:wrap}.modal{position:fixed;inset:0;background:#10182888;display:none;align-items:center;justify-content:center;padding:16px;z-index:1000}.modal.open{display:flex}.dialog{width:min(560px,100%);max-height:90vh;overflow:auto;background:white;border-radius:14px;padding:20px}.dialog h2{margin-top:0}.dialog-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.dialog-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}.hint{font-size:.82rem;color:#667085}
+@media(max-width:760px){.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.dialog-grid{grid-template-columns:1fr}.panel{padding:14px}}
+@media(max-width:430px){.filters{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+  <header class="heading"><div><h1>木材管理</h1><div class="muted">木材グループと個別木材の状態を確認・更新できます。</div></div><div id="adminTools" class="admin-tools" hidden><button id="addGroup">＋ まとめ行を登録</button></div></header>
+  <section class="panel">
+    <h2>一覧フィルター</h2>
+    <div class="filters">
+      <div class="field"><label for="nameFilter">名称</label><input id="nameFilter" placeholder="名称で検索"></div>
+      <div class="field"><label for="materialFilter">素材</label><input id="materialFilter" placeholder="素材で検索"></div>
+      <div class="field"><label for="lengthMin">長さ（最小）</label><input id="lengthMin" type="number" min="0" step="any" placeholder="最小値"></div>
+      <div class="field"><label for="lengthMax">長さ（最大）</label><input id="lengthMax" type="number" min="0" step="any" placeholder="最大値"></div>
+      <div class="field"><label for="quantitySort">数量順</label><select id="quantitySort"><option value="">指定なし</option><option value="asc">少ない順</option><option value="desc">多い順</option></select></div>
+      <div class="field"><label for="processFilter">工程</label><select id="processFilter" multiple size="4"><option>未着手</option><option>罫書き</option><option>切断</option><option>やすり</option><option>組立</option><option>完了</option></select></div>
+      <div class="field"><label for="progressFilter">進行</label><select id="progressFilter" multiple size="3"><option>予約</option><option>中</option><option>終了</option><option value="なし">なし</option></select></div>
+      <div class="field"><label for="assigneeFilter">担当者</label><select id="assigneeFilter" multiple size="4"></select></div>
+      <div class="field"><label for="notesFilter">備考</label><select id="notesFilter"><option value="">すべて</option><option value="has">備考あり</option><option value="none">備考なし</option></select></div>
+      <div class="filter-actions"><button id="applyFilters">適用</button><button id="clearFilters" class="secondary">クリア</button></div>
+    </div>
+    <p class="hint">複数選択した項目は各フィルター内でOR、異なるフィルター同士はANDで絞り込みます。</p>
+  </section>
+  <section class="panel">
+    <div class="heading"><h2>木材一覧</h2><span id="resultCount" class="muted"></span></div>
+    <div class="table-wrap"><table><thead><tr><th>名称</th><th>素材</th><th>長さ</th><th>数量</th><th>代表状態</th><th>チェック</th><th>備考</th></tr></thead><tbody id="groupRows"><tr><td colspan="7" class="empty">読み込み中...</td></tr></tbody></table></div>
+  </section>
+  <p id="status" class="status" role="status"></p>
+</main>
+<div id="groupModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+ <form id="groupForm" class="dialog"><h2 id="modalTitle">まとめ行を登録</h2><input type="hidden" id="groupId">
+  <div class="dialog-grid">
+   <div class="field"><label for="groupName">名称</label><input id="groupName" required maxlength="120"></div>
+   <div class="field"><label for="groupMaterial">素材</label><input id="groupMaterial" maxlength="80"></div>
+   <div class="field"><label for="groupLength">長さ</label><input id="groupLength" type="number" min="0" step="any"></div>
+   <div class="field"><label for="groupQuantity">数量</label><input id="groupQuantity" type="number" min="1" max="400" step="1" required value="1"></div>
+   <div class="field" style="grid-column:1/-1"><label for="groupNotes">備考</label><input id="groupNotes" maxlength="1000"></div>
+  </div><p id="quantityHint" class="hint">新規登録時は数量分の個別木材を作成します。既存グループの数量変更は個別木材の増減も反映します。</p>
+  <div class="dialog-actions"><button type="button" id="cancelGroup" class="secondary">キャンセル</button><button type="submit" id="saveGroup">保存</button></div>
+ </form>
+</div>
+<script type="module">
+import {collection,getDocs,doc,addDoc,updateDoc,deleteDoc,writeBatch,query,where,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {db} from "../shared/firebase.js";
+import {requireUser,requireAdmin} from "../shared/auth.js";
+import {mountAppShell} from "../shared/app-shell.js";
+const $=id=>document.getElementById(id), processes=["未着手","罫書き","切断","やすり","組立","完了"];
+let currentUser=null,profile=null,isAdmin=false,groups=[],items=[],students=[],activeFilters={};
+const status=(s,error=false)=>{$("status").textContent=s;$("status").style.color=error?"#b93838":"#526174"};
+const text=(v)=>String(v??"");
+const assigneeOf=x=>x.assigneeName||x.assignee||x.assignedToName||x.assignedTo||"";
+const stateOf=x=>x.process==="未着手"||x.process==="完了"?x.process:[x.process,x.progress].filter(Boolean).join(" / ");
+function options(select,values){select.replaceChildren();for(const value of values){const o=document.createElement("option");o.value=value;o.textContent=value;select.append(o)}}
+function refreshAssigneeOptions(){const values=[...new Set([...items.map(assigneeOf),...students.map(s=>s.name)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ja"));options($("assigneeFilter"),values)}
+async function load(){
+ status("データを読み込んでいます...");
+ const [g,i,s]=await Promise.all([getDocs(collection(db,"woodGroups")),getDocs(collection(db,"woodItems")),getDocs(collection(db,"students"))]);
+ groups=g.docs.map(d=>({id:d.id,...d.data()}));items=i.docs.map(d=>({id:d.id,...d.data()}));students=s.docs.map(d=>({id:d.id,...d.data()}));
+ refreshAssigneeOptions();render();status("読み込み完了");
+}
+function selectedValues(id){return [...$(id).selectedOptions].map(o=>o.value)}
+function render(){
+ const f=activeFilters, body=$("groupRows");body.replaceChildren();
+ let list=groups.filter(g=>{
+  const its=items.filter(i=>i.groupId===g.id), name=text(g.name).toLocaleLowerCase(),material=text(g.material).toLocaleLowerCase();
+  if(f.name&&!name.includes(f.name.toLocaleLowerCase()))return false;
+  if(f.material&&!material.includes(f.material.toLocaleLowerCase()))return false;
+  const length=Number(g.length);if(f.min!==""&&(!Number.isFinite(length)||length<Number(f.min)))return false;if(f.max!==""&&(!Number.isFinite(length)||length>Number(f.max)))return false;
+  if(f.process.length&&!its.some(i=>f.process.includes(i.process)))return false;
+  if(f.progress.length&&!its.some(i=>f.progress.includes(i.progress||"なし")))return false;
+  if(f.assignees.length&&!its.some(i=>f.assignees.includes(assigneeOf(i))))return false;
+  const notes=its.some(i=>text(i.notes).trim())||text(g.notes).trim();if(f.notes==="has"&&!notes)return false;if(f.notes==="none"&&notes)return false;
+  return true;
+ });
+ if(f.sort)list.sort((a,b)=>(Number(a.quantity)||0)-(Number(b.quantity)||0)*(f.sort==="asc"?1:-1));
+ $("resultCount").textContent=list.length+" 件";
+ if(!list.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=7;td.className="empty";td.textContent="条件に一致する木材はありません。";tr.append(td);body.append(tr);return}
+ for(const g of list){
+  const tr=document.createElement("tr");
+  const name=document.createElement("td"),link=document.createElement("a");link.className="group-link";link.href="./detail.html?id="+encodeURIComponent(g.id);link.textContent=g.name||"名称未設定";name.append(link);
+  const vals=[g.material||"—",g.length??"—",g.quantity??items.filter(i=>i.groupId===g.id).length,g.representativeState||"未着手",g.check?"✓":"—",g.notes||""];
+  tr.append(name);for(let n=0;n<vals.length;n++){const td=document.createElement("td");td.textContent=text(vals[n]);if(n===3){const pill=document.createElement("span");pill.className="pill";pill.textContent=text(vals[n]);td.replaceChildren(pill)}tr.append(td)}
+  if(isAdmin){tr.title="管理者は行を選択して編集できます";tr.addEventListener("contextmenu",e=>{e.preventDefault();editGroup(g)})}
+  body.append(tr);
+ }
+}
+function apply(){activeFilters={name:$("nameFilter").value.trim(),material:$("materialFilter").value.trim(),min:$("lengthMin").value,max:$("lengthMax").value,sort:$("quantitySort").value,process:selectedValues("processFilter"),progress:selectedValues("progressFilter"),assignees:selectedValues("assigneeFilter"),notes:$("notesFilter").value};render()}
+function clear(){for(const id of ["nameFilter","materialFilter","lengthMin","lengthMax","quantitySort","notesFilter"])$(id).value="";for(const id of ["processFilter","progressFilter","assigneeFilter"])for(const o of $(id).options)o.selected=false;activeFilters={name:"",material:"",min:"",max:"",sort:"",process:[],progress:[],assignees:[],notes:""};render()}
+function openModal(g=null){$("groupForm").reset();$("groupId").value=g?.id||"";$("modalTitle").textContent=g?"まとめ行を編集":"まとめ行を登録";$("groupName").value=g?.name||"";$("groupMaterial").value=g?.material||"";$("groupLength").value=g?.length??"";$("groupQuantity").value=g?.quantity??1;$("groupNotes").value=g?.notes||"";$("quantityHint").textContent=g?"数量を変更すると個別木材の数も調整します。":"新規登録時は数量分の個別木材を作成します。";$("groupModal").classList.add("open")}
+function editGroup(g){if(!isAdmin)return;openModal(g)}
+function closeModal(){$("groupModal").classList.remove("open")}
+$("applyFilters").addEventListener("click",apply);$("clearFilters").addEventListener("click",clear);$("addGroup").addEventListener("click",()=>openModal());$("cancelGroup").addEventListener("click",closeModal);
+$("groupRows").addEventListener("dblclick",e=>{const a=e.target.closest("a");if(a&&isAdmin){const g=groups.find(x=>x.id===decodeURIComponent(a.href.split("id=")[1]||""));if(g)editGroup(g)}});
+$("groupForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!isAdmin)return;const save=$("saveGroup");save.disabled=true;
+ try{
+  const name=$("groupName").value.trim(),material=$("groupMaterial").value.trim(),length=$("groupLength").value===""?null:Number($("groupLength").value),quantity=Number($("groupQuantity").value),notes=$("groupNotes").value.trim(),id=$("groupId").value;
+  if(!name||!Number.isInteger(quantity)||quantity<1||quantity>400|| (length!==null&&(!Number.isFinite(length)||length<0)))throw new Error("名称・長さ・数量を確認してください。");
+  if(!id){
+   const groupRef=doc(collection(db,"woodGroups")),batch=writeBatch(db);batch.set(groupRef,{name,material,length,quantity,representativeState:"未着手",notes,check:false,createdBy:currentUser.uid,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+   for(let n=0;n<quantity;n++){const itemRef=doc(collection(db,"woodItems"));batch.set(itemRef,{groupId:groupRef.id,process:"未着手",progress:null,assignee:"",assigneeName:"",updatedBy:currentUser.uid,updatedAt:serverTimestamp(),notes:"",check:false,history:[]})}
+   await batch.commit();
+  }else{
+   const existing=items.filter(x=>x.groupId===id),batch=writeBatch(db);batch.update(doc(db,"woodGroups",id),{name,material,length,quantity,notes,updatedAt:serverTimestamp()});
+   if(quantity>existing.length)for(let n=existing.length;n<quantity;n++){const itemRef=doc(collection(db,"woodItems"));batch.set(itemRef,{groupId:id,process:"未着手",progress:null,assignee:"",assigneeName:"",updatedBy:currentUser.uid,updatedAt:serverTimestamp(),notes:"",check:false,history:[]})}
+   if(quantity<existing.length)for(const item of existing.slice(quantity)){batch.delete(doc(db,"woodItems",item.id))}
+   await batch.commit();
+  }
+  closeModal();await load();status("まとめ行を保存しました。");
+ }catch(err){console.error(err);status(err.message||"保存に失敗しました。",true)}finally{save.disabled=false}
+});
+function boot(ctx,admin){currentUser=ctx.user;profile=ctx.profile;isAdmin=admin;mountAppShell({active:"wood",profile,homeHref:"../home.html",logoutUrl:"../index.html",links:[{id:"home",label:"ホーム",href:"../home.html"},{id:"attendance",label:"出勤",href:"../employee_home.html"},{id:"learning",label:"学習",href:"../learning/index.html"},{id:"wood",label:"木材",href:"./index.html"}]});$("adminTools").hidden=!isAdmin;load().catch(e=>{console.error(e);status("木材データを読み込めませんでした。",true)})}
+requireUser({loginUrl:"../index.html",onReady:ctx=>{if(ctx.profile.isAdmin===true){boot(ctx,true)}else{boot(ctx,false)}},onError:e=>status(e.message,true)});
+</script>
+</body></html>
