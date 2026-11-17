@@ -98,9 +98,11 @@ service cloud.firestore {
             || request.resource.data.reservedBy == resource.data.reservedBy
             || resource.data.reservedBy == null
             || resource.data.reservedBy == request.auth.uid)
-          && ((!('history' in resource.data) && request.resource.data.history.size() == 1)
-            || request.resource.data.history == resource.data.history
-            || request.resource.data.history.size() == resource.data.history.size() + 1)
+          && ((!('history' in resource.data) && !('history' in request.resource.data))
+            || (!('history' in resource.data) && request.resource.data.history.size() == 1)
+            || (('history' in resource.data)
+              && (request.resource.data.history == resource.data.history
+                || request.resource.data.history.size() == resource.data.history.size() + 1)))
           && validWoodProcess(request.resource.data.process)
           && validWoodProgress(request.resource.data.process, request.resource.data.progress));
     }
