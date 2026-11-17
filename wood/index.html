@@ -79,7 +79,7 @@ function render(){
  let list=groups.filter(g=>{
   const its=items.filter(i=>i.groupId===g.id), name=text(g.name).toLocaleLowerCase(),material=text(g.material).toLocaleLowerCase();
   if(f.name&&!f.name.toLocaleLowerCase().split(/[\s　]+/).filter(Boolean).some(word=>name.includes(word)))return false;
-  if(f.material&&!f.material.toLocaleLowerCase().split(/[\\s　,、，]+/).filter(Boolean).some(word=>material.includes(word)))return false;
+  if(f.material&&!f.material.toLocaleLowerCase().split(/[\s　,、，]+/).filter(Boolean).some(word=>material.includes(word)))return false;
   const hasLength=g.length!==null&&g.length!==undefined&&g.length!=="";const length=Number(g.length);if(f.lengthMode==="tolerance"&&f.target!==""){if(!hasLength||!Number.isFinite(length)||Math.abs(length-Number(f.target))>Number(f.tolerance||0))return false}else if(f.lengthMode==="range"&&((f.min!==""&&(!hasLength||!Number.isFinite(length)||length<Number(f.min)))||(f.max!==""&&(!hasLength||!Number.isFinite(length)||length>Number(f.max)))))return false;
   if(f.process.length&&!its.some(i=>f.process.includes(i.process)))return false;
   if(f.progress.length&&!its.some(i=>f.progress.includes(i.progress||"なし")))return false;
