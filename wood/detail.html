@@ -45,8 +45,8 @@ function makeRow(item){
 async function readDocs(ref){try{return await getDocs(ref)}catch(error){if(!navigator.onLine)return await getDocsFromCache(ref);throw error}}
 async function load(){
  await persistenceReady;
- const [g,i,h]=await Promise.all([readDocs(collection(db,"woodGroups")),readDocs(query(collection(db,"woodItems"),where("groupId","==",groupId))),readDocs(query(collection(db,"historyLogs"),where("groupId","==",groupId)))]);
- group=g.docs.find(d=>d.id===groupId)?{id:groupId,...g.docs.find(d=>d.id===groupId).data()}:null;
+ const [g,i,h]=await Promise.all([getDoc(doc(db,"woodGroups",groupId)),readDocs(query(collection(db,"woodItems"),where("groupId","==",groupId))),readDocs(query(collection(db,"historyLogs"),where("groupId","==",groupId)))]);
+ group=g.exists()?{id:groupId,...g.data()}:null;
  if(!group){status("木材グループが見つかりません。",true);return}
  items=i.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.id).localeCompare(String(b.id)));
  logs=h.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>timeMs(b.updatedAt)-timeMs(a.updatedAt));
