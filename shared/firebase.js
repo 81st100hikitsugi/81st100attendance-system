@@ -18,7 +18,8 @@ export const db = getFirestore(app);
 
 // Enable shared IndexedDB cache for read-only offline access where supported.
 // The application still disables all write controls while navigator.onLine is false.
-export const persistenceReady = enableMultiTabIndexedDbPersistence(db)
+export const persistenceReady = Promise.resolve()
+  .then(() => enableMultiTabIndexedDbPersistence(db))
   .then(() => true)
   .catch((error) => {
     console.warn("Firestore offline cache is unavailable:", error);
