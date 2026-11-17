@@ -63,6 +63,17 @@
         <a href="./wood/index.html">木材管理を開く →</a>
       </section>
 
+      <section class="panel panel-wide" id="adminPanel" hidden aria-labelledby="adminTitle">
+        <h2 id="adminTitle">管理者メニュー</h2>
+        <div class="system-links">
+          <a class="system-link" href="./admin_home.html"><strong>出勤管理の管理</strong><span>管理者向け機能一覧</span></a>
+          <a class="system-link" href="./admin_students.html"><strong>ユーザー管理</strong><span>ユーザー情報・PIN・QRコード</span></a>
+          <a class="system-link" href="./admin_shift_create.html"><strong>シフト作成</strong><span>週単位のシフトを作成・編集</span></a>
+          <a class="system-link" href="./admin_shift_attendance_all.html"><strong>打刻履歴</strong><span>全員の出退勤記録</span></a>
+          <a class="system-link" href="./admin_notifications_create.html"><strong>通知作成</strong><span>ユーザーへのお知らせ</span></a>
+          <a class="system-link" href="./learning/admin/dictionary.html"><strong>学習検索辞書</strong><span>検索用の別表記を管理</span></a>
+        </div>
+      </section>
       <section class="panel panel-wide" aria-labelledby="systemsTitle">
         <h2 id="systemsTitle">システム</h2>
         <div class="system-links">
@@ -182,7 +193,7 @@
     requireUser({
       loginUrl: "./index.html",
       onReady: async ({ user, profile }) => {
-        byId("welcomeTitle").textContent = "ようこそ、" + (profile.name || user.email || "ユーザー") + " さん";
+        byId("welcomeTitle").textContent = "ようこそ、" + (profile.name || user.email || "ユーザー") + " さん";\n        byId("adminPanel").hidden = profile.isAdmin !== true;
         mountAppShell({
           active: "home",
           profile,
