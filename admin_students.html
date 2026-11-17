@@ -65,6 +65,14 @@
     try{
       const snapshot=await getDocs(collection(db,"students"));
       if(snapshot.empty){$("statusMessage").textContent="利用者が登録されていません。";return;}
+      const identifierRecords = new Map(snapshot.docs.map(snap => {
+        const value = snap.data();
+        return [snap.id, {
+          name: value.name || snap.id,
+          pin: String(value.pin ?? value.attendancePin ?? "").trim(),
+          qr: String(value.qrToken ?? value.qrCode ?? "").trim()
+        }];
+      }));
       snapshot.docs.sort((a,b)=>String(a.data().name||"").localeCompare(String(b.data().name||""),"ja")).forEach(snap=>{
         const data=snap.data(), id=snap.id;
         const tr=document.createElement("tr");
@@ -109,19 +117,16 @@
           try{
             const nextPin = pin.value.trim();
             const nextQr = qr.value.trim();
-            const duplicate = snapshot.docs.find(other => {
-              if (other.id === id) return false;
-              const otherData = other.data();
-              const otherPin = String(otherData.pin ?? otherData.attendancePin ?? "").trim();
-              const otherQr = String(otherData.qrToken ?? otherData.qrCode ?? "").trim();
-              return (nextPin && otherPin === nextPin) || (nextQr && otherQr === nextQr);
+            const duplicate = [...identifierRecords.entries()].find(([otherId, otherData]) => {
+              if (otherId === id) return false;
+              return (nextPin && otherData.pin === nextPin) || (nextQr && otherData.qr === nextQr);
             });
             if (duplicate) {
-              const duplicateName = duplicate.data().name || duplicate.id;
+              const [duplicateId, duplicateData] = duplicate;
+              const duplicateName = duplicateData.name || duplicateId;
               const conflicts = [];
-              const otherData = duplicate.data();
-              if (nextPin && String(otherData.pin ?? otherData.attendancePin ?? "").trim() === nextPin) conflicts.push("PIN");
-              if (nextQr && String(otherData.qrToken ?? otherData.qrCode ?? "").trim() === nextQr) conflicts.push("QR識別値");
+              if (nextPin && duplicateData.pin === nextPin) conflicts.push("PIN");
+              if (nextQr && duplicateData.qr === nextQr) conflicts.push("QR識別値");
               $( "statusMessage" ).textContent = conflicts.join("・") + "が「" + duplicateName + "」さんと重複しています。別の値を設定してください。";
               return;
             }
@@ -129,6 +134,7 @@
               pin:nextPin,
               qrToken:nextQr
             });
+            identifierRecords.set(id, { name: name.textContent, pin: nextPin, qr: nextQr });
             $("statusMessage").textContent=name.textContent+" さんのPIN・QR情報を保存しました。";
             drawQr();
           }catch(error){
