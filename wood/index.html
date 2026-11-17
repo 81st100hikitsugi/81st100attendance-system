@@ -93,7 +93,7 @@ function render(){
  for(const g of list){
   const tr=document.createElement("tr");
   const name=document.createElement("td"),link=document.createElement("a");link.className="group-link";link.href="./detail.html?id="+encodeURIComponent(g.id);link.textContent=g.name||"名称未設定";name.append(link);
-  const vals=[g.material||"—",g.length??"—",g.quantity??items.filter(i=>i.groupId===g.id).length,g.representativeState||"未着手",g.check?"✓":"—",g.notes||""];
+  const vals=[g.material||"—",g.length??"—",its.length,representativeState(its),its.length>0&&its.every(i=>i.check===true)?"✓":"—",g.notes||""];
   tr.append(name);for(let n=0;n<vals.length;n++){const td=document.createElement("td");td.textContent=text(vals[n]);if(n===3){const pill=document.createElement("span");pill.className="pill";pill.textContent=text(vals[n]);td.replaceChildren(pill)}tr.append(td)}
   if(isAdmin){tr.title="管理者は行を選択して編集できます";tr.addEventListener("contextmenu",e=>{e.preventDefault();editGroup(g)})}
   body.append(tr);
