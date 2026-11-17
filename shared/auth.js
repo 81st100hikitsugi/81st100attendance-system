@@ -4,6 +4,7 @@ import { auth, db, persistenceReady } from "./firebase.js";
 
 export async function getUserProfile(user) {
   if (!user) return null;
+  await persistenceReady;
   const snapshot = await getDoc(doc(db, "students", user.uid));
   if (!snapshot.exists()) return null;
   return { uid: user.uid, ...snapshot.data() };
