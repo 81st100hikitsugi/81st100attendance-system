@@ -56,7 +56,7 @@ import {db} from "../shared/firebase.js";
 import {requireUser,requireAdmin} from "../shared/auth.js";
 import {mountAppShell} from "../shared/app-shell.js";
 const $=id=>document.getElementById(id), processes=["未着手","罫書き","切断","やすり","組立","完了"];
-let currentUser=null,profile=null,isAdmin=false,groups=[],items=[],students=[],activeFilters={};
+let currentUser=null,profile=null,isAdmin=false,groups=[],items=[],students=[],activeFilters={},online=navigator.onLine;
 const status=(s,error=false)=>{$("status").textContent=s;$("status").style.color=error?"#b93838":"#526174"};
 const text=(v)=>String(v??"");
 const assigneeOf=x=>x.assigneeName||x.assignee||x.assignedToName||x.assignedTo||"";
@@ -100,15 +100,15 @@ function clear(){for(const id of ["nameFilter","materialFilter","lengthMin","len
 function toggleLengthMode(){const tolerance=$("lengthMode").value==="tolerance";$("rangeMinField").hidden=tolerance;$("rangeMaxField").hidden=tolerance;$("targetLengthField").hidden=!tolerance;$("toleranceField").hidden=!tolerance}
 function restoreFilters(){try{const f=JSON.parse(sessionStorage.getItem("woodListFilters")||"null");if(!f)return;for(const [id,key] of [["nameFilter","name"],["materialFilter","material"],["lengthMode","lengthMode"],["lengthMin","min"],["lengthMax","max"],["lengthTarget","target"],["lengthTolerance","tolerance"],["quantitySort","sort"],["notesFilter","notes"]])if(f[key]!==undefined)$(id).value=f[key];for(const [id,key] of [["processFilter","process"],["progressFilter","progress"],["assigneeFilter","assignees"]])for(const o of $(id).options)o.selected=(f[key]||[]).includes(o.value);activeFilters=f;toggleLengthMode()}catch(e){sessionStorage.removeItem("woodListFilters")}}
 function openModal(g=null){$("groupForm").reset();$("groupId").value=g?.id||"";$("modalTitle").textContent=g?"まとめ行を編集":"まとめ行を登録";$("groupName").value=g?.name||"";$("groupMaterial").value=g?.material||"";$("groupLength").value=g?.length??"";$("groupQuantity").value=g?.quantity??1;$("groupNotes").value=g?.notes||"";$("quantityHint").textContent=g?"数量を変更すると個別木材の数も調整します。":"新規登録時は数量分の個別木材を作成します。";$("groupModal").classList.add("open")}
-function editGroup(g){if(!isAdmin)return;openModal(g)}
-async function removeGroup(g){if(!isAdmin||!confirm("「"+(g.name||"名称未設定")+"」と、その個別木材・履歴を削除しますか？"))return;try{const [itemSnap,logSnap]=await Promise.all([getDocs(query(collection(db,"woodItems"),where("groupId","==",g.id))),getDocs(query(collection(db,"historyLogs"),where("groupId","==",g.id)))]);const refs=[...itemSnap.docs.map(d=>d.ref),...logSnap.docs.map(d=>d.ref),doc(db,"woodGroups",g.id)];for(let n=0;n<refs.length;n+=450){const batch=writeBatch(db);refs.slice(n,n+450).forEach(ref=>batch.delete(ref));await batch.commit()}await load();status("まとめ行と関連データを削除しました。")}catch(e){console.error(e);status("削除できませんでした。",true)}}
+function editGroup(g){if(!isAdmin||!online)return;openModal(g)}
+async function removeGroup(g){if(!isAdmin||!online||!confirm("「"+(g.name||"名称未設定")+"」と、その個別木材・履歴を削除しますか？"))return;try{const [itemSnap,logSnap]=await Promise.all([getDocs(query(collection(db,"woodItems"),where("groupId","==",g.id))),getDocs(query(collection(db,"historyLogs"),where("groupId","==",g.id)))]);const refs=[...itemSnap.docs.map(d=>d.ref),...logSnap.docs.map(d=>d.ref),doc(db,"woodGroups",g.id)];for(let n=0;n<refs.length;n+=450){const batch=writeBatch(db);refs.slice(n,n+450).forEach(ref=>batch.delete(ref));await batch.commit()}await load();status("まとめ行と関連データを削除しました。")}catch(e){console.error(e);status("削除できませんでした。",true)}}
 function closeModal(){$("groupModal").classList.remove("open")}
 $("applyFilters").addEventListener("click",apply);$("clearFilters").addEventListener("click",clear);$("lengthMode").addEventListener("change",toggleLengthMode);
 document.querySelectorAll("[data-all]").forEach(b=>b.addEventListener("click",()=>{for(const o of $(b.dataset.all).options)o.selected=true}));
 document.querySelectorAll("[data-none]").forEach(b=>b.addEventListener("click",()=>{for(const o of $(b.dataset.none).options)o.selected=false}));$("addGroup").addEventListener("click",()=>openModal());$("cancelGroup").addEventListener("click",closeModal);
 $("groupRows").addEventListener("dblclick",e=>{const a=e.target.closest("a");if(a&&isAdmin){const g=groups.find(x=>x.id===decodeURIComponent(a.href.split("id=")[1]||""));if(g)editGroup(g)}});
 $("groupForm").addEventListener("submit",async e=>{
- e.preventDefault();if(!isAdmin)return;const save=$("saveGroup");save.disabled=true;
+ e.preventDefault();if(!isAdmin||!online){status("オフライン中は閲覧のみ利用できます。",true);return}const save=$("saveGroup");save.disabled=true;
  try{
   const name=$("groupName").value.trim(),material=$("groupMaterial").value.trim(),length=$("groupLength").value===""?null:Number($("groupLength").value),quantity=Number($("groupQuantity").value),notes=$("groupNotes").value.trim(),id=$("groupId").value;
   if(!name||!Number.isInteger(quantity)||quantity<1||quantity>400|| (length!==null&&(!Number.isFinite(length)||length<0)))throw new Error("名称・長さ・数量を確認してください。");
@@ -125,7 +125,9 @@ $("groupForm").addEventListener("submit",async e=>{
   closeModal();await load();status("まとめ行を保存しました。");
  }catch(err){console.error(err);status(err.message||"保存に失敗しました。",true)}finally{save.disabled=false}
 });
-function boot(ctx,admin){currentUser=ctx.user;profile=ctx.profile;isAdmin=admin;mountAppShell({active:"wood",profile,homeHref:"../home.html",logoutUrl:"../index.html",links:[{id:"home",label:"ホーム",href:"../home.html"},{id:"attendance",label:"出勤",href:"../employee_home.html"},{id:"learning",label:"学習",href:"../learning/index.html"},{id:"wood",label:"木材",href:"./index.html"}]});$("adminTools").hidden=!isAdmin;$("adminHeader").hidden=!isAdmin;load().catch(e=>{console.error(e);status("木材データを読み込めませんでした。",true)})}
+function updateConnectionState(){online=navigator.onLine;$("addGroup").disabled=!online;$("saveGroup").disabled=!online;document.querySelectorAll(".group-edit,.group-delete").forEach(b=>b.disabled=!online);if(!online)status("オフライン中のため閲覧のみ利用できます。");else if($("status").textContent==="オフライン中のため閲覧のみ利用できます。")status("オンラインに復帰しました。")}
+window.addEventListener("online",updateConnectionState);window.addEventListener("offline",updateConnectionState);
+function boot(ctx,admin){currentUser=ctx.user;profile=ctx.profile;isAdmin=admin;mountAppShell({active:"wood",profile,homeHref:"../home.html",logoutUrl:"../index.html",links:[{id:"home",label:"ホーム",href:"../home.html"},{id:"attendance",label:"出勤",href:"../employee_home.html"},{id:"learning",label:"学習",href:"../learning/index.html"},{id:"wood",label:"木材",href:"./index.html"}]});$("adminTools").hidden=!isAdmin;$("adminHeader").hidden=!isAdmin;updateConnectionState();load().catch(e=>{console.error(e);status("木材データを読み込めませんでした。",true)})}
 requireUser({loginUrl:"../index.html",onReady:ctx=>{if(ctx.profile.isAdmin===true){boot(ctx,true)}else{boot(ctx,false)}},onError:e=>status(e.message,true)});
 </script>
 </body></html>
