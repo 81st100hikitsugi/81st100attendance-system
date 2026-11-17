@@ -74,7 +74,7 @@
         const role=document.createElement("div"); role.className="small"; role.textContent=data.role||"役割未設定";
         nameCell.append(name,role);
         const pinCell=document.createElement("td"), pin=document.createElement("input");
-        pin.type="text"; pin.inputMode="numeric"; pin.autocomplete="off"; pin.placeholder="PINを設定";
+        pin.type="text"; pin.inputMode="numeric"; pin.autocomplete="off"; pin.maxLength=64; pin.placeholder="PINを設定（64文字以内）";
         pin.value=String(data.pin??data.attendancePin??""); pinCell.append(pin);
         const qrCell=document.createElement("td"), qr=document.createElement("input");
         qr.type="text"; qr.autocomplete="off"; qr.placeholder="QR識別値";
