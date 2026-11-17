@@ -106,6 +106,12 @@ service cloud.firestore {
             || (('history' in resource.data)
               && (request.resource.data.history == resource.data.history
                 || request.resource.data.history.size() == resource.data.history.size() + 1)))
+          && (!request.resource.data.diff(resource.data).affectedKeys().hasAny([
+            'process', 'progress', 'assignee', 'assigneeName', 'notes'
+          ])
+            || ((!('history' in resource.data) && request.resource.data.history.size() == 1)
+              || (('history' in resource.data)
+                && request.resource.data.history.size() == resource.data.history.size() + 1)))
           && validWoodProcess(request.resource.data.process)
           && validWoodProgress(request.resource.data.process, request.resource.data.progress));
     }
