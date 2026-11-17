@@ -308,6 +308,7 @@ async function loadShift(weekId) {
   // 管理者ページと同じattendanceItemsを取得
   const attendanceQuery = query(
     collection(db, "attendanceItems"),
+    where("userId", "==", currentUserId),
     where("date", ">=", startTimestamp),
     where("date", "<", endTimestamp)
   );
