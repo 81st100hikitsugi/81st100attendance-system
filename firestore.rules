@@ -55,15 +55,22 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
-    // Wood management: group structure is admin-managed; derived summary fields
-    // may be refreshed by signed-in users after item-level updates.
+    // Wood management: users update individual items; group summary fields are derived.
     match /woodGroups/{groupId} {
       allow read: if signedIn();
       allow create, delete: if isAdmin();
       allow update: if isAdmin()
         || (signedIn()
           && request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['representativeState', 'check', 'updatedAt']));
+            .hasOnly(['representativeState', 'check', 'updatedAt'])
+          && request.resource.data.check is bool
+          && request.resource.data.representativeState in [
+            '未着手', '完了',
+            '罫書き / 予約', '罫書き / 中', '罫書き / 終了',
+            '切断 / 予約', '切断 / 中', '切断 / 終了',
+            'やすり / 予約', 'やすり / 中', 'やすり / 終了',
+            '組立 / 予約', '組立 / 中', '組立 / 終了'
+          ]);
     }
 
     function validWoodProcess(value) {
@@ -87,6 +94,11 @@ service cloud.firestore {
             'reservedBy', 'reservedAt', 'reservedName'
           ])
           && request.resource.data.updatedBy == request.auth.uid
+          && (request.resource.data.reservedBy == resource.data.reservedBy
+            || resource.data.reservedBy == null
+            || resource.data.reservedBy == request.auth.uid)
+          && (request.resource.data.history == resource.data.history
+            || request.resource.data.history.size() == resource.data.history.size() + 1)
           && validWoodProcess(request.resource.data.process)
           && validWoodProgress(request.resource.data.process, request.resource.data.progress));
     }
