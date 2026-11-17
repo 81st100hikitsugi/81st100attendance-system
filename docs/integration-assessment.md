@@ -180,3 +180,13 @@ Firebase AuthenticationとFirestoreを使用し、フロントエンドはFireba
 共通ナビゲーションの木材リンクと、統合ホームの予約中木材表示から接続できる構成にした。
 
 現時点では静的JavaScript構文チェックまで。Firebase実機接続、Rules Emulator、既存データ互換性、オフライン読み取り専用化は未検証。Rulesデプロイ、実データ変更、mainへのマージ、本番公開は行っていない。
+
+
+## 共通ログイン・ホームの接続更新（2026-11-18）
+
+- `index.html` のログイン後遷移先を管理者／一般ユーザー共通で `home.html` に統一した。
+- `home.html` に管理者向けショートカットを追加し、`isAdmin === true` のユーザーだけに表示する。
+- `admin_work_plans.html` を追加し、`dailyWorkPlans` の登録・編集・削除を管理者が行えるようにした。共通ホームには当日分の予定を表示する。
+- 木材画面は共通ホーム・共通ナビゲーションから利用可能。
+
+旧 `admin_home.html` と `employee_home.html` は出勤管理内のメニューとして保持している。共通ログインからは直接遷移しない。
