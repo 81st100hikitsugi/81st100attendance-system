@@ -65,8 +65,8 @@ function options(select,values){select.replaceChildren();for(const value of valu
 function refreshAssigneeOptions(){const values=[...new Set(items.map(assigneeOf).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ja"));options($("assigneeFilter"),values)}
 async function load(){
  status("データを読み込んでいます...");
- const [g,i,s]=await Promise.all([getDocs(collection(db,"woodGroups")),getDocs(collection(db,"woodItems")),getDocs(collection(db,"students"))]);
- groups=g.docs.map(d=>({id:d.id,...d.data()}));items=i.docs.map(d=>({id:d.id,...d.data()}));students=s.docs.map(d=>({id:d.id,...d.data()}));
+ const [g,i]=await Promise.all([getDocs(collection(db,"woodGroups")),getDocs(collection(db,"woodItems"))]);
+ groups=g.docs.map(d=>({id:d.id,...d.data()}));items=i.docs.map(d=>({id:d.id,...d.data()}));
  refreshAssigneeOptions();render();status("読み込み完了");
 }
 function selectedValues(id){return [...$(id).selectedOptions].map(o=>o.value)}
