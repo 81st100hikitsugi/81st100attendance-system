@@ -307,15 +307,23 @@
     setMessage("方式"+mode+"を選択中です。");
   }
   function findByPin(value) {
-    return students.find(s=>String(s.pin ?? s.attendancePin ?? "").trim()===String(value || "").trim());
+    const raw=String(value || "").trim();
+    if (!raw) return [];
+    return students.filter(s=>String(s.pin ?? s.attendancePin ?? "").trim()===raw);
   }
   function findByQr(value) {
     const raw=String(value || "").trim();
-    return students.find(s=>[s.qrToken,s.qrCode,s.pin,s.attendancePin,s.id].some(v=>v!=null && String(v).trim()===raw));
+    if (!raw) return [];
+    return students.filter(s=>[s.qrToken,s.qrCode,s.pin,s.attendancePin,s.id].some(v=>v!=null && String(v).trim()===raw));
   }
-  function confirmIdentity(student, mode) {
-    if (!student) { setMessage("該当する利用者が見つかりません。登録情報を確認してください。",true); return; }
-    selectPerson(student,mode);
+  function confirmIdentity(matches, mode) {
+    if (!matches.length) { setMessage("該当する利用者が見つかりません。登録情報を確認してください。",true); return; }
+    if (matches.length > 1) {
+      const names=matches.map(s=>s.name || s.id).join("、");
+      setMessage("識別情報が重複しています（"+names+"）。管理者にPIN・QR情報の確認を依頼してください。",true);
+      return;
+    }
+    selectPerson(matches[0],mode);
   }
   async function startCamera() {
     if (!navigator.mediaDevices?.getUserMedia) { $("cameraHelp").textContent="このブラウザではカメラを利用できません。QRの値を手入力してください。"; return; }
