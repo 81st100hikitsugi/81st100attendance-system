@@ -97,8 +97,8 @@
   </main>
 
   <script type="module">
-    import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { db } from "./shared/firebase.js";
+    import { collection, getDocs, getDocsFromCache, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { db, persistenceReady } from "./shared/firebase.js";
     import { requireUser } from "./shared/auth.js";
     import { mountAppShell } from "./shared/app-shell.js";
 
@@ -106,6 +106,14 @@
     const today = new Date();
     const dateKey = [today.getFullYear(), String(today.getMonth() + 1).padStart(2, "0"), String(today.getDate()).padStart(2, "0")].join("-");
     byId("todayLabel").textContent = today.toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "long" });
+
+    async function readDocs(ref) {
+      try { return await getDocs(ref); }
+      catch (error) {
+        if (!navigator.onLine) return await getDocsFromCache(ref);
+        throw error;
+      }
+    }
 
     function dateKeyOf(value) {
       if (!value) return "";
@@ -140,7 +148,7 @@
     async function loadWorkPlans() {
       const target = byId("workPlans");
       try {
-        const snapshot = await getDocs(collection(db, "dailyWorkPlans"));
+        const snapshot = await readDocs(collection(db, "dailyWorkPlans"));
         const plans = snapshot.docs.map((entry) => entry.data()).filter((plan) => dateKeyOf(plan.date) === dateKey)
           .sort((a, b) => String(a.startTime || "").localeCompare(String(b.startTime || "")));
         target.replaceChildren();
@@ -160,7 +168,7 @@
       try {
         const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const end = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-        const snapshot = await getDocs(query(collection(db, "attendanceItems"), where("userId", "==", uid)));
+        const snapshot = await readDocs(query(collection(db, "attendanceItems"), where("userId", "==", uid)));
         const shifts = snapshot.docs.map((entry) => entry.data())
           .filter((item) => item.userId === uid && item.state === "出勤予定" && dateKeyOf(item.date) === dateKey)
           .sort((a, b) => String(a.shift || "").localeCompare(String(b.shift || "")));
@@ -176,7 +184,7 @@
     async function loadReservedWood(uid) {
       const target = byId("reservedWood");
       try {
-        const snapshot = await getDocs(query(collection(db, "woodItems"), where("reservedBy", "==", uid)));
+        const snapshot = await readDocs(query(collection(db, "woodItems"), where("reservedBy", "==", uid)));
         const reserved = snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() }));
         target.replaceChildren();
         if (!reserved.length) return showEmpty(target, "現在予約中の木材はありません。");
@@ -208,6 +216,7 @@
             { id: "wood", label: "木材", href: "./wood/index.html" }
           ]
         });
+        await persistenceReady;
         await Promise.all([loadWorkPlans(), loadTodayShift(user.uid), loadReservedWood(user.uid)]);
         byId("loadStatus").textContent = "表示内容は本日の登録状況に基づいています。";
       },
