@@ -55,22 +55,47 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
-    // Wood management: authenticated users can view records.
-    // Writes remain admin-only until the item-level user update workflow and its
-    // permitted-field/state-transition validation are implemented and tested.
+    // Wood management: group structure is admin-managed; derived summary fields
+    // may be refreshed by signed-in users after item-level updates.
     match /woodGroups/{groupId} {
       allow read: if signedIn();
-      allow create, update, delete: if isAdmin();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (signedIn()
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['representativeState', 'check', 'updatedAt']));
+    }
+
+    function validWoodProcess(value) {
+      return value in ['未着手', '罫書き', '切断', 'やすり', '組立', '完了'];
+    }
+
+    function validWoodProgress(process, progress) {
+      return (process in ['未着手', '完了'] && progress == null)
+        || (process in ['罫書き', '切断', 'やすり', '組立']
+          && progress in ['予約', '中', '終了']);
     }
 
     match /woodItems/{itemId} {
       allow read: if signedIn();
-      allow create, update, delete: if isAdmin();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (signedIn()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'process', 'progress', 'assignee', 'assigneeName', 'notes',
+            'updatedBy', 'updatedAt', 'history', 'check',
+            'reservedBy', 'reservedAt', 'reservedName'
+          ])
+          && request.resource.data.updatedBy == request.auth.uid
+          && validWoodProcess(request.resource.data.process)
+          && validWoodProgress(request.resource.data.process, request.resource.data.progress));
     }
 
     match /historyLogs/{logId} {
       allow read: if signedIn();
-      allow create, update, delete: if isAdmin();
+      allow create: if isAdmin()
+        || (signedIn() && request.resource.data.updatedBy == request.auth.uid);
+      allow update, delete: if isAdmin();
     }
 
     // Integrated learning information: signed-in users read; admins write.
