@@ -94,6 +94,9 @@ service cloud.firestore {
             'reservedBy', 'reservedAt', 'reservedName'
           ])
           && request.resource.data.updatedBy == request.auth.uid
+          && (!('reservedBy' in request.resource.data)
+            || request.resource.data.reservedBy == null
+            || request.resource.data.reservedBy == request.auth.uid)
           && (!('reservedBy' in resource.data)
             || request.resource.data.reservedBy == resource.data.reservedBy
             || resource.data.reservedBy == null
