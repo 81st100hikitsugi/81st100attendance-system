@@ -175,7 +175,15 @@
     name.textContent = student.name || "名前未設定";
     const role = document.createElement("small");
     const status = latestStatus(student.id);
-    role.textContent = (student.role || "役割未設定") + " / " + status.state;
+    const details = [(student.role || "役割未設定"), status.state];
+    if (mode === "B") {
+      const shifts = todayItems
+        .filter(item => item.userId === student.id && item.state === "出勤予定" && item.shift)
+        .map(item => item.shift);
+      const uniqueShifts = [...new Set(shifts)].sort((a, b) => String(a).localeCompare(String(b), "ja"));
+      if (uniqueShifts.length) details.push("予定：" + uniqueShifts.join(" ／ "));
+    }
+    role.textContent = details.join(" / ");
     button.append(name, role);
     button.addEventListener("click", () => selectPerson(student, mode));
     return button;
