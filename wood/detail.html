@@ -15,8 +15,8 @@
 <p id="status" class="status" role="status"></p>
 </main>
 <script type="module">
-import {collection,getDocs,doc,addDoc,updateDoc,deleteDoc,writeBatch,query,where,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import {db} from "../shared/firebase.js";import {requireUser} from "../shared/auth.js";import {mountAppShell} from "../shared/app-shell.js";
+import {collection,getDocs,getDocsFromCache,doc,addDoc,updateDoc,deleteDoc,writeBatch,query,where,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {db,persistenceReady} from "../shared/firebase.js";import {requireUser} from "../shared/auth.js";import {mountAppShell} from "../shared/app-shell.js";
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),groupId=params.get("id"),processes=["未着手","罫書き","切断","やすり","組立","完了"],progresses=["予約","中","終了"];
 let user=null,profile=null,isAdmin=false,group=null,items=[],students=[],logs=[],online=navigator.onLine;
 const status=(s,error=false)=>{$("status").textContent=s;$("status").style.color=error?"#b93838":"#526174"};
