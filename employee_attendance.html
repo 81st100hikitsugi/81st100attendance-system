@@ -4,6 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="./shared/app-shell.css">
 <title>出勤・退勤</title>
 
@@ -125,14 +126,14 @@
         date: serverTimestamp(),
         shift: "未設定",
         state: state,
-        time: now.toLocaleString(),
+        time: now.toLocaleString("ja-JP"),
         notes: "",
         check: true,
         history: []
       });
 
       document.getElementById("statusMessage").textContent =
-        `${state}を記録しました（${now.toLocaleString()}）`;
+        `${state}を記録しました（${now.toLocaleString("ja-JP")}）`;
 
     } catch (error) {
       console.error("打刻保存エラー:", error);
