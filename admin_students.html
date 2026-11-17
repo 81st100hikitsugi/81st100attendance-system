@@ -89,7 +89,15 @@
         };
         const generate=document.createElement("button"); generate.type="button"; generate.className="generate"; generate.textContent="QRを発行";
         generate.addEventListener("click",()=>{
-          if(!qr.value.trim()) qr.value=(crypto.randomUUID?crypto.randomUUID():id+"-"+Date.now()+"-"+Math.random().toString(36).slice(2));
+          if(!qr.value.trim()) {
+            if (crypto.randomUUID) {
+              qr.value = crypto.randomUUID();
+            } else {
+              const bytes = new Uint8Array(16);
+              crypto.getRandomValues(bytes);
+              qr.value = Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+            }
+          }
           drawQr();
         });
         qr.addEventListener("input",drawQr);
@@ -99,9 +107,27 @@
         save.addEventListener("click",async()=>{
           save.disabled=true; $("statusMessage").textContent=name.textContent+" さんの情報を保存しています...";
           try{
+            const nextPin = pin.value.trim();
+            const nextQr = qr.value.trim();
+            const duplicate = snapshot.docs.find(other => {
+              if (other.id === id) return false;
+              const otherData = other.data();
+              const otherPin = String(otherData.pin ?? otherData.attendancePin ?? "").trim();
+              const otherQr = String(otherData.qrToken ?? otherData.qrCode ?? "").trim();
+              return (nextPin && otherPin === nextPin) || (nextQr && otherQr === nextQr);
+            });
+            if (duplicate) {
+              const duplicateName = duplicate.data().name || duplicate.id;
+              const conflicts = [];
+              const otherData = duplicate.data();
+              if (nextPin && String(otherData.pin ?? otherData.attendancePin ?? "").trim() === nextPin) conflicts.push("PIN");
+              if (nextQr && String(otherData.qrToken ?? otherData.qrCode ?? "").trim() === nextQr) conflicts.push("QR識別値");
+              $( "statusMessage" ).textContent = conflicts.join("・") + "が「" + duplicateName + "」さんと重複しています。別の値を設定してください。";
+              return;
+            }
             await updateDoc(doc(db,"students",id),{
-              pin:pin.value.trim(),
-              qrToken:qr.value.trim()
+              pin:nextPin,
+              qrToken:nextQr
             });
             $("statusMessage").textContent=name.textContent+" さんのPIN・QR情報を保存しました。";
             drawQr();
