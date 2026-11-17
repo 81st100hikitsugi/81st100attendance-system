@@ -298,8 +298,6 @@ async function loadShift(weekId) {
 
   endDate.setDate(endDate.getDate() + 1);
 
-  const startTimestamp = Timestamp.fromDate(startDate);
-  const endTimestamp = Timestamp.fromDate(endDate);
 
   document.getElementById("selectedWeekLabel").textContent =
     `${dateToKey(weekDates[0])} 〜 ${dateToKey(weekDates[6])}`;
@@ -309,8 +307,6 @@ async function loadShift(weekId) {
   const attendanceQuery = query(
     collection(db, "attendanceItems"),
     where("userId", "==", currentUserId),
-    where("date", ">=", startTimestamp),
-    where("date", "<", endTimestamp)
   );
 
   const snapshot = await getDocs(attendanceQuery);
@@ -329,7 +325,9 @@ async function loadShift(weekId) {
 
     if (!data.date || !data.shift) return;
 
-    const dateKey = dateToKey(data.date.toDate());
+    const itemDate = data.date.toDate();
+    if (itemDate < startDate || itemDate >= endDate) return;
+    const dateKey = dateToKey(itemDate);
 
     scheduledCells.add(
       `${dateKey}|${data.shift}`
