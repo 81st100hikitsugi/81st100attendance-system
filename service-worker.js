@@ -1,5 +1,11 @@
 const CACHE_NAME = "attendance-system-v2";
-const FIREBASE_SDK_ASSETS = [\n  "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",\n  "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",\n  "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"\n];\n\nconst CORE_ASSETS = [
+const FIREBASE_SDK_ASSETS = [
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+];
+
+const CORE_ASSETS = [
   "./index.html",
   "./home.html",
   "./admin_home.html",
@@ -54,7 +60,8 @@ self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
   const url = new URL(request.url);
-  const isFirebaseSdk = url.origin === "https://www.gstatic.com" && url.pathname.startsWith("/firebasejs/10.7.1/");\n  if (url.origin !== self.location.origin && !isFirebaseSdk) return;
+  const isFirebaseSdk = url.origin === "https://www.gstatic.com" && url.pathname.startsWith("/firebasejs/10.7.1/");
+  if (url.origin !== self.location.origin && !isFirebaseSdk) return;
 
   event.respondWith(
     caches.match(request).then((cached) => {
