@@ -61,6 +61,8 @@ const status=(s,error=false)=>{$("status").textContent=s;$("status").style.color
 const text=(v)=>String(v??"");
 const assigneeOf=x=>x.assigneeName||x.assignee||x.assignedToName||x.assignedTo||"";
 const stateOf=x=>x.process==="未着手"||x.process==="完了"?x.process:[x.process,x.progress].filter(Boolean).join(" / ");
+const processOrder=["未着手","罫書き","切断","やすり","組立","完了"],progressOrder=["予約","中","終了"];
+function representativeState(list){if(!list.length)return "未着手";const rank=x=>{const p=processOrder.indexOf(x.process||"未着手"),q=progressOrder.indexOf(x.progress||"予約");return p<0?999:p*4+(q<0?0:q)};return stateOf(list.slice().sort((a,b)=>rank(a)-rank(b))[0])}
 function options(select,values){select.replaceChildren();for(const value of values){const o=document.createElement("option");o.value=value;o.textContent=value;select.append(o)}}
 function refreshAssigneeOptions(){const values=[...new Set(["山田","佐藤","鈴木","田中",...items.map(assigneeOf)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ja"));options($("assigneeFilter"),values)}
 async function readDocs(ref){try{return await getDocs(ref)}catch(error){if(!navigator.onLine)return await getDocsFromCache(ref);throw error}}
@@ -123,6 +125,7 @@ $("groupForm").addEventListener("submit",async e=>{
    if(quantity>existing.length)for(let n=existing.length;n<quantity;n++){const itemRef=doc(collection(db,"woodItems"));batch.set(itemRef,{groupId:id,process:"未着手",progress:null,assignee:"",assigneeName:"",updatedBy:currentUser.uid,updatedAt:serverTimestamp(),notes:"",check:false,history:[]})}
    if(quantity<existing.length)for(const item of existing.slice(quantity)){batch.delete(doc(db,"woodItems",item.id))}
    await batch.commit();
+   if(id){const refreshed=await getDocs(query(collection(db,"woodItems"),where("groupId","==",id)));const next=refreshed.docs.map(d=>({id:d.id,...d.data()}));await updateDoc(doc(db,"woodGroups",id),{quantity:next.length,representativeState:representativeState(next),check:next.length>0&&next.every(x=>x.check===true),updatedAt:serverTimestamp()})}
   }
   closeModal();await load();status("まとめ行を保存しました。");
  }catch(err){console.error(err);status(err.message||"保存に失敗しました。",true)}finally{save.disabled=false}
