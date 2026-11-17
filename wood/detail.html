@@ -42,7 +42,8 @@ function makeRow(item){
  if(isAdmin){const del=document.createElement("button");del.className="danger";del.style.marginLeft="6px";del.textContent="削除";del.addEventListener("click",()=>removeItem(item));op.append(del)}tr.append(op);
  return tr;
 }
-async function readDocs(ref){try{return await getDocs(ref)}catch(error){if(!navigator.onLine)return await getDocsFromCache(ref);throw error}}\nasync function readDoc(ref){try{return await getDoc(ref)}catch(error){if(!navigator.onLine)return await getDocFromCache(ref);throw error}}
+async function readDocs(ref){try{return await getDocs(ref)}catch(error){if(!navigator.onLine)return await getDocsFromCache(ref);throw error}}
+async function readDoc(ref){try{return await getDoc(ref)}catch(error){if(!navigator.onLine)return await getDocFromCache(ref);throw error}}
 async function load(){
  await persistenceReady;
  const [g,i,h]=await Promise.all([readDoc(doc(db,"woodGroups",groupId)),readDocs(query(collection(db,"woodItems"),where("groupId","==",groupId))),readDocs(query(collection(db,"historyLogs"),where("groupId","==",groupId)))]);
