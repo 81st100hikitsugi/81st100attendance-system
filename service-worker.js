@@ -1,23 +1,68 @@
+const CACHE_NAME = "attendance-system-v2";
+const CORE_ASSETS = [
+  "./index.html",
+  "./home.html",
+  "./admin_home.html",
+  "./employee_home.html",
+  "./admin_work_plans.html",
+  "./wood/index.html",
+  "./wood/detail.html",
+  "./learning/index.html",
+  "./learning/subjects/subject.html",
+  "./learning/admin/dictionary.html",
+  "./learning/admin/migrate.html",
+  "./learning/css/learning.css",
+  "./learning/js/index.js",
+  "./learning/js/subject.js",
+  "./learning/js/dictionary.js",
+  "./learning/js/migrate.js",
+  "./shared/app-shell.css",
+  "./shared/app-shell.js",
+  "./shared/auth.js",
+  "./shared/firebase.js"
+];
 
-const CACHE_NAME = "attendance-system-v1";
-
-// Service Workerのインストール
 self.addEventListener("install", (event) => {
-  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(CORE_ASSETS))
+      .then(() => self.skipWaiting())
+  );
 });
 
-// Service Workerの有効化
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) =>
-            name.startsWith("attendance-system-") &&
-            name !== CACHE_NAME
-          )
-          .map((name) => caches.delete(name))
-      );
-    }).then(() => self.clients.claim())
+    caches.keys().then((cacheNames) => Promise.all(
+      cacheNames
+        .filter((name) => name.startsWith("attendance-system-") && name !== CACHE_NAME)
+        .map((name) => caches.delete(name))
+    )).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("fetch", (event) => {
+  const request = event.request;
+  if (request.method !== "GET") return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
+      return fetch(request).then((response) => {
+        if (response && response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      }).catch(async () => {
+        const fallback = await caches.match(request, { ignoreSearch: true });
+        if (fallback) return fallback;
+        return new Response("オフラインです。このページはまだキャッシュされていません。", {
+          status: 503,
+          headers: { "Content-Type": "text/plain; charset=utf-8" }
+        });
+      });
+    })
   );
 });
