@@ -56,6 +56,7 @@
   import { mountAppShell } from "./shared/app-shell.js";
 
   let currentUserId = null;
+  let attendanceSaving = false;
 
   // ログイン確認とホーム画面の振り分け
   onAuthStateChanged(auth, async (user) => {
@@ -108,8 +109,15 @@
   async function saveAttendance(state) {
     if (!currentUserId) return;
 
+    if (attendanceSaving) return;
+    attendanceSaving = true;
+    const clockInBtn = document.getElementById("clockInBtn");
+    const clockOutBtn = document.getElementById("clockOutBtn");
+    clockInBtn.style.pointerEvents = "none";
+    clockOutBtn.style.pointerEvents = "none";
     const now = new Date();
-    const docId = `${currentUserId}_${now.getTime()}`;
+    const uniquePart = globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2);
+    const docId = `${currentUserId}_${now.getTime()}_${uniquePart}`;
 
     try {
       await setDoc(doc(db, "attendanceItems", docId), {
@@ -130,6 +138,10 @@
       console.error("打刻保存エラー:", error);
       document.getElementById("statusMessage").textContent =
         "記録に失敗しました。通信状況を確認してください。";
+    } finally {
+      attendanceSaving = false;
+      clockInBtn.style.pointerEvents = "";
+      clockOutBtn.style.pointerEvents = "";
     }
   }
 
