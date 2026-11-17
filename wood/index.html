@@ -63,6 +63,7 @@ const assigneeOf=x=>x.assigneeName||x.assignee||x.assignedToName||x.assignedTo||
 const stateOf=x=>x.process==="未着手"||x.process==="完了"?x.process:[x.process,x.progress].filter(Boolean).join(" / ");
 function options(select,values){select.replaceChildren();for(const value of values){const o=document.createElement("option");o.value=value;o.textContent=value;select.append(o)}}
 function refreshAssigneeOptions(){const values=[...new Set(["山田","佐藤","鈴木","田中",...items.map(assigneeOf)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ja"));options($("assigneeFilter"),values)}
+async function readDocs(ref){try{return await getDocs(ref)}catch(error){if(!navigator.onLine)return await getDocsFromCache(ref);throw error}}
 async function load(){
  status("データを読み込んでいます...");
  const [g,i]=await Promise.all([getDocs(collection(db,"woodGroups")),getDocs(collection(db,"woodItems"))]);
