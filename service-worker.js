@@ -1,5 +1,5 @@
 const CACHE_NAME = "attendance-system-v2";
-const CORE_ASSETS = [
+const FIREBASE_SDK_ASSETS = [\n  "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",\n  "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",\n  "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"\n];\n\nconst CORE_ASSETS = [
   "./index.html",
   "./home.html",
   "./admin_home.html",
@@ -25,7 +25,17 @@ const CORE_ASSETS = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(CORE_ASSETS))
+      .then(async (cache) => {
+        await cache.addAll(CORE_ASSETS);
+        await Promise.all(FIREBASE_SDK_ASSETS.map(async (url) => {
+          try {
+            const response = await fetch(url, { mode: "cors" });
+            if (response.ok) await cache.put(url, response);
+          } catch (error) {
+            console.warn("Firebase SDK pre-cache skipped:", url, error);
+          }
+        }));
+      })
       .then(() => self.skipWaiting())
   );
 });
@@ -44,7 +54,7 @@ self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return;
+  const isFirebaseSdk = url.origin === "https://www.gstatic.com" && url.pathname.startsWith("/firebasejs/10.7.1/");\n  if (url.origin !== self.location.origin && !isFirebaseSdk) return;
 
   event.respondWith(
     caches.match(request).then((cached) => {
