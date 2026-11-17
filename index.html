@@ -51,26 +51,9 @@
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { 
-    getAuth, signInWithEmailAndPassword 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { 
-    getFirestore, doc, getDoc 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
-    authDomain: "attendance-system-eb7d1.firebaseapp.com",
-    projectId: "attendance-system-eb7d1",
-    storageBucket: "attendance-system-eb7d1.firebasestorage.app",
-    messagingSenderId: "803269635846",
-    appId: "1:803269635846:web:6e12018f4b2db2c0747887"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+  import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { auth, db } from "./shared/firebase.js";
 
   document.getElementById("loginBtn").onclick = async () => {
     const email = document.getElementById("emailInput").value;
@@ -87,23 +70,14 @@
       const userDoc = await getDoc(doc(db, "students", user.uid));
 
       if (!userDoc.exists()) {
-        // 生徒として登録されていないアカウント
-        window.location.href = "unknown_user.html";
+        await signOut(auth);
+        errorMessage.textContent = "このアカウントのユーザー情報が登録されていません。管理者に確認してください。";
         return;
       }
 
-      const data = userDoc.data();
-
-      // 管理者権限の判定
-const isAdmin = typeof data.isAdmin === "boolean"
-  ? data.isAdmin
-  : data.role === "attendance";
-
-if (isAdmin) {
-  window.location.href = "admin_home.html";
-} else {
-  window.location.href = "employee_home.html";
-}
+      // ログイン後は役職・管理者権限に関係なく統合ホームへ進む。
+      // 各機能の管理者操作は students/{uid}.isAdmin で個別に判定する。
+      window.location.href = "home.html";
 
     } catch (error) {
       errorMessage.textContent = "ログインに失敗しました。メールアドレスまたはパスワードを確認してください。";
