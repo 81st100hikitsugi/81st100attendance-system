@@ -15,7 +15,7 @@
 <p id="status" class="status" role="status"></p>
 </main>
 <script type="module">
-import {collection,getDocs,getDocsFromCache,getDoc,doc,addDoc,updateDoc,deleteDoc,writeBatch,query,where,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {collection,getDocs,getDocsFromCache,getDoc,getDocFromCache,doc,addDoc,updateDoc,deleteDoc,writeBatch,query,where,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {db,persistenceReady} from "../shared/firebase.js";import {requireUser} from "../shared/auth.js";import {mountAppShell} from "../shared/app-shell.js";
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),groupId=params.get("id"),processes=["未着手","罫書き","切断","やすり","組立","完了"],progresses=["予約","中","終了"];
 let user=null,profile=null,isAdmin=false,group=null,items=[],logs=[],online=navigator.onLine;
@@ -42,10 +42,10 @@ function makeRow(item){
  if(isAdmin){const del=document.createElement("button");del.className="danger";del.style.marginLeft="6px";del.textContent="削除";del.addEventListener("click",()=>removeItem(item));op.append(del)}tr.append(op);
  return tr;
 }
-async function readDocs(ref){try{return await getDocs(ref)}catch(error){if(!navigator.onLine)return await getDocsFromCache(ref);throw error}}
+async function readDocs(ref){try{return await getDocs(ref)}catch(error){if(!navigator.onLine)return await getDocsFromCache(ref);throw error}}\nasync function readDoc(ref){try{return await getDoc(ref)}catch(error){if(!navigator.onLine)return await getDocFromCache(ref);throw error}}
 async function load(){
  await persistenceReady;
- const [g,i,h]=await Promise.all([getDoc(doc(db,"woodGroups",groupId)),readDocs(query(collection(db,"woodItems"),where("groupId","==",groupId))),readDocs(query(collection(db,"historyLogs"),where("groupId","==",groupId)))]);
+ const [g,i,h]=await Promise.all([readDoc(doc(db,"woodGroups",groupId)),readDocs(query(collection(db,"woodItems"),where("groupId","==",groupId))),readDocs(query(collection(db,"historyLogs"),where("groupId","==",groupId)))]);
  group=g.exists()?{id:groupId,...g.data()}:null;
  if(!group){status("木材グループが見つかりません。",true);return}
  items=i.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.id).localeCompare(String(b.id)));
