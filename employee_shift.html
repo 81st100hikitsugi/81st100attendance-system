@@ -123,8 +123,7 @@ import {
   collection,
   getDocs,
   query,
-  where,
-  Timestamp
+  where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -306,7 +305,7 @@ async function loadShift(weekId) {
   // 管理者ページと同じattendanceItemsを取得
   const attendanceQuery = query(
     collection(db, "attendanceItems"),
-    where("userId", "==", currentUserId),
+    where("userId", "==", currentUserId)
   );
 
   const snapshot = await getDocs(attendanceQuery);
