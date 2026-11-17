@@ -87,7 +87,7 @@ function render(){
   const notes=its.some(i=>text(i.notes).trim())||text(g.notes).trim();if(f.notes==="has"&&!notes)return false;if(f.notes==="none"&&notes)return false;
   return true;
  });
- if(f.sort)list.sort((a,b)=>((Number(a.quantity)||0)-(Number(b.quantity)||0))*(f.sort==="asc"?1:-1));
+ if(f.sort)list.sort((a,b)=>((items.filter(i=>i.groupId===a.id).length)-(items.filter(i=>i.groupId===b.id).length))*(f.sort==="asc"?1:-1));
  $("resultCount").textContent=list.length+" 件";
  if(!list.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=isAdmin?8:7;td.className="empty";td.textContent="条件に一致する木材はありません。";tr.append(td);body.append(tr);return}
  for(const g of list){
