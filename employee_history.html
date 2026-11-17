@@ -112,10 +112,20 @@
       return;
     }
 
-    snapshot.forEach(docSnap => {
+    const records = snapshot.docs.map(docSnap => {
       const data = docSnap.data();
+      const dateValue = data.date && typeof data.date.toDate === "function"
+        ? data.date.toDate()
+        : (data.date ? new Date(data.date) : null);
+      return { data, timestamp: dateValue && !Number.isNaN(dateValue.getTime()) ? dateValue.getTime() : 0 };
+    }).sort((a, b) => b.timestamp - a.timestamp);
+
+    records.forEach(({ data, timestamp }) => {
       const li = document.createElement("li");
-      li.textContent = `${data.state}：${data.time}`;
+      const dateText = timestamp ? new Date(timestamp).toLocaleString("ja-JP") : "";
+      const timeText = data.time || dateText || "時刻不明";
+      const shiftText = data.shift && data.shift !== "未設定" ? `（${data.shift}）` : "";
+      li.textContent = `${data.state || "状態未設定"}${shiftText}：${timeText}`;
       historyList.appendChild(li);
     });
   }
