@@ -41,8 +41,10 @@ function makeRow(item){
  if(isAdmin){const del=document.createElement("button");del.className="danger";del.style.marginLeft="6px";del.textContent="削除";del.addEventListener("click",()=>removeItem(item));op.append(del)}tr.append(op);
  return tr;
 }
+async function readDocs(ref){try{return await getDocs(ref)}catch(error){if(!navigator.onLine)return await getDocsFromCache(ref);throw error}}
 async function load(){
- const [g,i,h]=await Promise.all([getDocs(collection(db,"woodGroups")),getDocs(query(collection(db,"woodItems"),where("groupId","==",groupId))),getDocs(query(collection(db,"historyLogs"),where("groupId","==",groupId)))]);
+ await persistenceReady;
+ const [g,i,h]=await Promise.all([readDocs(collection(db,"woodGroups")),readDocs(query(collection(db,"woodItems"),where("groupId","==",groupId))),readDocs(query(collection(db,"historyLogs"),where("groupId","==",groupId)))]);
  group=g.docs.find(d=>d.id===groupId)?{id:groupId,...g.docs.find(d=>d.id===groupId).data()}:null;
  if(!group){status("木材グループが見つかりません。",true);return}
  items=i.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.id).localeCompare(String(b.id)));
