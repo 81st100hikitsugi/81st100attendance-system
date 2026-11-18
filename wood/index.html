@@ -131,9 +131,13 @@ $("groupForm").addEventListener("submit",async e=>{
    for(let n=0;n<quantity;n++){const itemRef=doc(collection(db,"woodItems"));batch.set(itemRef,{groupId:groupRef.id,process:"未着手",progress:null,assignee:"",assigneeName:"",updatedBy:currentUser.uid,updatedAt:serverTimestamp(),notes:"",check:false,history:[]})}
    await batch.commit();
   }else{
-   const existing=items.filter(x=>x.groupId===id),batch=writeBatch(db);batch.update(doc(db,"woodGroups",id),{name,material,length,quantity,notes,updatedAt:serverTimestamp()});
+   const existing=items.filter(x=>x.groupId===id),batch=writeBatch(db);
+   const removable=existing.filter(x=>(x.process||"未着手")==="未着手"&&!x.progress&&!x.assignee&&!x.assigneeName&&!x.notes&&x.check!==true&&!x.reservedBy&&!(x.history||[]).length);
+   const removeCount=Math.max(0,existing.length-quantity);
+   if(removeCount>removable.length)throw new Error("数量を減らせません。工程・担当者・備考・確認・予約・履歴がある個別木材を保護するため、先に対象データを確認してください。");
+   batch.update(doc(db,"woodGroups",id),{name,material,length,quantity,notes,updatedAt:serverTimestamp()});
    if(quantity>existing.length)for(let n=existing.length;n<quantity;n++){const itemRef=doc(collection(db,"woodItems"));batch.set(itemRef,{groupId:id,process:"未着手",progress:null,assignee:"",assigneeName:"",updatedBy:currentUser.uid,updatedAt:serverTimestamp(),notes:"",check:false,history:[]})}
-   if(quantity<existing.length)for(const item of existing.slice(quantity)){batch.delete(doc(db,"woodItems",item.id))}
+   if(removeCount>0)for(const item of removable.slice(0,removeCount)){batch.delete(doc(db,"woodItems",item.id))}
    await batch.commit();
    if(id){const refreshed=await getDocs(query(collection(db,"woodItems"),where("groupId","==",id)));const next=refreshed.docs.map(d=>({id:d.id,...d.data()}));await updateDoc(doc(db,"woodGroups",id),{quantity:next.length,representativeState:representativeState(next),check:next.length>0&&next.every(x=>x.check===true),updatedAt:serverTimestamp()})}
   }
