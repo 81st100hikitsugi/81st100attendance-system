@@ -133,7 +133,7 @@
 
 <script type="module">
   import { collection, getDocs, query, where, doc, getDoc, setDoc, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { auth, db } from "./shared/firebase.js";
 
   const $ = (id) => document.getElementById(id);
@@ -407,8 +407,8 @@
       setMessage("共有タブレットを確認しています...");
       let kioskUser = auth.currentUser;
       if (kioskUser && !kioskUser.isAnonymous) {
-        await signOut(auth);
-        kioskUser = null;
+        setMessage("このブラウザは通常アカウントでログイン中です。共有タブレット専用のブラウザで開いてください。",true);
+        return;
       }
       if (!kioskUser) kioskUser = (await signInAnonymously(auth)).user;
       const deviceId = kioskUser.uid;
