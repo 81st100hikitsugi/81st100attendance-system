@@ -406,7 +406,8 @@
     try {
       setMessage("共有タブレットを確認しています...");
       await new Promise(resolve => {
-        const unsubscribe = onAuthStateChanged(auth, () => {
+        let unsubscribe = () => {};
+        unsubscribe = onAuthStateChanged(auth, () => {
           unsubscribe();
           resolve();
         });
