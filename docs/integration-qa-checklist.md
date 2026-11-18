@@ -71,7 +71,7 @@
 
 ## 6. PWA・端末別確認
 
-- [ ] Service Workerがv8へ更新される
+- [ ] Service Workerがv9へ更新される
 - [ ] 更新後に旧キャッシュではなく最新のHTML・JavaScriptが読み込まれる
 - [ ] iPhoneのSafari/Edgeでインストール・起動できる
 - [ ] AndroidのChrome/Edgeでインストール・起動できる
@@ -103,7 +103,7 @@ Firebase Emulator、実Firebaseへの読み書き、iOS/Android実機、カメ�
 
 - 統合先のFirebase設定は `shared/firebase.js` の projectId が `attendance-system-eb7d1`。旧学習情報側は `learning-info-site` で、移行画面の接続先と一致する。
 - 共通ログインは統合先Authenticationを使うメールアドレス＋パスワード方式。プロフィールは `students/{uid}` から取得し、管理者判定は `isAdmin === true`。`role` から管理者権限を推測しない。
-- 旧学習情報の移行対象は `learningInfos`、`searchDictionary`、`subjectDocuments`。ソースコード上の主なフィールドは移行計画書を参照。移行画面はID衝突確認、JSONバックアップ、400件単位のコピーを実装し、旧データを削除しない。
+- 旧学習情報の移行対象は `learningInfos`、`searchDictionary`、`subjectDocuments`。ソースコード上の主なフィールドは移行計画書を参照。移行画面はJSONバックアップ、同一ID・同一内容のスキップ、異なる内容のID衝突停止、400件単位のコピー、移行後照合を実装し、旧データを削除しない。
 - 出勤記録・シフトのコードでは `attendanceItems.userId` を利用者UIDとして使用している。
 - 木材のコード・Rules案は `woodGroups`、`woodItems`、`historyLogs` を使用し、一般ユーザーの個別木材更新を許可する構成になっている。
 
@@ -122,7 +122,7 @@ Firebase Emulator、実Firebaseへの読み書き、iOS/Android実機、カメ�
 - `admin_late_early.html` の `weeklyShifts` と、週シフト作成画面の `attendanceItems` / `attendanceGroups` の関係を実データと運用で確認する。
 - `firestore.rules` には一般ユーザーの `woodItems` 更新許可が追加されている。古いRulesレビュー文書の「木材は管理者のみ書き込み」という記述は現行ブランチ案と一致しないため、Emulatorで許可フィールド・履歴・予約制御を検証する。
 
-- 移行ツールはバックアップのダウンロードを開始した時点で `backupSaved` をtrueにするため、ファイルが実際に保存・閲覧できたかは自動確認しない。JSONを開けること、3コレクションの件数・Timestamp表現が含まれることを人手で確認する。
+- 移行ツールはブラウザのダウンロード完了を自動検証できないため、保存先のJSONを実際に開いて3コレクションの件数・内容を確認したことを利用者がチェックする方式。チェックは利用者による確認であり、アプリがファイル内容を検証したという意味ではない。
 - コピーは400件単位で複数バッチに分かれる。再実行時は移行先の同一ID・同一内容をスキップし、同一IDで内容が異なる場合は中止する。コピー後に移行先を再照合する。実Firebaseでの途中失敗・再開テストは未実施。
 
 ### 次の具体的な一手
