@@ -2,142 +2,446 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>共有タブレット（正式版）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2878c8">
+<title>出勤打刻タブレット</title>
 <style>
-  body { font-family: sans-serif; background:#f5f5f5; padding:20px; }
-  .mock { background:white; padding:20px; margin-bottom:40px;
-          border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); width:600px; }
-  a.button { display:block; padding:10px; margin-top:10px;
-             background:#4a90e2; color:white; text-align:center;
-             border-radius:6px; text-decoration:none; }
-  .hidden { display:none; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:0; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; color:#243247; background:#f2f5fa; }
+  .top { padding:22px 24px 18px; color:#fff; background:linear-gradient(120deg,#2878c8,#526bd5); box-shadow:0 3px 12px #1b3d7026; }
+  .top-inner { max-width:1180px; margin:auto; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+  h1 { margin:0; font-size:clamp(1.35rem,3vw,2rem); }
+  .subtitle { margin:5px 0 0; opacity:.9; font-size:.92rem; }
+  #clock { font-size:clamp(1.2rem,3vw,1.8rem); font-weight:700; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  main { max-width:1180px; margin:20px auto 48px; padding:0 18px; }
+  .notice { margin:0 0 16px; padding:10px 14px; border-radius:9px; background:#fff8e8; color:#795719; font-size:.9rem; }
+  .tabs { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; margin-bottom:16px; }
+  .tab { border:1px solid #d9e1ec; border-radius:10px; padding:13px 8px; background:#fff; color:#46566d; font-size:1rem; font-weight:700; cursor:pointer; }
+  .tab.active { background:#2878c8; color:#fff; border-color:#2878c8; box-shadow:0 3px 8px #2878c833; }
+  .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:16px; }
+  .stat { padding:13px 16px; background:#fff; border:1px solid #e1e7ef; border-radius:10px; }
+  .stat span { display:block; color:#68778c; font-size:.82rem; }
+  .stat strong { display:block; margin-top:4px; font-size:1.5rem; }
+  .panel { background:#fff; border:1px solid #e1e7ef; border-radius:13px; padding:20px; box-shadow:0 2px 8px #172b4d08; }
+  .panel h2 { margin:0 0 8px; font-size:1.25rem; }
+  .description { margin:0 0 16px; color:#68778c; font-size:.9rem; }
+  .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  input { min-width:0; padding:12px 13px; border:1px solid #cbd5e1; border-radius:8px; font-size:1rem; }
+  .search { flex:1 1 220px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; }
+  .person { text-align:left; border:1px solid #dce4ee; border-radius:10px; background:#fbfcfe; padding:14px; cursor:pointer; min-height:76px; }
+  .person:hover,.person.selected { border-color:#2878c8; background:#f0f7ff; }
+  .person strong { display:block; font-size:1.02rem; }
+  .person small { display:block; color:#68778c; margin-top:5px; }
+  .actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+  button.action, button.secondary { border:0; border-radius:9px; padding:15px; font-size:1rem; font-weight:700; color:#fff; cursor:pointer; }
+  button.action:disabled,button.secondary:disabled { opacity:.5; cursor:not-allowed; }
+  .in { background:#26945d; } .out { background:#df5555; }
+  .secondary { background:#68778c; }
+  .selected-box { margin-top:15px; padding:14px; border:1px solid #dce4ee; border-radius:10px; background:#f8fafc; }
+  .selected-box strong { font-size:1.1rem; }
+  .table-wrap { overflow:auto; }
+  table { width:100%; border-collapse:collapse; min-width:560px; }
+  th,td { padding:11px 12px; text-align:left; border-bottom:1px solid #e8edf3; }
+  th { background:#f6f8fb; color:#59697f; font-size:.86rem; }
+  .state { display:inline-block; padding:4px 9px; border-radius:20px; font-size:.82rem; font-weight:700; background:#edf1f5; }
+  .state.出勤 { background:#e3f5eb; color:#187346; }
+  .state.退勤 { background:#e9eefb; color:#4058a6; }
+  .state.未出勤 { background:#fff2dc; color:#94651a; }
+  .pin-area { max-width:420px; margin:20px auto 0; }
+  .pin-input { width:100%; text-align:center; font-size:2rem; letter-spacing:.45em; }
+  .pin-submit { width:100%; margin-top:12px; background:#2878c8; }
+  .scanner { max-width:520px; margin:0 auto; }
+  video { display:block; width:100%; max-height:330px; object-fit:cover; background:#111; border-radius:10px; }
+  .scanner-controls { display:flex; gap:8px; margin-top:12px; }
+  .scanner-controls button { flex:1; }
+  #message { min-height:24px; margin:14px 0 0; text-align:center; color:#53647a; }
+  #message.error { color:#c0392b; }
+  .recent { margin-top:16px; }
+  .recent-list { display:grid; gap:7px; }
+  .recent-item { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid #edf0f4; font-size:.9rem; }
+  .muted { color:#748196; }
+  .hidden { display:none !important; }
+  @media(max-width:680px) {
+    .top { padding:17px 15px; } .top-inner { align-items:flex-start; flex-direction:column; }
+    main { margin-top:14px; padding:0 12px; }
+    .tabs { gap:5px; } .tab { padding:12px 3px; font-size:.82rem; }
+    .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .panel { padding:15px; }
+    .actions { grid-template-columns:1fr; }
+  }
 </style>
+<meta name="robots" content="noindex, nofollow">
 </head>
-
 <body>
+<header class="top">
+  <div class="top-inner">
+    <div><h1>出勤打刻タブレット</h1><p class="subtitle">利用する打刻方法を選択してください</p></div>
+    <div id="clock">--:--:--</div>
+  </div>
+</header>
+<main>
+  <p class="notice">共有タブレット用の打刻画面です。打刻内容は既存の出勤管理データに記録されます。</p>
 
-<div class="mock" id="tablet-home">
-  <h2>共有タブレット：生徒一覧</h2>
-  <div id="studentList">読み込み中...</div>
-</div>
+  <nav class="tabs" aria-label="打刻方法">
+    <button class="tab active" data-mode="A" type="button">A 全員一覧</button>
+    <button class="tab" data-mode="B" type="button">B シフト対象</button>
+    <button class="tab" data-mode="C" type="button">C 出勤状況</button>
+    <button class="tab" data-mode="D" type="button">D PIN入力</button>
+    <button class="tab" data-mode="E" type="button">E QRコード</button>
+  </nav>
 
-<div class="mock hidden" id="tablet-select">
-  <h2>共有タブレット：生徒選択</h2>
-  <p id="selectedStudentLabel"></p>
+  <section class="stats" aria-label="本日の出勤状況">
+    <div class="stat"><span>本日の対象者</span><strong id="targetCount">-</strong></div>
+    <div class="stat"><span>出勤中</span><strong id="workingCount">-</strong></div>
+    <div class="stat"><span>未出勤</span><strong id="pendingCount">-</strong></div>
+    <div class="stat"><span>退勤済み</span><strong id="finishedCount">-</strong></div>
+  </section>
 
-  <a class="button" id="clockInBtn">出勤する</a>
-  <a class="button" style="background:#e24a4a;" id="clockOutBtn">退勤する</a>
-  <a class="button" style="background:#777;" id="backFromSelectBtn">生徒一覧へ戻る</a>
-</div>
+  <section class="panel" id="modeA">
+    <h2>A：全員一覧</h2><p class="description">全員の一覧から対象者を選択して打刻します。</p>
+    <div class="toolbar"><input class="search" id="searchA" type="search" placeholder="名前・役割で検索"></div>
+    <div class="grid" id="allPeople"><p class="muted">読み込み中...</p></div>
+    <div class="selected-box hidden" id="selectedA"><strong id="selectedAName"></strong><div class="actions"><button class="action in" data-stamp="出勤" type="button">出勤する</button><button class="action out" data-stamp="退勤" type="button">退勤する</button></div></div>
+  </section>
 
-<div class="mock hidden" id="tablet-action">
-  <h2>共有タブレット：打刻完了</h2>
-  <p>打刻が完了しました。</p>
-  <a class="button" style="background:#777;" id="backFromActionBtn">生徒一覧へ戻る</a>
-</div>
+  <section class="panel hidden" id="modeB">
+    <h2>B：シフト対象</h2><p class="description">本日の出勤予定に登録されている人から選択します。</p>
+    <div class="grid" id="shiftPeople"><p class="muted">読み込み中...</p></div>
+    <div class="selected-box hidden" id="selectedB"><strong id="selectedBName"></strong><div class="actions"><button class="action in" data-stamp="出勤" type="button">出勤する</button><button class="action out" data-stamp="退勤" type="button">退勤する</button></div></div>
+  </section>
 
-<div class="mock hidden" id="tablet-error">
-  <h2>共有タブレット：エラー</h2>
-  <p>打刻に失敗しました。</p>
-  <a class="button" style="background:#777;" id="backFromErrorBtn">生徒一覧へ戻る</a>
-</div>
+  <section class="panel hidden" id="modeC">
+    <h2>C：出勤状況</h2><p class="description">本日の全員の打刻状況を確認できます。</p>
+    <div class="toolbar"><input class="search" id="searchC" type="search" placeholder="名前・役割で検索"></div>
+    <div class="table-wrap"><table><thead><tr><th>名前</th><th>役割</th><th>状態</th><th>最終打刻</th></tr></thead><tbody id="statusRows"><tr><td colspan="4">読み込み中...</td></tr></tbody></table></div>
+  </section>
+
+  <section class="panel hidden" id="modeD">
+    <h2>D：PIN入力</h2><p class="description">登録されているPINを入力して対象者を確認します。</p>
+    <div class="pin-area"><input id="pinInput" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="64" placeholder="PIN"><button id="pinSubmit" class="action pin-submit" type="button">確認する</button><div class="selected-box hidden" id="selectedD"><strong id="selectedDName"></strong><div class="actions"><button class="action in" data-stamp="出勤" type="button">出勤する</button><button class="action out" data-stamp="退勤" type="button">退勤する</button></div></div></div>
+  </section>
+
+  <section class="panel hidden" id="modeE">
+    <h2>E：QRコード</h2><p class="description">カメラでQRコードを読み取り、対象者を確認して打刻します。</p>
+    <div class="scanner"><video id="camera" playsinline muted class="hidden"></video><p id="cameraHelp" class="muted">カメラを起動してQRコードを読み取ります。</p><div class="scanner-controls"><button id="startCamera" class="action in" type="button">カメラを起動</button><button id="stopCamera" class="secondary" type="button" disabled>停止</button></div><div class="toolbar" style="margin-top:14px"><input id="qrManual" class="search" type="text" placeholder="QRの値を手入力"><button id="qrManualSubmit" class="secondary" type="button">確認</button></div><div class="selected-box hidden" id="selectedE"><strong id="selectedEName"></strong><div class="actions"><button class="action in" data-stamp="出勤" type="button">出勤する</button><button class="action out" data-stamp="退勤" type="button">退勤する</button></div></div></div>
+  </section>
+
+  <p id="message" role="status">データを読み込んでいます...</p>
+  <section class="panel recent"><h2>直近の打刻</h2><div id="recentList" class="recent-list"><p class="muted">まだ打刻はありません。</p></div></section>
+</main>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { 
-    getFirestore, collection, getDocs, doc, setDoc, serverTimestamp 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { collection, getDocs, query, where, doc, getDoc, setDoc, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { auth, db } from "./shared/firebase.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
-    authDomain: "attendance-system-eb7d1.firebaseapp.com",
-    projectId: "attendance-system-eb7d1",
-    storageBucket: "attendance-system-eb7d1.firebasestorage.app",
-    messagingSenderId: "803269635846",
-    appId: "1:803269635846:web:6e12018f4b2db2c0747887"
-  };
+  const $ = (id) => document.getElementById(id);
+  let students = [];
+  let todayItems = [];
+  let selected = { A:null, B:null, D:null, E:null };
+  let cameraStream = null;
+  let scanTimer = null;
+  let currentMode = "A";
+  const stampingUsers = new Set();
+  const recentActions = [];
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  let selectedStudent = null;
-
-  // 生徒一覧読み込み
-  async function loadStudents() {
-    const list = document.getElementById("studentList");
-    list.innerHTML = "";
-
-    const snapshot = await getDocs(collection(db, "students"));
-
-    snapshot.forEach(docSnap => {
-      const data = docSnap.data();
-
-      // 🔥 ここが重要：Firestore のドキュメントIDを使う
-      const student = {
-        id: docSnap.id,     // ← これだけ使う
-        name: data.name
-      };
-
-      const a = document.createElement("a");
-      a.className = "button";
-      a.textContent = student.name;
-      a.onclick = () => selectStudent(student);
-      list.appendChild(a);
+  function todayRange() {
+    const now = new Date();
+    return {
+      start: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+      end: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+    };
+  }
+  function dateKey(date) {
+    return [date.getFullYear(),String(date.getMonth()+1).padStart(2,"0"),String(date.getDate()).padStart(2,"0")].join("-");
+  }
+  function dateOf(value) {
+    if (!value) return null;
+    if (typeof value.toDate === "function") return value.toDate();
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+  function clockText() {
+    $("clock").textContent = new Date().toLocaleTimeString("ja-JP");
+  }
+  function setMessage(message, error=false) {
+    $("message").textContent = message;
+    $("message").classList.toggle("error", error);
+  }
+  function personButton(student, mode) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "person" + (selected[mode]?.id === student.id ? " selected" : "");
+    const name = document.createElement("strong");
+    name.textContent = student.name || "名前未設定";
+    const role = document.createElement("small");
+    const status = latestStatus(student.id);
+    const details = [(student.role || "役割未設定"), status.state];
+    if (mode === "B") {
+      const shifts = todayItems
+        .filter(item => item.userId === student.id && item.state === "出勤予定" && item.shift)
+        .map(item => item.shift);
+      const uniqueShifts = [...new Set(shifts)].sort((a, b) => String(a).localeCompare(String(b), "ja"));
+      if (uniqueShifts.length) details.push("予定：" + uniqueShifts.join(" ／ "));
+    }
+    role.textContent = details.join(" / ");
+    button.append(name, role);
+    button.addEventListener("click", () => selectPerson(student, mode));
+    return button;
+  }
+  function selectPerson(student, mode) {
+    selected[mode] = student;
+    const box = $("selected" + mode);
+    $("selected" + mode + "Name").textContent = "選択中：" + (student.name || "名前未設定") + " さん";
+    box.classList.remove("hidden");
+    if (mode === "A") renderAllPeople();
+    if (mode === "B") renderShiftPeople();
+    setMessage((student.name || "対象者") + " さんを選択しました。出勤または退勤を選んでください。");
+  }
+  function renderAllPeople() {
+    const keyword = ($("searchA").value || "").trim().toLocaleLowerCase();
+    const target = $("allPeople");
+    target.replaceChildren();
+    const list = students.filter(s => [s.name,s.role].some(v => String(v || "").toLocaleLowerCase().includes(keyword)));
+    if (!list.length) { target.textContent = "該当する人がいません。"; return; }
+    list.forEach(s => target.append(personButton(s,"A")));
+  }
+  function shiftRoster() {
+    const ids = new Set(todayItems.filter(x => x.state === "出勤予定" && x.userId).map(x => x.userId));
+    return students.filter(s => ids.has(s.id));
+  }
+  function renderShiftPeople() {
+    const target = $("shiftPeople");
+    target.replaceChildren();
+    const list = shiftRoster();
+    if (!list.length) { target.textContent = "本日のシフト対象者はいません。"; return; }
+    list.forEach(s => target.append(personButton(s,"B")));
+  }
+  function latestStatus(studentId) {
+    const items = todayItems.filter(x => x.userId === studentId && (x.state === "出勤" || x.state === "退勤"))
+      .sort((a,b) => (dateOf(b.date)?.getTime() || 0) - (dateOf(a.date)?.getTime() || 0));
+    const latest = items[0];
+    if (!latest) return { state:"未出勤", time:"-" };
+    return { state:latest.state, time:latest.time || dateOf(latest.date)?.toLocaleTimeString("ja-JP") || "-" };
+  }
+  function renderStats() {
+    const roster = shiftRoster();
+    const targets = roster.length ? roster : students;
+    let working=0, finished=0, pending=0;
+    targets.forEach(s => {
+      const state = latestStatus(s.id).state;
+      if (state === "出勤") working++;
+      else if (state === "退勤") finished++;
+      else pending++;
+    });
+    $("targetCount").textContent = targets.length;
+    $("workingCount").textContent = working;
+    $("pendingCount").textContent = pending;
+    $("finishedCount").textContent = finished;
+  }
+  function renderStatus() {
+    const keyword = ($("searchC").value || "").trim().toLocaleLowerCase();
+    const body = $("statusRows");
+    body.replaceChildren();
+    const list = students.filter(s => [s.name,s.role].some(v => String(v || "").toLocaleLowerCase().includes(keyword)));
+    if (!list.length) {
+      const tr=document.createElement("tr"),td=document.createElement("td");
+      td.colSpan=4; td.textContent="該当する人がいません。"; tr.append(td); body.append(tr); return;
+    }
+    list.forEach(s => {
+      const status=latestStatus(s.id);
+      const tr=document.createElement("tr");
+      [s.name || "名前未設定",s.role || "未設定"].forEach(value => { const td=document.createElement("td"); td.textContent=value; tr.append(td); });
+      const stateCell=document.createElement("td"), badge=document.createElement("span");
+      badge.className="state " + status.state; badge.textContent=status.state; stateCell.append(badge); tr.append(stateCell);
+      const timeCell=document.createElement("td"); timeCell.textContent=status.time; tr.append(timeCell);
+      body.append(tr);
     });
   }
-
-  // 生徒選択
-  function selectStudent(student) {
-    selectedStudent = student;
-    document.getElementById("selectedStudentLabel").textContent =
-      `選択中：${student.name} さん`;
-    showScreen("tablet-select");
+  function renderRecent() {
+    const target=$("recentList"); target.replaceChildren();
+    if (!recentActions.length) { target.textContent="この画面を開いてからの打刻はありません。"; return; }
+    recentActions.slice(0,8).forEach(item => {
+      const row=document.createElement("div"); row.className="recent-item";
+      const label=document.createElement("strong"); label.textContent=item.name + "：" + item.state;
+      const time=document.createElement("span"); time.className="muted"; time.textContent=item.time;
+      row.append(label,time); target.append(row);
+    });
   }
-
-  // 出勤／退勤保存
-  async function saveAttendance(state) {
+  async function refreshData() {
+    const [peopleSnapshot, itemsSnapshot] = await Promise.all([
+      getDocs(collection(db,"students")),
+      (() => { const range=todayRange(); return getDocs(query(collection(db,"attendanceItems"),where("date",">=",Timestamp.fromDate(range.start)),where("date","<",Timestamp.fromDate(range.end)))); })()
+    ]);
+    students=peopleSnapshot.docs.map(s=>({id:s.id,...s.data()})).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"ja"));
+    todayItems=itemsSnapshot.docs.map(d=>({id:d.id,...d.data()}));
+    renderAllPeople(); renderShiftPeople(); renderStatus(); renderStats();
+    setMessage("本日のデータを読み込みました。");
+  }
+  async function stamp(state, mode) {
+    const student=selected[mode];
+    if (!student) { setMessage("先に対象者を選択してください。",true); return; }
+    if (stampingUsers.has(student.id)) {
+      setMessage((student.name || "対象者")+" さんの打刻を処理中です。少しお待ちください。",true);
+      return;
+    }
+    stampingUsers.add(student.id);
+    const now=new Date();
+    const uniquePart=globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2);
+    const docId=student.id+"_"+now.getTime()+"_"+uniquePart;
+    const buttons=document.querySelectorAll("#mode"+mode+" button[data-stamp]");
+    buttons.forEach(b=>b.disabled=true);
     try {
-      const now = new Date();
-
-      await setDoc(doc(db, "attendanceItems", `${selectedStudent.id}_${now.getTime()}`), {
-        userId: selectedStudent.id,
-        date: serverTimestamp(),
-        shift: "未設定",
-        state: state,
-        time: now.toLocaleString(),
-        notes: "",
-        check: true,
-        history: []
+      await setDoc(doc(db,"attendanceItems",docId),{
+        userId:student.id,
+        date:serverTimestamp(),
+        shift:"未設定",
+        state,
+        time:now.toLocaleString("ja-JP"),
+        notes:"",
+        check:true,
+        history:[]
       });
-
-      showScreen("tablet-action");
-    } catch (e) {
-      console.error(e);
-      showScreen("tablet-error");
+      recentActions.unshift({name:student.name || "名前未設定",state,time:now.toLocaleTimeString("ja-JP")});
+      renderRecent();
+      await refreshData();
+      setMessage((student.name || "対象者")+" さんの"+state+"を記録しました。");
+      if (mode==="D") { $("pinInput").value=""; selected.D=null; $("selectedD").classList.add("hidden"); }
+      if (mode==="E") { selected.E=null; $("selectedE").classList.add("hidden"); }
+    } catch(error) {
+      console.error("打刻保存エラー:",error);
+      setMessage("打刻に失敗しました。通信状況を確認してください。",true);
+    } finally {
+      stampingUsers.delete(student.id);
+      buttons.forEach(b=>b.disabled=false);
     }
   }
-
-  // 画面切り替え
-  function showScreen(id) {
-    document.querySelectorAll(".mock").forEach(div => div.classList.add("hidden"));
-    document.getElementById(id).classList.remove("hidden");
+  function switchMode(mode) {
+    currentMode=mode;
+    document.querySelectorAll(".tab").forEach(tab=>tab.classList.toggle("active",tab.dataset.mode===mode));
+    ["A","B","C","D","E"].forEach(key=>$("mode"+key).classList.toggle("hidden",key!==mode));
+    if (mode!=="E") stopCamera();
+    setMessage("方式"+mode+"を選択中です。");
+  }
+  function findByPin(value) {
+    const raw=String(value || "").trim();
+    if (!raw) return [];
+    return students.filter(s=>String(s.pin ?? s.attendancePin ?? "").trim()===raw);
+  }
+  function findByQr(value) {
+    const raw=String(value || "").trim();
+    if (!raw) return [];
+    return students.filter(s=>[s.qrToken,s.qrCode,s.pin,s.attendancePin,s.id].some(v=>v!=null && String(v).trim()===raw));
+  }
+  function confirmIdentity(matches, mode) {
+    if (!matches.length) { setMessage("該当する利用者が見つかりません。登録情報を確認してください。",true); return; }
+    if (matches.length > 1) {
+      const names=matches.map(s=>s.name || s.id).join("、");
+      setMessage("識別情報が重複しています（"+names+"）。管理者にPIN・QR情報の確認を依頼してください。",true);
+      return;
+    }
+    selectPerson(matches[0],mode);
+  }
+  async function startCamera() {
+    if (!navigator.mediaDevices?.getUserMedia) { $("cameraHelp").textContent="このブラウザではカメラを利用できません。QRの値を手入力してください。"; return; }
+    try {
+      cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});
+      const video=$("camera"); video.srcObject=cameraStream; video.classList.remove("hidden");
+      await video.play();
+      $("cameraHelp").textContent="QRコードをカメラに映してください。";
+      $("startCamera").disabled=true; $("stopCamera").disabled=false;
+      if (!("BarcodeDetector" in window)) {
+        $("cameraHelp").textContent="このブラウザは自動読み取りに対応していません。QRの値を手入力してください。";
+        return;
+      }
+      const detector=new BarcodeDetector({formats:["qr_code"]});
+      const scan=async()=>{
+        if (!cameraStream || currentMode!=="E") return;
+        try {
+          const codes=await detector.detect(video);
+          if (codes.length) {
+            stopCamera();
+            $("qrManual").value=codes[0].rawValue;
+            confirmIdentity(findByQr(codes[0].rawValue),"E");
+            return;
+          }
+        } catch(error) { console.warn("QR読み取り中:",error); }
+        scanTimer=setTimeout(scan,350);
+      };
+      scan();
+    } catch(error) {
+      console.error("カメラ起動エラー:",error);
+      $("cameraHelp").textContent="カメラを起動できませんでした。ブラウザのカメラ許可を確認してください。";
+      setMessage("カメラを利用できません。",true);
+    }
+  }
+  function stopCamera() {
+    if (scanTimer) clearTimeout(scanTimer);
+    scanTimer=null;
+    if (cameraStream) cameraStream.getTracks().forEach(track=>track.stop());
+    cameraStream=null;
+    const video=$("camera"); video.pause(); video.srcObject=null; video.classList.add("hidden");
+    $("startCamera").disabled=false; $("stopCamera").disabled=true;
   }
 
-  function showHome() {
-    showScreen("tablet-home");
+  document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>switchMode(tab.dataset.mode)));
+  document.querySelectorAll("#modeA button[data-stamp]").forEach(b=>b.addEventListener("click",()=>stamp(b.dataset.stamp,"A")));
+  document.querySelectorAll("#modeB button[data-stamp]").forEach(b=>b.addEventListener("click",()=>stamp(b.dataset.stamp,"B")));
+  document.querySelectorAll("#modeD button[data-stamp]").forEach(b=>b.addEventListener("click",()=>stamp(b.dataset.stamp,"D")));
+  document.querySelectorAll("#modeE button[data-stamp]").forEach(b=>b.addEventListener("click",()=>stamp(b.dataset.stamp,"E")));
+  $("searchA").addEventListener("input",renderAllPeople);
+  $("searchC").addEventListener("input",renderStatus);
+  $("pinSubmit").addEventListener("click",()=>confirmIdentity(findByPin($("pinInput").value.trim()),"D"));
+  $("pinInput").addEventListener("input",()=>{selected.D=null;$("selectedD").classList.add("hidden");});
+  $("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter") $("pinSubmit").click();});
+  $("startCamera").addEventListener("click",startCamera);
+  $("stopCamera").addEventListener("click",stopCamera);
+  $("qrManualSubmit").addEventListener("click",()=>confirmIdentity(findByQr($("qrManual").value),"E"));
+  $("qrManual").addEventListener("input",()=>{selected.E=null;$("selectedE").classList.add("hidden");});
+  $("qrManual").addEventListener("keydown",e=>{if(e.key==="Enter") $("qrManualSubmit").click();});
+  window.addEventListener("beforeunload",stopCamera);
+  clockText(); setInterval(clockText,1000);
+  async function initializeKiosk() {
+    try {
+      setMessage("共有タブレットを確認しています...");
+      await new Promise(resolve => {
+        let unsubscribe = () => {};
+        unsubscribe = onAuthStateChanged(auth, () => {
+          unsubscribe();
+          resolve();
+        });
+      });
+      let kioskUser = auth.currentUser;
+      if (kioskUser && !kioskUser.isAnonymous) {
+        document.querySelectorAll("button,input").forEach(element=>element.disabled=true);
+        setMessage("このブラウザは通常アカウントでログイン中です。共有タブレット専用のブラウザで開いてください。",true);
+        return;
+      }
+      if (!kioskUser) kioskUser = (await signInAnonymously(auth)).user;
+      const deviceId = kioskUser.uid;
+      const deviceSnapshot = await getDoc(doc(db,"tabletDevices",deviceId));
+      if (!deviceSnapshot.exists() || deviceSnapshot.data().enabled !== true) {
+        document.querySelectorAll("button,input").forEach(element=>element.disabled=true);
+        $("allPeople").textContent="この端末はまだ登録されていません。";
+        $("shiftPeople").textContent="管理者による端末登録が必要です。";
+        $("statusRows").replaceChildren();
+        const row=document.createElement("tr"),cell=document.createElement("td");
+        cell.colSpan=4;cell.textContent="未登録端末です。次の端末IDを管理者に伝えてください："+deviceId;
+        row.append(cell);$("statusRows").append(row);
+        setMessage("この共有タブレットは未登録です。管理者に端末IDを伝えてください："+deviceId,true);
+        return;
+      }
+      await refreshData();
+    } catch(error) {
+      console.error("共有タブレット初期化エラー:",error);
+      document.querySelectorAll("button,input").forEach(element=>element.disabled=true);
+      setMessage("共有タブレットを認証できませんでした。Firebaseの匿名認証設定とFirestoreルールを確認してください。",true);
+      $("allPeople").textContent="端末認証に失敗しました。";
+      $("shiftPeople").textContent="端末認証に失敗しました。";
+    }
   }
-
-  // ボタンイベント
-  document.getElementById("clockInBtn").onclick = () => saveAttendance("出勤");
-  document.getElementById("clockOutBtn").onclick = () => saveAttendance("退勤");
-
-  document.getElementById("backFromSelectBtn").onclick = showHome;
-  document.getElementById("backFromActionBtn").onclick = showHome;
-  document.getElementById("backFromErrorBtn").onclick = showHome;
-
-  // 初期表示
-  loadStudents();
+  initializeKiosk();
 </script>
-
 </body>
 </html>

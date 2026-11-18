@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#173B57">
+<link rel="apple-touch-icon" href="/assets/icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学習情報管理</title>
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/top.css">
+<meta name="robots" content="noindex, nofollow">
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <h1>学習情報管理</h1>
+      <p>課題・小テストなどの学習情報を確認できます</p>
+    </div>
+
+    <div class="header-admin-area">
+      <a
+        id="adminLoginLink"
+        class="admin-login-link"
+        href="admin/login.html"
+      >管理者ログイン</a>
+
+      <div id="adminMenu" hidden>
+  <span>管理者メニュー</span>
+
+  <a href="admin/dictionary.html" class="admin-dictionary-link">
+    辞書管理
+  </a>
+
+  <button id="adminLogoutButton" type="button">
+    ログアウト
+  </button>
+</div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="subject-section">
+      <button
+        id="subjectToggle"
+        class="subject-toggle"
+        type="button"
+        aria-expanded="false"
+      >
+        <span id="subjectToggleText">すべての教科を表示</span>
+        <span id="subjectToggleIcon" aria-hidden="true">▼</span>
+      </button>
+
+      <div id="subjectList" class="subject-list" hidden>
+      </div>
+    </section>
+
+    <section class="learning-section">
+      <h2>学習関連情報</h2>
+
+      <div class="filter-area">
+        <input
+          type="search"
+          id="searchInput"
+          class="search-input"
+          placeholder="情報名で検索"
+          aria-label="情報名で検索"
+        >
+
+        <div class="category-filters">
+          <label>
+            <input type="checkbox" id="filterSubmission" checked>
+            提出物
+          </label>
+          <label>
+            <input type="checkbox" id="filterTest" checked>
+            小テスト
+          </label>
+        </div>
+
+        <label class="expired-filter">
+          <input type="checkbox" id="showExpired">
+          期限切れを表示
+        </label>
+      </div>
+
+      <div class="period-area">
+        <label for="periodSelect">表示期間：</label>
+        <select id="periodSelect">
+          <option value="future">今日以降</option>
+          <option value="today">今日</option>
+          <option value="tomorrow">明日まで</option>
+          <option value="week">今週</option>
+          <option value="month">今月</option>
+        </select>
+      </div>
+
+      <div id="learningInfoList" class="learning-info-list">
+        <p class="empty-message">該当する情報はありません。</p>
+      </div>
+    </section>
+
+  </main>
+
+ <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/common.js"></script>
+<script src="js/top.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/service-worker.js")
+        .then(() => {
+          console.log("Service Worker registered");
+        })
+        .catch(error => {
+          console.error("Service Worker registration failed:", error);
+        });
+    });
+  }
+</script>
+</body>
+</html>

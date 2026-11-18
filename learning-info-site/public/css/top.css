@@ -1,0 +1,191 @@
+
+.subject-section,
+.learning-section {
+  margin-bottom: 32px;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e2e5e9;
+  border-radius: 10px;
+}
+
+.subject-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 14px 16px;
+  color: #333;
+  background: #f1f4f8;
+  border: 1px solid #dce1e8;
+  border-radius: 7px;
+  text-align: left;
+}
+
+.subject-toggle:hover {
+  background: #e9eef5;
+}
+
+.subject-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.subject-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 15px;
+  color: #333;
+  background: #fff;
+  border: 1px solid #e0e4e9;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.subject-link:hover {
+  background: #f5f7fa;
+}
+
+.filter-area {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.search-input {
+  flex: 1 1 180px;
+  min-width: 130px;
+  padding: 10px 12px;
+  border: 1px solid #ccd2da;
+  border-radius: 6px;
+}
+
+.category-filters {
+  display: flex;
+  gap: 12px;
+}
+
+.category-filters label,
+.expired-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.period-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.period-area select {
+  padding: 8px 10px;
+  border: 1px solid #ccd2da;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.learning-info-list {
+  margin-top: 20px;
+}
+
+.empty-message {
+  padding: 30px 10px;
+  color: #777;
+  text-align: center;
+}
+
+.learning-card {
+  margin-bottom: 12px;
+  padding: 16px;
+  border: 1px solid #e0e4e9;
+  border-radius: 7px;
+}
+
+.learning-card h3 {
+  margin: 0 0 10px;
+  font-size: 17px;
+}
+
+.learning-card .due-date {
+  margin: 0 0 8px;
+  color: #666;
+  font-size: 13px;
+}
+
+.learning-card .due-date.expired {
+  color: #d33;
+}
+
+.learning-card .category {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  color: #555;
+  background: #f0f2f5;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.note-text {
+  margin: 0;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.note-text.collapsed {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.note-toggle {
+  margin-top: 6px;
+  padding: 0;
+  color: #3569a8;
+  background: none;
+  border: none;
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .subject-section,
+  .learning-section {
+    padding: 16px;
+  }
+
+  .subject-list {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-area {
+    align-items: stretch;
+  }
+
+  .search-input {
+    flex-basis: 100%;
+  }
+
+  .category-filters {
+    flex: 1;
+  }
+
+  .expired-filter {
+    margin-left: auto;
+  }
+}
+
+
+/* 教科一覧を閉じているときは確実に非表示にする */
+.subject-list[hidden] {
+  display: none;
+}

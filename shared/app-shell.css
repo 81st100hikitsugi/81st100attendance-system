@@ -1,0 +1,101 @@
+:root {
+  --app-primary: #2878c8;
+  --app-bg: #f3f5f8;
+  --app-surface: #fff;
+  --app-text: #202833;
+  --app-border: #e1e6ed;
+}
+
+.app-shell {
+  color: var(--app-text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.app-brand {
+  color: var(--app-text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.app-user-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: .9rem;
+}
+
+.app-logout {
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  background: #fff;
+  color: var(--app-text);
+  cursor: pointer;
+}
+
+.app-bottom-nav {
+  position: fixed;
+  z-index: 30;
+  inset: auto 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+  background: var(--app-surface);
+  border-top: 1px solid var(--app-border);
+}
+
+.app-nav-link {
+  display: block;
+  padding: 10px 4px;
+  border-radius: 8px;
+  color: #566273;
+  font-size: .85rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.app-nav-link.is-active {
+  color: var(--app-primary);
+  background: #edf5ff;
+  font-weight: 700;
+}
+
+body:has(.app-shell) {
+  margin: 0;
+  padding-bottom: 76px;
+  background: var(--app-bg);
+}
+
+@media (min-width: 800px) {
+  .app-bottom-nav {
+    position: static;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px 20px;
+    border-top: 0;
+    border-bottom: 1px solid var(--app-border);
+  }
+
+  .app-nav-link {
+    min-width: 110px;
+  }
+
+  body:has(.app-shell) {
+    padding-bottom: 0;
+  }
+}

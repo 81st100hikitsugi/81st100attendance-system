@@ -1,0 +1,63 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  color: #333;
+  background: #f5f6f8;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 22px max(20px, calc((100% - 1000px) / 2));
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.site-header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.site-header p {
+  margin: 7px 0 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.admin-login-link {
+  color: #777;
+  font-size: 12px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.admin-login-link:hover {
+  text-decoration: underline;
+}
+
+.container {
+  width: min(100% - 32px, 1000px);
+  margin: 30px auto;
+}
+
+h2 {
+  margin: 0 0 18px;
+  font-size: 20px;
+}
+
+button {
+  cursor: pointer;
+}

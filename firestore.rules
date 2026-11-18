@@ -1,0 +1,194 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Anonymous Firebase accounts are not ordinary signed-in users.
+    // They are accepted only through the explicit kiosk-device allowlist below.
+    function signedIn() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/students/$(request.auth.uid))
+        && get(/databases/$(database)/documents/students/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // A shared kiosk signs in anonymously in the background (no login screen).
+    // Only explicitly registered kiosk UIDs may access the tablet roster and create attendance.
+    function isAuthorizedTablet() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'anonymous'
+        && exists(/databases/$(database)/documents/tabletDevices/$(request.auth.uid))
+        && get(/databases/$(database)/documents/tabletDevices/$(request.auth.uid)).data.enabled == true;
+    }
+
+    // Shared user profiles: users may read their own profile; admins manage the directory.
+    // Registered anonymous kiosk devices may read all student documents for the roster; this is broader than the kiosk UI needs.
+    match /students/{uid} {
+      allow get: if isSelf(uid) || isAdmin() || isAuthorizedTablet();
+      allow list: if isAdmin() || isAuthorizedTablet();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Attendance records: users create/read their own records; admins manage all records.
+    // Registered kiosk devices may read today's records and create records for existing students.
+    match /attendanceItems/{itemId} {
+      allow read: if isAdmin()
+        || isAuthorizedTablet()
+        || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isAdmin()
+        || (signedIn() && request.resource.data.userId == request.auth.uid)
+        || (isAuthorizedTablet()
+          && request.resource.data.keys().hasOnly([
+            'userId', 'date', 'shift', 'state', 'time', 'notes', 'check', 'history'
+          ])
+          && request.resource.data.keys().hasAll([
+            'userId', 'date', 'shift', 'state', 'time', 'notes', 'check', 'history'
+          ])
+          && request.resource.data.userId is string
+          && request.resource.data.state in ['出勤', '退勤']
+          && request.resource.data.date is timestamp
+          && request.resource.data.date == request.time
+          && request.resource.data.shift == '未設定'
+          && request.resource.data.time is string
+          && request.resource.data.notes is string
+          && request.resource.data.check is bool
+          && request.resource.data.history is list
+          && request.resource.data.history.size() == 0
+          && exists(/databases/$(database)/documents/students/$(request.resource.data.userId)));
+      allow update, delete: if isAdmin();
+    }
+
+    // Kiosk device allowlist. Admins register a device UID with { enabled: true }.
+    // A device receives no access until its UID is explicitly allowlisted.
+    match /tabletDevices/{deviceId} {
+      allow get: if (request.auth != null && request.auth.uid == deviceId) || isAdmin();
+      allow list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Weekly shift creation and attendance group management are admin-only.
+    match /attendanceGroups/{groupId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Legacy late/early page collection; retained for admin access pending schema reconciliation.
+    match /weeklyShifts/{shiftId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Notifications are visible to their recipient; only admins publish/manage them.
+    match /notifications/{notificationId} {
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.target == request.auth.uid);
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Shared home dashboard.
+    match /dailyWorkPlans/{planId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Wood management: users update individual items; group summary fields are derived.
+    match /woodGroups/{groupId} {
+      allow read: if signedIn();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (signedIn()
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['representativeState', 'check', 'updatedAt'])
+          && request.resource.data.check is bool
+          && request.resource.data.representativeState in [
+            '未着手', '完了',
+            '罫書き / 予約', '罫書き / 中', '罫書き / 終了',
+            '切断 / 予約', '切断 / 中', '切断 / 終了',
+            'やすり / 予約', 'やすり / 中', 'やすり / 終了',
+            '組立 / 予約', '組立 / 中', '組立 / 終了'
+          ]);
+    }
+
+    function validWoodProcess(value) {
+      return value in ['未着手', '罫書き', '切断', 'やすり', '組立', '完了'];
+    }
+
+    function validWoodProgress(process, progress) {
+      return (process in ['未着手', '完了'] && progress == null)
+        || (process in ['罫書き', '切断', 'やすり', '組立']
+          && progress in ['予約', '中', '終了']);
+    }
+
+    match /woodItems/{itemId} {
+      allow read: if signedIn();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (signedIn()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'process', 'progress', 'assignee', 'assigneeName', 'notes',
+            'updatedBy', 'updatedAt', 'history', 'check',
+            'reservedBy', 'reservedAt', 'reservedName'
+          ])
+          && request.resource.data.updatedBy == request.auth.uid
+          && (!('reservedBy' in request.resource.data)
+            || request.resource.data.reservedBy == null
+            || request.resource.data.reservedBy == request.auth.uid)
+          && (!('reservedBy' in resource.data)
+            || request.resource.data.reservedBy == resource.data.reservedBy
+            || resource.data.reservedBy == null
+            || resource.data.reservedBy == request.auth.uid)
+          && ((!('history' in resource.data) && !('history' in request.resource.data))
+            || (!('history' in resource.data) && request.resource.data.history.size() == 1)
+            || (('history' in resource.data)
+              && (request.resource.data.history == resource.data.history
+                || request.resource.data.history.size() == resource.data.history.size() + 1)))
+          && (!request.resource.data.diff(resource.data).affectedKeys().hasAny([
+            'process', 'progress', 'assignee', 'assigneeName', 'notes'
+          ])
+            || ((!('history' in resource.data) && request.resource.data.history.size() == 1)
+              || (('history' in resource.data)
+                && request.resource.data.history.size() == resource.data.history.size() + 1)))
+          && validWoodProcess(request.resource.data.process)
+          && validWoodProgress(request.resource.data.process, request.resource.data.progress));
+    }
+
+    match /historyLogs/{logId} {
+      allow read: if signedIn();
+      allow create: if isAdmin()
+        || (signedIn() && request.resource.data.updatedBy == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // Integrated learning information: signed-in users read; admins write.
+    match /learningInfos/{infoId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /searchDictionary/{entryId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /subjectDocuments/{subjectId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Legacy collection used by the old user.html page. No broad access is granted.
+    // Revisit only if this legacy page is confirmed to remain in active use.
+    match /attendance/{recordId} {
+      allow read, write: if false;
+    }
+
+    // Deny access to every collection not explicitly listed above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<link rel="stylesheet" href="./shared/app-shell.css">
 <title>通知一覧 - 生徒用</title>
 <style>
   body { font-family: sans-serif; background:#f5f5f5; padding:20px; }
@@ -43,6 +44,7 @@
   }
   #logoutBtn { background:#e24a4a; }
 </style>
+<meta name="robots" content="noindex, nofollow">
 </head>
 
 <body>
@@ -51,99 +53,62 @@
   <p id="statusMessage">読み込み中...</p>
 
   <ul id="notificationList"></ul>
-
-  <a class="button" href="employee_home.html">ホームへ戻る</a>
-  <a class="button" id="logoutBtn">ログアウト</a>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { 
-    getFirestore, collection, query, where, orderBy, getDocs, doc, getDoc
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { 
-    getAuth, onAuthStateChanged, signOut 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import {collection,query,where,orderBy,getDocs,getDocsFromCache,doc,getDoc} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import {db,persistenceReady} from "./shared/firebase.js";
+  import {requireUser} from "./shared/auth.js";
+  import {mountAppShell} from "./shared/app-shell.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
-    authDomain: "attendance-system-eb7d1.firebaseapp.com",
-    projectId: "attendance-system-eb7d1",
-    storageBucket: "attendance-system-eb7d1.firebasestorage.app",
-    messagingSenderId: "803269635846",
-    appId: "1:803269635846:web:6e12018f4b2db2c0747887"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-
-  let currentUserId = null;
-
-  // ログイン確認＋名前取得
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "index.html";
-      return;
-    }
-
-    currentUserId = user.uid;
-
-    // Firestore から名前を取得
-    const userDoc = await getDoc(doc(db, "students", user.uid));
-
-    if (userDoc.exists()) {
-      const data = userDoc.data();
-      document.getElementById("userName").textContent = `ようこそ、${data.name} さん`;
-      document.getElementById("statusMessage").textContent = `${data.name} さんの通知`;
-    } else {
-      document.getElementById("userName").textContent = `ようこそ、${user.email} さん`;
-      document.getElementById("statusMessage").textContent = `${user.email} さんの通知`;
-    }
-
-    loadNotifications();
-  });
-
-  // 通知読み込み
-  async function loadNotifications() {
-    const list = document.getElementById("notificationList");
-    list.innerHTML = "";
-
-    const q = query(
-      collection(db, "notifications"),
-      where("target", "==", currentUserId),
-      orderBy("date", "desc")
-    );
-
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
-      list.innerHTML = "<li>通知はありません</li>";
-      return;
-    }
-
-    snapshot.forEach(docSnap => {
-      const data = docSnap.data();
-      const li = document.createElement("li");
-
-      const date = data.date?.toDate().toLocaleString("ja-JP") ?? "日時不明";
-
-      li.innerHTML = `
-        <div class="title">${data.title}</div>
-        <div>${data.message}</div>
-        <div class="date">${date}</div>
-      `;
-
-      list.appendChild(li);
-    });
+  const $=id=>document.getElementById(id);
+  function showError(message){$("statusMessage").textContent=message}
+  function formatDate(value){
+    if(!value)return "日時不明";
+    const date=typeof value.toDate==="function"?value.toDate():new Date(value);
+    return Number.isNaN(date.getTime())?"日時不明":date.toLocaleString("ja-JP");
   }
-
-  // ログアウト
-  document.getElementById("logoutBtn").onclick = () => {
-    signOut(auth).then(() => {
-      window.location.href = "index.html";
-    });
-  };
+  async function readNotifications(ref){
+    try{return await getDocs(ref)}
+    catch(error){if(!navigator.onLine)return await getDocsFromCache(ref);throw error}
+  }
+  async function loadNotifications(uid){
+    const list=$("notificationList");
+    list.replaceChildren();
+    try{
+      await persistenceReady;
+      const q=query(collection(db,"notifications"),where("target","==",uid),orderBy("date","desc"));
+      const snapshot=await readNotifications(q);
+      if(snapshot.empty){const li=document.createElement("li");li.textContent="通知はありません";list.append(li);return}
+      for(const entry of snapshot.docs){
+        const data=entry.data(),li=document.createElement("li");
+        const title=document.createElement("div");title.className="title";title.textContent=data.title||"（タイトルなし）";
+        const message=document.createElement("div");message.textContent=data.message||"";
+        const date=document.createElement("div");date.className="date";date.textContent=formatDate(data.date);
+        li.append(title,message,date);list.append(li);
+      }
+      showError(navigator.onLine?"":"オフラインの保存データを表示しています。");
+    }catch(error){
+      console.error(error);
+      showError("通知を読み込めませんでした。通信状態またはアクセス権限を確認してください。");
+    }
+  }
+  requireUser({
+    loginUrl:"./index.html",
+    onReady:async({user,profile})=>{
+      mountAppShell({active:"attendance",profile,homeHref:"./home.html",logoutUrl:"./index.html",links:[
+        {id:"home",label:"ホーム",href:"./home.html"},
+        {id:"attendance",label:"出勤",href:"./employee_home.html"},
+        {id:"learning",label:"学習",href:"./learning/index.html"},
+        {id:"wood",label:"木材",href:"./wood/index.html"}
+      ]});
+      const name=profile?.name||user.email||"ユーザー";
+      $("userName").textContent="ようこそ、"+name+" さん";
+      showError(name+" さんの通知");
+      await loadNotifications(user.uid);
+    },
+    onError:()=>showError("ユーザー情報を確認できませんでした。")
+  });
 </script>
 
 </body>

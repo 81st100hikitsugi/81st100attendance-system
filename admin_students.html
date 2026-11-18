@@ -2,127 +2,161 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>生徒名簿 - 管理者</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="./shared/app-shell.css">
+<title>利用者名簿 - 管理者</title>
 <style>
-  body { font-family: sans-serif; background:#f5f5f5; padding:20px; }
-  .container {
-    max-width: 500px;
-    margin: 40px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
+  body { font-family:sans-serif; background:#f5f5f5; padding:20px; }
+  .container { max-width:1000px; margin:30px auto; background:white; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.1); }
   h2 { text-align:center; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-  }
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-  }
-  th {
-    background: #f0f0f0;
-  }
-  a.button {
-    display:block;
-    padding:12px;
-    margin:10px 0;
-    background:#4a90e2;
-    color:white;
-    text-decoration:none;
-    border-radius:6px;
-    text-align:center;
-  }
-  #logoutBtn { background:#e24a4a; }
+  .hint { color:#596579; font-size:.92rem; line-height:1.6; }
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; margin-top:15px; min-width:760px; }
+  th,td { border:1px solid #ddd; padding:9px; text-align:left; vertical-align:top; }
+  th { background:#f0f0f0; }
+  input { width:100%; min-width:110px; box-sizing:border-box; padding:9px; border:1px solid #bbb; border-radius:6px; }
+  button { border:0; border-radius:6px; padding:9px 12px; cursor:pointer; color:white; background:#2878c8; }
+  button.save { background:#26945d; }
+  button.generate { background:#68778c; margin-top:6px; }
+  .qr-preview { min-height:110px; padding-top:8px; }
+  .qr-preview img { max-width:110px; }
+  .status { min-height:1.4em; color:#43536a; }
+  .small { font-size:.82rem; color:#68778c; }
 </style>
+<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="noindex, nofollow">
 </head>
-
 <body>
 <div class="container">
-  <h2>生徒名簿</h2>
-  <p id="statusMessage">読み込み中...</p>
-
-  <table id="studentsTable">
-    <tr>
-      <th>ID</th>
-      <th>名前</th>
-      <th>役割</th>
-    </tr>
-  </table>
-
-  <a class="button" href="admin_home.html">管理者ホームへ戻る</a>
-  <a class="button" id="logoutBtn">ログアウト</a>
+  <h2>利用者名簿・打刻情報</h2>
+  <p class="hint">各利用者のPINとQRコードを登録できます。PINは数字など任意の文字列、QRコードは「QRを発行」を押すと個別の識別文字列を作成します。登録後、QRコードを印刷・配布してタブレットで読み取れます。</p>
+  <p class="hint">PIN・QRコードは利用者ごとに異なる値を設定してください。重複する値は保存できず、タブレット側でも複数人に一致した場合は打刻を止めて管理者に確認を促します。</p>
+  <p id="statusMessage" class="status">読み込み中...</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>名前・役割</th><th>PIN</th><th>QRコード識別値</th><th>QR表示</th><th>保存</th></tr></thead>
+      <tbody id="studentsBody"></tbody>
+    </table>
+  </div>
 </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { 
-    getFirestore, collection, getDocs 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { 
-    getAuth, onAuthStateChanged, signOut 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { db } from "./shared/firebase.js";
+  import { requireAdmin } from "./shared/auth.js";
+  import { mountAppShell } from "./shared/app-shell.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtBjVT9p1JlwLZhKRLzq5secW2YyD1U0U",
-    authDomain: "attendance-system-eb7d1.firebaseapp.com",
-    projectId: "attendance-system-eb7d1",
-    storageBucket: "attendance-system-eb7d1.firebasestorage.app",
-    messagingSenderId: "803269635846",
-    appId: "1:803269635846:web:6e12018f4b2db2c0747887"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-
-  // ログイン確認
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "index.html";
-    } else {
-      loadStudents();
+  requireAdmin({
+    loginUrl:"./index.html",
+    deniedUrl:"./employee_home.html",
+    onReady:async ({profile})=>{
+      mountAppShell({active:"attendance",profile,homeHref:"./home.html",logoutUrl:"./index.html",links:[
+        {id:"home",label:"ホーム",href:"./home.html"},
+        {id:"attendance",label:"出勤",href:"./employee_home.html"},
+        {id:"learning",label:"学習",href:"./learning/index.html"},
+        {id:"wood",label:"木材",href:"./wood/index.html"}
+      ]});
+      await loadStudents();
     }
   });
 
-  // 生徒一覧読み込み
-  async function loadStudents() {
-    const table = document.getElementById("studentsTable");
-
-    const snapshot = await getDocs(collection(db, "students"));
-
-    if (snapshot.empty) {
-      document.getElementById("statusMessage").textContent = "生徒が登録されていません";
-      return;
+  const $=id=>document.getElementById(id);
+  async function loadStudents(){
+    const body=$("studentsBody");
+    body.replaceChildren();
+    try{
+      const snapshot=await getDocs(collection(db,"students"));
+      if(snapshot.empty){$("statusMessage").textContent="利用者が登録されていません。";return;}
+      const identifierRecords = new Map(snapshot.docs.map(snap => {
+        const value = snap.data();
+        return [snap.id, {
+          name: value.name || snap.id,
+          pin: String(value.pin ?? value.attendancePin ?? "").trim(),
+          qr: String(value.qrToken ?? value.qrCode ?? "").trim()
+        }];
+      }));
+      snapshot.docs.sort((a,b)=>String(a.data().name||"").localeCompare(String(b.data().name||""),"ja")).forEach(snap=>{
+        const data=snap.data(), id=snap.id;
+        const tr=document.createElement("tr");
+        const idCell=document.createElement("td"); idCell.textContent=id;
+        const nameCell=document.createElement("td");
+        const name=document.createElement("strong"); name.textContent=data.name||"名前未設定";
+        const role=document.createElement("div"); role.className="small"; role.textContent=data.role||"役割未設定";
+        nameCell.append(name,role);
+        const pinCell=document.createElement("td"), pin=document.createElement("input");
+        pin.type="text"; pin.inputMode="numeric"; pin.autocomplete="off"; pin.maxLength=64; pin.placeholder="PINを設定（64文字以内）";
+        pin.value=String(data.pin??data.attendancePin??""); pinCell.append(pin);
+        const qrCell=document.createElement("td"), qr=document.createElement("input");
+        qr.type="text"; qr.autocomplete="off"; qr.placeholder="QR識別値";
+        qr.value=String(data.qrToken??data.qrCode??""); qrCell.append(qr);
+        const qrViewCell=document.createElement("td"), preview=document.createElement("div");
+        preview.className="qr-preview";
+        const drawQr=()=>{
+          preview.replaceChildren();
+          if(!qr.value.trim()){preview.textContent="未発行";return;}
+          if(typeof window.QRCode!=="function"){preview.textContent="QR表示ライブラリを読み込めませんでした";return;}
+          new window.QRCode(preview,{text:qr.value.trim(),width:104,height:104});
+        };
+        const generate=document.createElement("button"); generate.type="button"; generate.className="generate"; generate.textContent="QRを発行";
+        generate.addEventListener("click",()=>{
+          if(!qr.value.trim()) {
+            if (crypto.randomUUID) {
+              qr.value = crypto.randomUUID();
+            } else {
+              const bytes = new Uint8Array(16);
+              crypto.getRandomValues(bytes);
+              qr.value = Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+            }
+          }
+          drawQr();
+        });
+        qr.addEventListener("input",drawQr);
+        qrViewCell.append(preview,generate);
+        const saveCell=document.createElement("td"), save=document.createElement("button");
+        save.type="button"; save.className="save"; save.textContent="保存";
+        save.addEventListener("click",async()=>{
+          save.disabled=true; $("statusMessage").textContent=name.textContent+" さんの情報を保存しています...";
+          try{
+            const nextPin = pin.value.trim();
+            const nextQr = qr.value.trim();
+            const duplicate = [...identifierRecords.entries()].find(([otherId, otherData]) => {
+              if (otherId === id) return false;
+              const otherIdentifiers = [otherId, otherData.pin, otherData.qr].filter(Boolean);
+              return [nextPin, nextQr].filter(Boolean).some(value => otherIdentifiers.includes(value));
+            });
+            if (duplicate) {
+              const [duplicateId, duplicateData] = duplicate;
+              const duplicateName = duplicateData.name || duplicateId;
+              const conflicts = [];
+              const otherIdentifiers = [duplicateId, duplicateData.pin, duplicateData.qr];
+              if (nextPin && otherIdentifiers.includes(nextPin)) conflicts.push("PIN");
+              if (nextQr && otherIdentifiers.includes(nextQr)) conflicts.push("QR識別値");
+              $( "statusMessage" ).textContent = conflicts.join("・") + "が「" + duplicateName + "」さんと重複しています。別の値を設定してください。";
+              return;
+            }
+            await updateDoc(doc(db,"students",id),{
+              pin:nextPin,
+              qrToken:nextQr
+            });
+            identifierRecords.set(id, { name: name.textContent, pin: nextPin, qr: nextQr });
+            $("statusMessage").textContent=name.textContent+" さんのPIN・QR情報を保存しました。";
+            drawQr();
+          }catch(error){
+            console.error("PIN・QR保存エラー:",error);
+            $("statusMessage").textContent="保存できませんでした。通信状況とFirestoreの権限を確認してください。";
+          }finally{save.disabled=false;}
+        });
+        saveCell.append(save);
+        tr.append(idCell,nameCell,pinCell,qrCell,qrViewCell,saveCell);
+        body.append(tr);
+        if(qr.value.trim()) drawQr();
+      });
+      $("statusMessage").textContent=snapshot.size+" 人の利用者を読み込みました。";
+    }catch(error){
+      console.error("名簿読み込みエラー:",error);
+      $("statusMessage").textContent="名簿を読み込めませんでした。";
     }
-
-    document.getElementById("statusMessage").textContent = "";
-
-    snapshot.forEach(docSnap => {
-      const data = docSnap.data();
-      const id = docSnap.id; // ドキュメントID（student01 など）
-
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${id}</td>
-        <td>${data.name}</td>
-        <td>${data.role || "未設定"}</td>
-      `;
-      table.appendChild(row);
-    });
   }
-
-  // ログアウト
-  document.getElementById("logoutBtn").onclick = () => {
-    signOut(auth).then(() => {
-      window.location.href = "index.html";
-    });
-  };
 </script>
-
 </body>
 </html>

@@ -1,0 +1,427 @@
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #3569a8;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.subject-title {
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #dce3eb;
+  font-size: 25px;
+}
+
+.learning-section,
+.document-section {
+  margin-bottom: 32px;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e2e5e9;
+  border-radius: 10px;
+}
+
+.filter-area {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.search-input {
+  flex: 1 1 180px;
+  min-width: 130px;
+  padding: 10px 12px;
+  border: 1px solid #ccd2da;
+  border-radius: 6px;
+}
+
+.category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.category-filters label,
+.expired-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.period-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.period-area select {
+  padding: 8px 10px;
+  border: 1px solid #ccd2da;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.learning-info-list {
+  margin-top: 20px;
+}
+
+.empty-message {
+  padding: 30px 10px;
+  color: #777;
+  text-align: center;
+}
+
+.learning-card {
+  margin-bottom: 12px;
+  padding: 16px;
+  border: 1px solid #e0e4e9;
+  border-radius: 7px;
+}
+
+.learning-card h3 {
+  margin: 0 0 10px;
+  font-size: 17px;
+}
+
+.learning-card .due-date {
+  margin: 0 0 8px;
+  color: #666;
+  font-size: 13px;
+}
+
+.learning-card .due-date.expired {
+  color: #d33;
+}
+
+.learning-card .category {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  color: #555;
+  background: #f0f2f5;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.note-text {
+  margin: 0;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.note-text.collapsed {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.note-toggle {
+  margin-top: 6px;
+  padding: 0;
+  color: #3569a8;
+  background: none;
+  border: none;
+  font-size: 13px;
+}
+
+.document-content {
+  min-height: 60px;
+  line-height: 1.7;
+}
+
+.document-content p {
+  color: #777;
+}
+
+@media (max-width: 600px) {
+  .learning-section,
+  .document-section {
+    padding: 16px;
+  }
+
+  .filter-area {
+    align-items: stretch;
+  }
+
+  .search-input {
+    flex-basis: 100%;
+  }
+
+  .category-filters {
+    flex: 1;
+  }
+
+  .expired-filter {
+    margin-left: auto;
+  }
+}
+
+
+/* 学習情報追加ボタン */
+#addInfoButton {
+  margin: 12px 0 20px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  background: #3569a8;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+/* 追加フォーム */
+#addInfoForm {
+  margin: 15px 0 25px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+}
+
+#addInfoForm[hidden],
+#addInfoButton[hidden] {
+  display: none;
+}
+
+#addInfoForm h3 {
+  margin-top: 0;
+}
+
+#addInfoForm label {
+  display: block;
+  margin: 14px 0 6px;
+  font-weight: bold;
+}
+
+#addInfoForm input,
+#addInfoForm select,
+#addInfoForm textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font: inherit;
+}
+
+#addInfoForm textarea {
+  resize: vertical;
+}
+
+#addInfoForm button {
+  margin: 16px 8px 0 0;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#saveInfoButton {
+  background: #3569a8;
+  color: white;
+}
+
+#cancelInfoButton {
+  background: #e5e5e5;
+  color: #333;
+}
+
+#addInfoError {
+  color: #c62828;
+}
+
+
+/* 情報カードの三点メニュー */
+.learning-card {
+  position: relative;
+}
+
+.info-menu-container {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+}
+
+.info-menu-button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: #555;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.info-menu-button:hover {
+  background: #eee;
+}
+
+.info-menu {
+  position: absolute;
+  top: 34px;
+  right: 0;
+  min-width: 110px;
+  padding: 5px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.info-menu[hidden] {
+  display: none;
+}
+
+.info-menu button {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 4px;
+  background: white;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.info-menu button:hover {
+  background: #f0f0f0;
+}
+
+.info-menu .delete-menu-button {
+  color: #c62828;
+}
+
+
+/* 管理者用資料 */
+.document-section {
+  margin-top: 35px;
+}
+
+.document-content {
+  margin-top: 15px;
+  padding: 20px;
+  min-height: 50px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.document-content:empty {
+  display: none;
+}
+
+#editDocumentButton {
+  margin-top: 15px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  background: #3569a8;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#editDocumentButton[hidden],
+#documentEditor[hidden] {
+  display: none;
+}
+
+#documentEditor {
+  margin-top: 15px;
+  padding: 18px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.document-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.document-toolbar button,
+.document-toolbar select {
+  padding: 7px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #f7f7f7;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.document-toolbar input[type="color"] {
+  width: 35px;
+  height: 30px;
+  padding: 2px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.document-editor-area {
+  min-height: 250px;
+  padding: 15px;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+  background: white;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.document-editor-area:focus {
+  outline: 2px solid #8aadd6;
+  border-color: #3569a8;
+}
+
+.document-editor-area ul,
+.document-editor-area ol {
+  padding-left: 30px;
+}
+
+.document-editor-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.document-editor-buttons button {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#saveDocumentButton {
+  background: #3569a8;
+  color: white;
+}
+
+#cancelDocumentButton {
+  background: #e5e5e5;
+  color: #333;
+}
+
+#documentError {
+  color: #c62828;
+}

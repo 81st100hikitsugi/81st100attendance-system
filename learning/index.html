@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#173B57"><title>学習情報管理</title>
+<link rel="stylesheet" href="../shared/app-shell.css">
+<link rel="stylesheet" href="./css/learning.css">
+<meta name="robots" content="noindex, nofollow">
+</head>
+<body>
+<header class="page-heading"><h1>学習情報管理</h1><p>課題・小テストなどの学習情報を確認できます</p></header>
+<main class="container">
+<section class="panel" id="learningAdminTools" hidden><h2>管理者メニュー</h2><a href="./admin/dictionary.html">検索辞書を管理</a> ｜ <a href="./admin/migrate.html">旧学習情報を移行</a></section>
+<section class="panel">
+<button id="subjectToggle" class="subject-toggle" type="button" aria-expanded="false"><span id="subjectToggleText">すべての教科を表示</span><span id="subjectToggleIcon">▼</span></button>
+<div id="subjectList" class="subject-list" hidden></div>
+</section>
+<section class="panel">
+<h2>学習関連情報</h2>
+<div class="filters">
+<input type="search" id="searchInput" placeholder="情報名で検索" aria-label="情報名で検索">
+<label><input type="checkbox" id="filterSubmission" checked> 提出物</label>
+<label><input type="checkbox" id="filterTest" checked> 小テスト</label>
+<label><input type="checkbox" id="showExpired"> 期限切れを表示</label>
+</div>
+<div class="period"><label for="periodSelect">表示期間：</label><select id="periodSelect"><option value="future">今日以降</option><option value="today">今日</option><option value="tomorrow">明日まで</option><option value="week">今週</option><option value="month">今月</option></select></div>
+<div id="learningInfoList" class="learning-info-list"><p class="empty-message">読み込み中...</p></div>
+</section>
+<p id="learningStatus" class="learning-status" role="status"></p>
+</main>
+<script type="module" src="./js/index.js"></script>
+</body></html>

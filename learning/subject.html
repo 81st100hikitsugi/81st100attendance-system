@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>教科別ページ - 学習情報管理</title><link rel="stylesheet" href="./learning.css"><meta name="robots" content="noindex, nofollow">
+</head>
+<body>
+<header class="page-heading"><h1>学習情報管理</h1><p>課題・小テストなどの学習情報を確認できます</p></header>
+<main class="container">
+<a href="./index.html" class="back-link">＜ 学習情報一覧へ戻る</a>
+<h2 id="subjectTitle" class="subject-title">教科名</h2>
+<section class="panel"><h2>学習関連情報</h2>
+<div class="filters"><input type="search" id="searchInput" placeholder="情報名で検索" aria-label="情報名で検索">
+<label><input type="checkbox" id="filterSubmission" checked> 提出物</label><label><input type="checkbox" id="filterTest" checked> 小テスト</label><label><input type="checkbox" id="filterNone" checked> NONE</label><label><input type="checkbox" id="showExpired"> 期限切れを表示</label></div>
+<div class="period"><label for="periodSelect">表示期間：</label><select id="periodSelect"><option value="future">今日以降</option><option value="today">今日</option><option value="tomorrow">明日まで</option><option value="week">今週</option><option value="month">今月</option></select></div>
+<button id="addInfoButton" hidden>＋ 情報を追加</button>
+<form id="addInfoForm" class="editor-form" hidden><h3>学習情報の追加・編集</h3>
+<label>情報名（必須）<input id="newInfoName" maxlength="100" required></label>
+<label>分類<select id="newInfoCategory"><option value="NONE">NONE</option><option value="提出物">提出物</option><option value="小テスト">小テスト</option></select></label>
+<label>備考<textarea id="newInfoNotes" rows="4"></textarea></label><label>期限（任意）<input id="newInfoDueDate" type="date"></label>
+<p id="addInfoError" class="error" hidden></p><button type="submit" id="saveInfoButton">保存</button><button type="button" id="cancelInfoButton">キャンセル</button></form>
+<div id="learningInfoList" class="learning-info-list"><p class="empty-message">読み込み中...</p></div>
+</section>
+<section class="panel"><h2>管理者用資料</h2><div id="documentContent" class="document-content">資料を読み込み中...</div>
+<button id="editDocumentButton" hidden>資料を編集</button>
+<div id="documentEditor" hidden class="editor-form">
+<div class="toolbar"><select id="documentHeading"><option value="p">通常の文章</option><option value="h2">見出し1</option><option value="h3">見出し2</option><option value="h4">見出し3</option></select><button type="button" id="documentBoldButton">太字</button><input type="color" id="documentColor" value="#000000"><button type="button" id="documentColorButton">色を適用</button><button type="button" id="documentBulletButton">箇条書き</button><button type="button" id="documentNumberButton">番号付きリスト</button><button type="button" id="documentLinkButton">リンク</button></div>
+<div id="documentEditorArea" class="document-editor-area" contenteditable="true" role="textbox" aria-label="管理者用資料の編集欄"></div>
+<p id="documentError" class="error" hidden></p><button type="button" id="saveDocumentButton">保存</button><button type="button" id="cancelDocumentButton">キャンセル</button></div>
+</section></main><script type="module" src="./learning-subject.js"></script></body></html>
