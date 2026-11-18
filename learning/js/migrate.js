@@ -172,7 +172,8 @@ $("migrateButton").addEventListener("click",async()=>{
     status("migrationStatus","移行・照合完了：合計"+(identical.length+missing.length)+"件（今回コピー "+missing.length+"件、既存一致 "+identical.length+"件）。旧システムのデータは変更・削除していません。");
     await signOut(sourceAuth);
     connected=false;
-    migrationCompleted=true;\n    status("connectionStatus","移行後、旧システムからログアウトしました。");
+    migrationCompleted=true;
+    status("connectionStatus","移行後、旧システムからログアウトしました。");
   }catch(error){
     console.error(error);
     status("migrationStatus","処理を停止しました："+error.message+"。途中まで書き込まれていても、同一内容のデータは次回スキップし、残りから続行できます。再実行前に件数とバックアップを再確認してください。");
