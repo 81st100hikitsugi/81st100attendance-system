@@ -29,7 +29,7 @@ service cloud.firestore {
     }
 
     // Shared user profiles: users may read their own profile; admins manage the directory.
-    // Registered anonymous kiosk devices may read the roster for shared attendance.
+    // Registered anonymous kiosk devices may read all student documents for the roster; this is broader than the kiosk UI needs.
     match /students/{uid} {
       allow get: if isSelf(uid) || isAdmin() || isAuthorizedTablet();
       allow list: if isAdmin() || isAuthorizedTablet();
