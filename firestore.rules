@@ -22,7 +22,7 @@ service cloud.firestore {
     // A shared kiosk signs in anonymously in the background (no login screen).
     // Only explicitly registered kiosk UIDs may access the tablet roster and create attendance.
     function isAuthorizedTablet() {
-      return signedIn()
+      return request.auth != null
         && request.auth.token.firebase.sign_in_provider == 'anonymous'
         && exists(/databases/$(database)/documents/tabletDevices/$(request.auth.uid))
         && get(/databases/$(database)/documents/tabletDevices/$(request.auth.uid)).data.enabled == true;
