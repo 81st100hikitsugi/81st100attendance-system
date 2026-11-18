@@ -15,7 +15,9 @@
 - `attendanceGroups`, `weeklyShifts`: 管理者のみ。
 - `notifications`: 対象ユーザーと管理者が読み取り、作成・更新・削除は管理者のみ。
 - `dailyWorkPlans`: ログインユーザーが読み取り、管理者が書き込み。
-- `woodGroups`, `woodItems`, `historyLogs`: ログインユーザーが読み取り、現段階では書き込みを管理者のみに制限。
+- `woodGroups`: 一般ユーザーは代表状態・確認状態・更新日時のみ更新可能。まとめ行の作成・削除とその他の変更は管理者のみ。
+- `woodItems`: 一般ユーザーは工程・進行・担当者・備考・確認・自分の予約情報など、許可フィールドを更新可能。新規作成・削除は管理者のみ。
+- `historyLogs`: ログインユーザーは読み取り可能。本人の `updatedBy` を持つ履歴の作成と、管理者による管理を許可。
 - `learningInfos`, `searchDictionary`, `subjectDocuments`: ログインユーザーが読み取り、管理者が書き込み。
 - `attendance`: 旧 `user.html` 専用の旧コレクションとして明示的に拒否。
 - 上記以外のコレクションは最後のルールで拒否。
@@ -53,3 +55,5 @@
 このレビュー初版の木材書き込み権限の説明は古くなっている。現在の `firestore.rules` には一般ユーザーによる個別木材の許可フィールド更新が追加されているため、上記の現行ブランチ案の説明を正とする。ただし、Firebase ConsoleへのデプロイやEmulator検証を確認したものではない。
 
 また、`tablet.html` は未ログインで `students`・`attendanceItems` を読み、`attendanceItems` を作成する。現在のRules案では拒否されるため、タブレットを含む運用方式を確定するまで本番適用しない。
+
+2026-11-19の静的確認で、木材の予約情報（`reservedBy` / `reservedAt` / `reservedName`）を別ユーザーが変更できる余地を修正した。予約関連フィールドを変更する場合、既存予約が未設定または本人所有であること、新しい予約が本人名義であること、予約解除時は関連値がnullであることを要求する。Firestore Emulatorでの許可・拒否テストはまだ必要。
