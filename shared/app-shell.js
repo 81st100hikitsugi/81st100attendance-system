@@ -61,7 +61,7 @@ export function mountAppShell({
     const icon = document.createElement("span");
     icon.className = "app-nav-icon";
     icon.setAttribute("aria-hidden", "true");
-    icon.textContent = item.icon || "";
+    icon.textContent = item.icon || ({ home: "🏠", attendance: "🕒", learning: "📚", wood: "🪵" }[item.id] || "");
     const label = document.createElement("span");
     label.className = "app-nav-label";
     label.textContent = item.label;
