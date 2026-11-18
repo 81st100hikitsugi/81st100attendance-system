@@ -16,7 +16,7 @@ const sourceApp=initializeApp({
   appId:"1:51499093370:web:18b9c262196fda01d29ac3"
 },"learning-source-migration");
 const sourceAuth=getAuth(sourceApp),sourceDb=getFirestore(sourceApp);
-let connected=false,sourceData=null,backupSaved=false,migrationBusy=false;
+let connected=false,sourceData=null,backupSaved=false,migrationBusy=false,migrationCompleted=false;
 const links=[
   {id:"home",label:"ホーム",href:"../../home.html"},
   {id:"attendance",label:"出勤",href:"../../employee_home.html"},
@@ -118,24 +118,29 @@ $("confirmMigration").addEventListener("change",event=>{
 });
 
 async function inspectDestination(){
-  const existingByCollection={};
   const missing=[];
   const identical=[];
   const conflicts=[];
   for(const name of collections){
-    const snapshot=await getDocs(collection(db,name));
-    existingByCollection[name]=new Map(snapshot.docs.map(item=>[item.id,item.data()]));
-    for(const sourceItem of sourceData[name]){
-      const current=existingByCollection[name].get(sourceItem.id);
-      if(current===undefined)missing.push({collection:name,...sourceItem});
-      else if(stableStringify(current)===stableStringify(sourceItem.data))identical.push(name+"/"+sourceItem.id);
-      else conflicts.push(name+"/"+sourceItem.id);
+    const sourceItems=sourceData[name];
+    for(let offset=0;offset<sourceItems.length;offset+=20){
+      const chunk=sourceItems.slice(offset,offset+20);
+      const results=await Promise.all(chunk.map(async item=>({
+        item,
+        snapshot:await getDoc(doc(db,name,item.id))
+      })));
+      for(const {item,snapshot} of results){
+        const key=name+"/"+item.id;
+        if(!snapshot.exists())missing.push({collection:name,...item});
+        else if(stableStringify(snapshot.data())===stableStringify(item.data))identical.push(key);
+        else conflicts.push(key);
+      }
     }
   }
   return {missing,identical,conflicts};
 }
 $("migrateButton").addEventListener("click",async()=>{
-  if(migrationBusy||!backupSaved||!$("confirmMigration").checked||!sourceData)return;
+  if(migrationBusy||migrationCompleted||!backupSaved||!$("confirmMigration").checked||!sourceData)return;
   if(!confirm("統合先へのコピーを開始します。同じ内容のデータはコピー済みとして扱い、内容が異なる同一IDがあれば全体を中止します。続行しますか？"))return;
   migrationBusy=true;
   const button=$("migrateButton");
@@ -167,13 +172,13 @@ $("migrateButton").addEventListener("click",async()=>{
     status("migrationStatus","移行・照合完了：合計"+(identical.length+missing.length)+"件（今回コピー "+missing.length+"件、既存一致 "+identical.length+"件）。旧システムのデータは変更・削除していません。");
     await signOut(sourceAuth);
     connected=false;
-    status("connectionStatus","移行後、旧システムからログアウトしました。");
+    migrationCompleted=true;\n    status("connectionStatus","移行後、旧システムからログアウトしました。");
   }catch(error){
     console.error(error);
     status("migrationStatus","処理を停止しました："+error.message+"。途中まで書き込まれていても、同一内容のデータは次回スキップし、残りから続行できます。再実行前に件数とバックアップを再確認してください。");
   }finally{
     migrationBusy=false;
-    button.disabled=!(backupSaved&&$("confirmMigration").checked);
+    button.disabled=migrationCompleted||!(backupSaved&&$("confirmMigration").checked);
     $("previewButton").disabled=!connected;
     $("backupButton").disabled=!sourceData;
   }
