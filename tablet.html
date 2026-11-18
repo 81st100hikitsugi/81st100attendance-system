@@ -133,7 +133,7 @@
 
 <script type="module">
   import { collection, getDocs, query, where, doc, getDoc, setDoc, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { auth, db } from "./shared/firebase.js";
 
   const $ = (id) => document.getElementById(id);
@@ -405,6 +405,12 @@
   async function initializeKiosk() {
     try {
       setMessage("共有タブレットを確認しています...");
+      await new Promise(resolve => {
+        const unsubscribe = onAuthStateChanged(auth, () => {
+          unsubscribe();
+          resolve();
+        });
+      });
       let kioskUser = auth.currentUser;
       if (kioskUser && !kioskUser.isAnonymous) {
         document.querySelectorAll("button,input").forEach(element=>element.disabled=true);
