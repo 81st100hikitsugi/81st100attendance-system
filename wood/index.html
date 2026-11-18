@@ -8,7 +8,7 @@
 *{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#202833;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
 main{width:min(1240px,calc(100% - 28px));margin:24px auto 90px}.heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.heading h1{margin:0 0 6px;font-size:1.7rem}.muted{color:#667085}.panel{background:#fff;border:1px solid #e1e6ed;border-radius:14px;padding:18px;margin:16px 0;box-shadow:0 2px 8px #172b4d08}
 button,a.button{border:0;border-radius:8px;padding:10px 14px;background:#2878c8;color:#fff;font:inherit;font-weight:650;cursor:pointer;text-decoration:none;display:inline-block}button.secondary,a.secondary{background:#e9eef5;color:#334155}button.danger{background:#b93838}button:disabled{opacity:.55;cursor:not-allowed}
-.filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:5px;min-width:0}.field label{font-size:.86rem;color:#526174;font-weight:650}.field input,.field select{width:100%;min-width:0;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;font:inherit}.multi-actions{display:flex;gap:5px;margin-top:5px}.multi-actions button{padding:4px 8px;font-size:.76rem}.filter-actions{display:flex;gap:8px;align-items:end}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:850px}th,td{padding:11px 10px;border-bottom:1px solid #edf0f4;text-align:left;vertical-align:middle}th{background:#f7f9fc;font-size:.84rem;color:#526174;white-space:nowrap}tbody tr:hover{background:#f8fbff}.group-link{font-weight:700;color:#1767ae;text-decoration:none}.pill{display:inline-block;padding:3px 8px;border-radius:99px;background:#edf2f7;font-size:.82rem}.empty{padding:22px;text-align:center;color:#667085}.status{min-height:24px;color:#526174}.admin-tools{display:flex;gap:8px;flex-wrap:wrap}.modal{position:fixed;inset:0;background:#10182888;display:none;align-items:center;justify-content:center;padding:16px;z-index:1000}.modal.open{display:flex}.dialog{width:min(560px,100%);max-height:90vh;overflow:auto;background:white;border-radius:14px;padding:20px}.dialog h2{margin-top:0}.dialog-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.dialog-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}.hint{font-size:.82rem;color:#667085}
+.filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:5px;min-width:0}.field label{font-size:.86rem;color:#526174;font-weight:650}.field input,.field select{width:100%;min-width:0;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;font:inherit}.multi-actions{display:flex;gap:5px;margin-top:5px}.multi-actions button{padding:4px 8px;font-size:.76rem}.filter-actions{display:flex;gap:8px;align-items:end}.legacy-filter-panel{display:none}.table-wrap{overflow:auto}.filter-th{position:relative}.header-filter{padding:5px 7px;background:transparent;color:#334155;border:0;font:inherit;font-weight:700;white-space:nowrap}.header-filter:hover{background:#eaf1f8}.column-filter-menu{position:absolute;top:100%;left:0;z-index:50;width:230px;max-height:70vh;overflow:auto;padding:12px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 8px 24px #172b4d26;white-space:normal}.column-filter-menu.wide{width:260px}.column-filter-menu[hidden]{display:none}.column-filter-menu label{display:flex;flex-direction:column;gap:5px;margin:0 0 10px;font-size:.82rem;color:#526174}.column-filter-menu input,.column-filter-menu select{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:7px;background:white;font:inherit}.column-filter-menu select[multiple]{min-height:90px}.length-range,.length-target{display:grid;grid-template-columns:1fr 1fr;gap:8px}.length-range[hidden],.length-target[hidden]{display:none}.menu-actions{display:flex;gap:6px;margin-top:10px}.menu-actions button{padding:7px 10px;font-size:.82rem}table{border-collapse:collapse;width:100%;min-width:850px}th,td{padding:11px 10px;border-bottom:1px solid #edf0f4;text-align:left;vertical-align:middle}th{background:#f7f9fc;font-size:.84rem;color:#526174;white-space:nowrap}tbody tr:hover{background:#f8fbff}.group-link{font-weight:700;color:#1767ae;text-decoration:none}.pill{display:inline-block;padding:3px 8px;border-radius:99px;background:#edf2f7;font-size:.82rem}.empty{padding:22px;text-align:center;color:#667085}.status{min-height:24px;color:#526174}.admin-tools{display:flex;gap:8px;flex-wrap:wrap}.modal{position:fixed;inset:0;background:#10182888;display:none;align-items:center;justify-content:center;padding:16px;z-index:1000}.modal.open{display:flex}.dialog{width:min(560px,100%);max-height:90vh;overflow:auto;background:white;border-radius:14px;padding:20px}.dialog h2{margin-top:0}.dialog-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.dialog-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}.hint{font-size:.82rem;color:#667085}
 @media(max-width:760px){.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.dialog-grid{grid-template-columns:1fr}.panel{padding:14px}}
 @media(max-width:430px){.filters{grid-template-columns:1fr}}
 </style>
@@ -16,8 +16,8 @@ button,a.button{border:0;border-radius:8px;padding:10px 14px;background:#2878c8;
 </head>
 <body>
 <main>
-  <header class="heading"><div><h1>木材管理</h1><div class="muted">木材グループと個別木材の状態を確認・更新できます。</div></div><div id="adminTools" class="admin-tools" hidden><button id="addGroup">＋ まとめ行を登録</button></div></header>
-  <section class="panel">
+  <header class="heading"><div><h1>木材管理</h1><div class="muted">木材グループと個別木材の状態を確認・更新できます。</div></div><div id="adminTools" class="admin-tools" hidden><button id="addGroup">＋ まとめ行を登録</button></div><button type="button" id="toggleSampleData" class="secondary">仮データを表示</button></header>
+  <section class="panel legacy-filter-panel">
     <h2>一覧フィルター</h2>
     <div class="filters">
       <div class="field"><label for="nameFilter">名称</label><input id="nameFilter" placeholder="名称で検索"></div>
@@ -38,7 +38,15 @@ button,a.button{border:0;border-radius:8px;padding:10px 14px;background:#2878c8;
   </section>
   <section class="panel">
     <div class="heading"><h2>木材一覧</h2><span id="resultCount" class="muted"></span></div>
-    <div class="table-wrap"><table><thead><tr><th>名称</th><th>素材</th><th>長さ</th><th>数量</th><th>代表状態</th><th>チェック</th><th>備考</th><th id="adminHeader" hidden>管理</th></tr></thead><tbody id="groupRows"><tr><td colspan="8" class="empty">読み込み中...</td></tr></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr>
+<th class="filter-th"><button type="button" class="header-filter" data-filter="name">名称 ▼</button><div class="column-filter-menu" data-menu="name" hidden><label>名称を含む<input id="headerNameFilter" type="search" placeholder="名称で検索"></label><div class="menu-actions"><button type="button" data-apply-header>適用</button><button type="button" class="secondary" data-clear-header>クリア</button></div></div></th>
+<th class="filter-th"><button type="button" class="header-filter" data-filter="material">素材 ▼</button><div class="column-filter-menu" data-menu="material" hidden><label>素材を含む<input id="headerMaterialFilter" type="search" placeholder="素材で検索"></label><div class="menu-actions"><button type="button" data-apply-header>適用</button><button type="button" class="secondary" data-clear-header>クリア</button></div></div></th>
+<th class="filter-th"><button type="button" class="header-filter" data-filter="length">長さ ▼</button><div class="column-filter-menu wide" data-menu="length" hidden><label>指定方法<select id="headerLengthMode"><option value="range">範囲指定</option><option value="tolerance">基準値＋許容差</option></select></label><div class="length-range"><label>最小<input id="headerLengthMin" type="number" min="0" step="any"></label><label>最大<input id="headerLengthMax" type="number" min="0" step="any"></label></div><div class="length-target" hidden><label>基準値<input id="headerLengthTarget" type="number" min="0" step="any"></label><label>許容差<input id="headerLengthTolerance" type="number" min="0" step="any" value="0"></label></div><div class="menu-actions"><button type="button" data-apply-header>適用</button><button type="button" class="secondary" data-clear-header>クリア</button></div></div></th>
+<th class="filter-th"><button type="button" class="header-filter" data-filter="quantity">数量 ▼</button><div class="column-filter-menu" data-menu="quantity" hidden><label>並び順<select id="headerQuantitySort"><option value="">指定なし</option><option value="asc">少ない順</option><option value="desc">多い順</option></select></label><div class="menu-actions"><button type="button" data-apply-header>適用</button><button type="button" class="secondary" data-clear-header>クリア</button></div></div></th>
+<th class="filter-th"><button type="button" class="header-filter" data-filter="state">代表状態 ▼</button><div class="column-filter-menu wide" data-menu="state" hidden><label>工程（複数選択）<select id="headerProcessFilter" multiple size="5"><option>未着手</option><option>罫書き</option><option>切断</option><option>やすり</option><option>組立</option><option>完了</option></select></label><label>進行（複数選択）<select id="headerProgressFilter" multiple size="3"><option>予約</option><option>中</option><option>終了</option><option value="なし">なし</option></select></label><label>担当者<select id="headerAssigneeFilter" multiple size="4"></select></label><div class="menu-actions"><button type="button" data-apply-header>適用</button><button type="button" class="secondary" data-clear-header>クリア</button></div></div></th>
+<th class="filter-th"><button type="button" class="header-filter" data-filter="check">チェック ▼</button><div class="column-filter-menu" data-menu="check" hidden><label>確認状態<select id="headerCheckFilter"><option value="">すべて</option><option value="yes">すべて確認済み</option><option value="no">確認済みなし</option></select></label><div class="menu-actions"><button type="button" data-apply-header>適用</button><button type="button" class="secondary" data-clear-header>クリア</button></div></div></th>
+<th class="filter-th"><button type="button" class="header-filter" data-filter="notes">備考 ▼</button><div class="column-filter-menu" data-menu="notes" hidden><label>備考<select id="headerNotesFilter"><option value="">すべて</option><option value="has">備考あり</option><option value="none">備考なし</option></select></label><div class="menu-actions"><button type="button" data-apply-header>適用</button><button type="button" class="secondary" data-clear-header>クリア</button></div></div></th>
+<th id="adminHeader" hidden>管理</th></tr></thead><tbody id="groupRows"><tr><td colspan="8" class="empty">読み込み中...</td></tr></tbody></table></div>
   </section>
   <p id="status" class="status" role="status"></p>
 </main>
@@ -60,15 +68,53 @@ import {db,persistenceReady} from "../shared/firebase.js";
 import {requireUser} from "../shared/auth.js";
 import {mountAppShell} from "../shared/app-shell.js";
 const $=id=>document.getElementById(id), processes=["未着手","罫書き","切断","やすり","組立","完了"];
-let currentUser=null,profile=null,isAdmin=false,groups=[],items=[],activeFilters={},online=navigator.onLine;
+let currentUser=null,profile=null,isAdmin=false,groups=[],items=[],activeFilters={},online=navigator.onLine,sampleVisible=false;
 const status=(s,error=false)=>{$("status").textContent=s;$("status").style.color=error?"#b93838":"#526174"};
 const text=(v)=>String(v??"");
+const sampleGroups=[
+ {id:"__sample_group_1",name:"仮データ：杉材 角材",material:"杉",length:900,quantity:3,notes:"フィルター確認用",representativeState:"切断 / 中"},
+ {id:"__sample_group_2",name:"仮データ：ヒノキ板材",material:"ヒノキ",length:1200,quantity:2,notes:"仕上げ待ち",representativeState:"やすり / 予約"},
+ {id:"__sample_group_3",name:"仮データ：端材セット",material:"杉",length:300,quantity:4,notes:"",representativeState:"未着手"}
+];
+const sampleItems=[
+ ...["切断","やすり","完了"].map((process,i)=>({id:"__sample_item_"+i,groupId:"__sample_group_1",process,progress:process==="完了"?null:"中",assigneeName:["山田","佐藤","鈴木"][i],notes:i===1?"角を整える":"",check:i===2})),
+ ...["やすり","組立"].map((process,i)=>({id:"__sample_item_b"+i,groupId:"__sample_group_2",process,progress:"予約",assigneeName:i?"田中":"山田",notes:"",check:false})),
+ ...[0,1,2,3].map(i=>({id:"__sample_item_c"+i,groupId:"__sample_group_3",process:"未着手",progress:null,assigneeName:"",notes:"",check:false}))
+];
+function withSamples(){return sampleVisible?{groups:[...groups,...sampleGroups],items:[...items,...sampleItems]}:{groups,items};}
+function closeHeaderMenus(){document.querySelectorAll(".column-filter-menu").forEach(menu=>menu.hidden=true);}
+function toggleHeaderLengthMode(){const tolerance=$("headerLengthMode").value==="tolerance";$("headerLengthMin").closest(".length-range").hidden=tolerance;$("headerLengthTarget").closest(".length-target").hidden=!tolerance;}
+function syncHeaderControls(){
+ const f=activeFilters||{};
+ $("headerNameFilter").value=f.name||"";$("headerMaterialFilter").value=f.material||"";
+ $("headerLengthMode").value=f.lengthMode||"range";$("headerLengthMin").value=f.min||"";$("headerLengthMax").value=f.max||"";$("headerLengthTarget").value=f.target||"";$("headerLengthTolerance").value=f.tolerance??"0";
+ $("headerQuantitySort").value=f.sort||"";$("headerCheckFilter").value=f.check||"";$("headerNotesFilter").value=f.notes||"";
+ for(const [id,key] of [["headerProcessFilter","process"],["headerProgressFilter","progress"],["headerAssigneeFilter","assignees"]])for(const o of $(id).options)o.selected=(f[key]||[]).includes(o.value);
+ toggleHeaderLengthMode();
+}
+function applyHeaderFilters(){
+ activeFilters={name:$("headerNameFilter").value.trim(),material:$("headerMaterialFilter").value.trim(),lengthMode:$("headerLengthMode").value,min:$("headerLengthMin").value,max:$("headerLengthMax").value,target:$("headerLengthTarget").value,tolerance:$("headerLengthTolerance").value,sort:$("headerQuantitySort").value,process:selectedValues("headerProcessFilter"),progress:selectedValues("headerProgressFilter"),assignees:selectedValues("headerAssigneeFilter"),notes:$("headerNotesFilter").value,check:$("headerCheckFilter").value};
+ sessionStorage.setItem("woodListFilters",JSON.stringify(activeFilters));closeHeaderMenus();render();
+}
+function clearHeaderFilter(){
+ const menu=document.querySelector(".column-filter-menu:not([hidden])");if(!menu)return;
+ const reset={
+ name:()=> $("headerNameFilter").value="",
+ material:()=> $("headerMaterialFilter").value="",
+ length:()=>{$("headerLengthMode").value="range";$("headerLengthMin").value="";$("headerLengthMax").value="";$("headerLengthTarget").value="";$("headerLengthTolerance").value="0";toggleHeaderLengthMode();},
+ quantity:()=> $("headerQuantitySort").value="",
+ state:()=>["headerProcessFilter","headerProgressFilter","headerAssigneeFilter"].forEach(id=>[...$(id).options].forEach(o=>o.selected=false)),
+ check:()=> $("headerCheckFilter").value="",
+ notes:()=> $("headerNotesFilter").value=""
+ };
+ reset[menu.dataset.menu]?.();applyHeaderFilters();
+}
 const assigneeOf=x=>x.assigneeName||x.assignee||x.assignedToName||x.assignedTo||"";
 const stateOf=x=>x.process==="未着手"||x.process==="完了"?x.process:[x.process,x.progress].filter(Boolean).join(" / ");
 const processOrder=["未着手","罫書き","切断","やすり","組立","完了"],progressOrder=["予約","中","終了"];
 function representativeState(list){if(!list.length)return "未着手";const rank=x=>{const p=processOrder.indexOf(x.process||"未着手"),q=progressOrder.indexOf(x.progress||"予約");return p<0?999:p*4+(q<0?0:q)};return stateOf(list.slice().sort((a,b)=>rank(a)-rank(b))[0])}
 function options(select,values){select.replaceChildren();for(const value of values){const o=document.createElement("option");o.value=value;o.textContent=value;select.append(o)}}
-function refreshAssigneeOptions(){const values=[...new Set(["山田","佐藤","鈴木","田中",...items.map(assigneeOf)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ja"));options($("assigneeFilter"),values)}
+function refreshAssigneeOptions(){const values=[...new Set(["山田","佐藤","鈴木","田中",...items.map(assigneeOf),...sampleItems.map(assigneeOf)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ja"));options($("assigneeFilter"),values);options($("headerAssigneeFilter"),values)}
 async function readDocs(ref){try{return await getDocs(ref)}catch(error){if(!navigator.onLine)return await getDocsFromCache(ref);throw error}}
 async function load(){
  status("データを読み込んでいます...");
@@ -80,8 +126,9 @@ async function load(){
 function selectedValues(id){return [...$(id).selectedOptions].map(o=>o.value)}
 function render(){
  const f=activeFilters, body=$("groupRows");body.replaceChildren();
- let list=groups.filter(g=>{
-  const its=items.filter(i=>i.groupId===g.id), name=text(g.name).toLocaleLowerCase(),material=text(g.material).toLocaleLowerCase();
+ const data=withSamples(),visibleGroups=data.groups,visibleItems=data.items;
+ let list=visibleGroups.filter(g=>{
+  const its=visibleItems.filter(i=>i.groupId===g.id), name=text(g.name).toLocaleLowerCase(),material=text(g.material).toLocaleLowerCase();
   if(f.name&&!f.name.toLocaleLowerCase().split(/[\s　]+/).filter(Boolean).some(word=>name.includes(word)))return false;
   if(f.material&&!f.material.toLocaleLowerCase().split(/[\s　,、，]+/).filter(Boolean).some(word=>material.includes(word)))return false;
   const hasLength=g.length!==null&&g.length!==undefined&&g.length!=="";const length=Number(g.length);if(f.lengthMode==="tolerance"&&f.target!==""){if(!hasLength||!Number.isFinite(length)||Math.abs(length-Number(f.target))>Number(f.tolerance||0))return false}else if(f.lengthMode==="range"&&((f.min!==""&&(!hasLength||!Number.isFinite(length)||length<Number(f.min)))||(f.max!==""&&(!hasLength||!Number.isFinite(length)||length>Number(f.max)))))return false;
@@ -89,35 +136,42 @@ function render(){
   if(f.progress.length&&!its.some(i=>f.progress.includes(i.progress||"なし")))return false;
   if(f.assignees.length&&!its.some(i=>f.assignees.includes(assigneeOf(i))))return false;
   const notes=its.some(i=>text(i.notes).trim())||text(g.notes).trim();if(f.notes==="has"&&!notes)return false;if(f.notes==="none"&&notes)return false;
+  const allChecked=its.length>0&&its.every(i=>i.check===true);if(f.check==="yes"&&!allChecked)return false;if(f.check==="no"&&allChecked)return false;
   return true;
  });
- if(f.sort)list.sort((a,b)=>((items.filter(i=>i.groupId===a.id).length)-(items.filter(i=>i.groupId===b.id).length))*(f.sort==="asc"?1:-1));
+ if(f.sort)list.sort((a,b)=>((visibleItems.filter(i=>i.groupId===a.id).length)-(visibleItems.filter(i=>i.groupId===b.id).length))*(f.sort==="asc"?1:-1));
  $("resultCount").textContent=list.length+" 件";
  if(!list.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=isAdmin?8:7;td.className="empty";td.textContent="条件に一致する木材はありません。";tr.append(td);body.append(tr);return}
  for(const g of list){
-  const its=items.filter(i=>i.groupId===g.id);
+  const its=visibleItems.filter(i=>i.groupId===g.id);
   const tr=document.createElement("tr");
-  const name=document.createElement("td"),link=document.createElement("a");link.className="group-link";link.href="./detail.html?id="+encodeURIComponent(g.id);link.textContent=g.name||"名称未設定";name.append(link);
+  const name=document.createElement("td"),link=document.createElement("a");link.className="group-link";link.textContent=g.name||"名称未設定";if(g.id.startsWith("__sample_")){link.href="#";link.addEventListener("click",e=>e.preventDefault());link.title="仮データ（一覧フィルター確認用・保存されません）"}else link.href="./detail.html?id="+encodeURIComponent(g.id);name.append(link);
   const vals=[g.material||"—",g.length??"—",its.length,representativeState(its),its.length>0&&its.every(i=>i.check===true)?"✓":"—",g.notes||""];
   tr.append(name);for(let n=0;n<vals.length;n++){const td=document.createElement("td");td.textContent=text(vals[n]);if(n===3){const pill=document.createElement("span");pill.className="pill";pill.textContent=text(vals[n]);td.replaceChildren(pill)}tr.append(td)}
   if(isAdmin){
    const actions=document.createElement("td");
-   const edit=document.createElement("button");edit.type="button";edit.className="secondary";edit.textContent="編集";edit.disabled=!online;edit.addEventListener("click",()=>editGroup(g));
-   const remove=document.createElement("button");remove.type="button";remove.className="danger";remove.style.marginLeft="6px";remove.textContent="削除";remove.disabled=!online;remove.addEventListener("click",()=>removeGroup(g));
+   const edit=document.createElement("button");edit.type="button";edit.className="secondary";edit.textContent="編集";edit.disabled=!online||g.id.startsWith("__sample_");edit.addEventListener("click",()=>editGroup(g));
+   const remove=document.createElement("button");remove.type="button";remove.className="danger";remove.style.marginLeft="6px";remove.textContent="削除";remove.disabled=!online||g.id.startsWith("__sample_");remove.addEventListener("click",()=>removeGroup(g));
    actions.append(edit,remove);tr.append(actions);
   }
   body.append(tr);
  }
 }
-function apply(){activeFilters={name:$("nameFilter").value.trim(),material:$("materialFilter").value.trim(),lengthMode:$("lengthMode").value,min:$("lengthMin").value,max:$("lengthMax").value,target:$("lengthTarget").value,tolerance:$("lengthTolerance").value,sort:$("quantitySort").value,process:selectedValues("processFilter"),progress:selectedValues("progressFilter"),assignees:selectedValues("assigneeFilter"),notes:$("notesFilter").value};sessionStorage.setItem("woodListFilters",JSON.stringify(activeFilters));render()}
-function clear(){for(const id of ["nameFilter","materialFilter","lengthMin","lengthMax","lengthTarget","quantitySort","notesFilter"])$(id).value="";$("lengthMode").value="range";$("lengthTolerance").value="0";for(const id of ["processFilter","progressFilter","assigneeFilter"])for(const o of $(id).options)o.selected=false;activeFilters={name:"",material:"",lengthMode:"range",min:"",max:"",target:"",tolerance:"0",sort:"",process:[],progress:[],assignees:[],notes:""};sessionStorage.removeItem("woodListFilters");toggleLengthMode();render()}
+function apply(){applyHeaderFilters()}
+function clear(){for(const id of ["nameFilter","materialFilter","lengthMin","lengthMax","lengthTarget","quantitySort","notesFilter"])$(id).value="";$("lengthMode").value="range";$("lengthTolerance").value="0";for(const id of ["processFilter","progressFilter","assigneeFilter"])for(const o of $(id).options)o.selected=false;activeFilters={name:"",material:"",lengthMode:"range",min:"",max:"",target:"",tolerance:"0",sort:"",process:[],progress:[],assignees:[],notes:""};sessionStorage.removeItem("woodListFilters");toggleLengthMode();activeFilters.check="";syncHeaderControls();render()}
 function toggleLengthMode(){const tolerance=$("lengthMode").value==="tolerance";$("rangeMinField").hidden=tolerance;$("rangeMaxField").hidden=tolerance;$("targetLengthField").hidden=!tolerance;$("toleranceField").hidden=!tolerance}
-function restoreFilters(){try{const f=JSON.parse(sessionStorage.getItem("woodListFilters")||"null");if(!f)return;for(const [id,key] of [["nameFilter","name"],["materialFilter","material"],["lengthMode","lengthMode"],["lengthMin","min"],["lengthMax","max"],["lengthTarget","target"],["lengthTolerance","tolerance"],["quantitySort","sort"],["notesFilter","notes"]])if(f[key]!==undefined)$(id).value=f[key];for(const [id,key] of [["processFilter","process"],["progressFilter","progress"],["assigneeFilter","assignees"]])for(const o of $(id).options)o.selected=(f[key]||[]).includes(o.value);activeFilters=f;toggleLengthMode()}catch(e){sessionStorage.removeItem("woodListFilters")}}
+function restoreFilters(){try{const f=JSON.parse(sessionStorage.getItem("woodListFilters")||"null");if(!f)return;for(const [id,key] of [["nameFilter","name"],["materialFilter","material"],["lengthMode","lengthMode"],["lengthMin","min"],["lengthMax","max"],["lengthTarget","target"],["lengthTolerance","tolerance"],["quantitySort","sort"],["notesFilter","notes"]])if(f[key]!==undefined)$(id).value=f[key];for(const [id,key] of [["processFilter","process"],["progressFilter","progress"],["assigneeFilter","assignees"]])for(const o of $(id).options)o.selected=(f[key]||[]).includes(o.value);activeFilters=f;toggleLengthMode();syncHeaderControls()}catch(e){sessionStorage.removeItem("woodListFilters")}}
 function openModal(g=null){$("groupForm").reset();$("groupId").value=g?.id||"";$("modalTitle").textContent=g?"まとめ行を編集":"まとめ行を登録";$("groupName").value=g?.name||"";$("groupMaterial").value=g?.material||"";$("groupLength").value=g?.length??"";$("groupQuantity").value=g?.quantity??1;$("groupNotes").value=g?.notes||"";$("quantityHint").textContent=g?"数量を変更すると個別木材の数も調整します。":"新規登録時は数量分の個別木材を作成します。";$("groupModal").classList.add("open")}
 function editGroup(g){if(!isAdmin||!online)return;openModal(g)}
 async function removeGroup(g){if(!isAdmin||!online||!confirm("「"+(g.name||"名称未設定")+"」と、その個別木材・履歴を削除しますか？"))return;try{const [itemSnap,logSnap]=await Promise.all([getDocs(query(collection(db,"woodItems"),where("groupId","==",g.id))),getDocs(query(collection(db,"historyLogs"),where("groupId","==",g.id)))]);const refs=[...itemSnap.docs.map(d=>d.ref),...logSnap.docs.map(d=>d.ref),doc(db,"woodGroups",g.id)];for(let n=0;n<refs.length;n+=450){const batch=writeBatch(db);refs.slice(n,n+450).forEach(ref=>batch.delete(ref));await batch.commit()}await load();status("まとめ行と関連データを削除しました。")}catch(e){console.error(e);status("削除できませんでした。",true)}}
 function closeModal(){$("groupModal").classList.remove("open")}
-$("applyFilters").addEventListener("click",apply);$("clearFilters").addEventListener("click",clear);$("lengthMode").addEventListener("change",toggleLengthMode);
+$("applyFilters").addEventListener("click",apply);$("clearFilters").addEventListener("click",clear);
+document.querySelectorAll(".header-filter").forEach(button=>button.addEventListener("click",()=>{const target=document.querySelector('[data-menu="'+button.dataset.filter+'"]');const wasOpen=!target.hidden;closeHeaderMenus();target.hidden=wasOpen;syncHeaderControls()}));
+document.querySelectorAll("[data-apply-header]").forEach(button=>button.addEventListener("click",applyHeaderFilters));
+document.querySelectorAll("[data-clear-header]").forEach(button=>button.addEventListener("click",clearHeaderFilter));
+$("headerLengthMode").addEventListener("change",toggleHeaderLengthMode);
+document.addEventListener("click",event=>{if(!event.target.closest(".filter-th"))closeHeaderMenus()});
+$("toggleSampleData").addEventListener("click",()=>{sampleVisible=!sampleVisible;$("toggleSampleData").textContent=sampleVisible?"仮データを非表示":"仮データを表示";render();status(sampleVisible?"仮データを表示中です。実データには保存されません。":"仮データを非表示にしました。")});$("lengthMode").addEventListener("change",toggleLengthMode);
 document.querySelectorAll("[data-all]").forEach(b=>b.addEventListener("click",()=>{for(const o of $(b.dataset.all).options)o.selected=true}));
 document.querySelectorAll("[data-none]").forEach(b=>b.addEventListener("click",()=>{for(const o of $(b.dataset.none).options)o.selected=false}));$("addGroup").addEventListener("click",()=>openModal());$("cancelGroup").addEventListener("click",closeModal);
 $("groupRows").addEventListener("dblclick",e=>{const a=e.target.closest("a");if(a&&isAdmin){const g=groups.find(x=>x.id===decodeURIComponent(a.href.split("id=")[1]||""));if(g)editGroup(g)}});
