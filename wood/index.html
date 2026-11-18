@@ -17,7 +17,7 @@ button,a.button{border:0;border-radius:8px;padding:10px 14px;background:#2878c8;
 <body>
 <main>
   <header class="heading"><div><h1>木材管理</h1><div class="muted">木材グループと個別木材の状態を確認・更新できます。</div></div><div id="adminTools" class="admin-tools" hidden><button id="addGroup">＋ まとめ行を登録</button></div><button type="button" id="toggleSampleData" class="secondary">仮データを表示</button></header>
-  <section class="panel">
+  <section class="panel legacy-filter-panel">
     <h2>一覧フィルター</h2>
     <div class="filters">
       <div class="field"><label for="nameFilter">名称</label><input id="nameFilter" placeholder="名称で検索"></div>
@@ -126,6 +126,7 @@ async function load(){
 function selectedValues(id){return [...$(id).selectedOptions].map(o=>o.value)}
 function render(){
  const f=activeFilters, body=$("groupRows");body.replaceChildren();
+ const data=withSamples(),visibleGroups=data.groups,visibleItems=data.items;
  let list=visibleGroups.filter(g=>{
   const its=visibleItems.filter(i=>i.groupId===g.id), name=text(g.name).toLocaleLowerCase(),material=text(g.material).toLocaleLowerCase();
   if(f.name&&!f.name.toLocaleLowerCase().split(/[\s　]+/).filter(Boolean).some(word=>name.includes(word)))return false;
