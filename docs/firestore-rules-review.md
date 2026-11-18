@@ -38,7 +38,7 @@
 - Firebase Consoleへのルール反映・デプロイ
 - Firestoreのユーザーデータ変更（`isAdmin` の設定を含む）
 - データ移行
-- 共有タブレットの認証方式変更
+- Firebase匿名認証プロバイダの有効化と共有タブレットUIDの `tabletDevices` 登録（方式は開発ブランチに実装済み、Firebase設定は未実施）
 - 木材管理のユーザー更新機能実装
 
 ## 次の確認順
