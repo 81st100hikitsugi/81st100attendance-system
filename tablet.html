@@ -407,6 +407,7 @@
       setMessage("共有タブレットを確認しています...");
       let kioskUser = auth.currentUser;
       if (kioskUser && !kioskUser.isAnonymous) {
+        document.querySelectorAll("button,input").forEach(element=>element.disabled=true);
         setMessage("このブラウザは通常アカウントでログイン中です。共有タブレット専用のブラウザで開いてください。",true);
         return;
       }
