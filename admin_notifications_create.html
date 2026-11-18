@@ -55,7 +55,7 @@
     <option value="">選択してください</option>
   </select>
 
-  <a class="button" id="sendBtn">通知を送信する</a>
+  <button class="button" id="sendBtn" type="button" disabled>通知を送信する</button>
 </div>
 
 <script type="module">
@@ -82,20 +82,20 @@
         {id:"learning",label:"学習",href:"./learning/index.html"},
         {id:"wood",label:"木材",href:"./wood/index.html"}
       ]});
-      try{await loadStudents()}catch(error){console.error(error);$("statusMessage").textContent="ユーザー一覧を読み込めませんでした。通信状態や権限を確認してください。"}
+      try{await loadStudents();send.disabled=false}catch(error){console.error(error);$("statusMessage").textContent="ユーザー一覧を読み込めませんでした。通信状態や権限を確認してください。"}
     },
     onError:error=>{$("statusMessage").textContent=error.message||"管理者権限を確認できませんでした。"}
   });
   send.addEventListener("click",async()=>{
     const title=$("titleInput").value.trim(),message=$("messageInput").value.trim(),target=$("targetSelect").value;
     if(!title||!message||!target){$("statusMessage").textContent="タイトル・本文・対象ユーザーをすべて入力してください。";return}
-    send.setAttribute("aria-disabled","true");send.style.pointerEvents="none";$("statusMessage").textContent="送信中...";
+    send.disabled=true;$("statusMessage").textContent="送信中...";
     try{
       await addDoc(collection(db,"notifications"),{title,message,target,date:serverTimestamp()});
       $("statusMessage").textContent="通知を送信しました。";
       $("titleInput").value="";$("messageInput").value="";
     }catch(error){console.error(error);$("statusMessage").textContent="通知を送信できませんでした。通信状態やアクセス権限を確認してください。"}
-    finally{send.removeAttribute("aria-disabled");send.style.pointerEvents=""}
+    finally{send.disabled=false}
   });
 </script>
 
