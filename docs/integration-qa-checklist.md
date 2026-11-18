@@ -117,6 +117,9 @@ Firebase Emulator、実Firebaseへの読み書き、iOS/Android実機、カメ�
 - `admin_late_early.html` の `weeklyShifts` と、週シフト作成画面の `attendanceItems` / `attendanceGroups` の関係を実データと運用で確認する。
 - `firestore.rules` には一般ユーザーの `woodItems` 更新許可が追加されている。古いRulesレビュー文書の「木材は管理者のみ書き込み」という記述は現行ブランチ案と一致しないため、Emulatorで許可フィールド・履歴・予約制御を検証する。
 
+- 移行ツールはバックアップのダウンロードを開始した時点で `backupSaved` をtrueにするため、ファイルが実際に保存・閲覧できたかは自動確認しない。JSONを開けること、3コレクションの件数・Timestamp表現が含まれることを人手で確認する。
+- コピーは400件単位で複数バッチに分かれ、途中失敗時に部分コピーが残り得る。再実行は同一ID衝突で停止するため、部分成功時の照合・再開・復旧手順は未整備。
+
 ### 次の具体的な一手
 
 Firebase Consoleで、まず統合先・旧学習情報側それぞれのFirestoreコレクション一覧と代表ドキュメントのフィールド／型を確認し、件数とともに記録する。同時に統合先の `students` で管理者UIDと `isAdmin` を確認する。ここが終わるまで実データ移行・Rulesデプロイは行わない。
