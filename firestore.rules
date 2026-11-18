@@ -16,20 +16,43 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
+    // A shared kiosk signs in anonymously in the background (no login screen).
+    // Only explicitly registered kiosk UIDs may access the tablet roster and create attendance.
+    function isAuthorizedTablet() {
+      return signedIn()
+        && request.auth.token.firebase.sign_in_provider == 'anonymous'
+        && exists(/databases/$(database)/documents/tabletDevices/$(request.auth.uid))
+        && get(/databases/$(database)/documents/tabletDevices/$(request.auth.uid)).data.enabled == true;
+    }
+
     // Shared user profiles: users may read their own profile; admins manage the directory.
+    // Registered anonymous kiosk devices may read the roster for shared attendance.
     match /students/{uid} {
-      allow get: if isSelf(uid) || isAdmin();
-      allow list: if isAdmin();
+      allow get: if isSelf(uid) || isAdmin() || isAuthorizedTablet();
+      allow list: if isAdmin() || isAuthorizedTablet();
       allow create, update, delete: if isAdmin();
     }
 
     // Attendance records: users create/read their own records; admins manage all records.
+    // Registered kiosk devices may read today's records and create records for existing students.
     match /attendanceItems/{itemId} {
       allow read: if isAdmin()
+        || isAuthorizedTablet()
         || (signedIn() && resource.data.userId == request.auth.uid);
       allow create: if isAdmin()
-        || (signedIn() && request.resource.data.userId == request.auth.uid);
+        || (signedIn() && request.resource.data.userId == request.auth.uid)
+        || (isAuthorizedTablet()
+          && request.resource.data.userId is string
+          && exists(/databases/$(database)/documents/students/$(request.resource.data.userId)));
       allow update, delete: if isAdmin();
+    }
+
+    // Kiosk device allowlist. Admins register a device UID with { enabled: true }.
+    // A device receives no access until its UID is explicitly allowlisted.
+    match /tabletDevices/{deviceId} {
+      allow get: if isSelf(deviceId);
+      allow list: if isAdmin();
+      allow create, update, delete: if isAdmin();
     }
 
     // Weekly shift creation and attendance group management are admin-only.
