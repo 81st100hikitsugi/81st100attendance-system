@@ -2,181 +2,234 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173B57">
+<meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="./shared/app-shell.css">
 <title>遅刻・早退確認 - 管理者</title>
 <style>
   body { font-family: sans-serif; background:#f5f5f5; padding:20px; }
-  .container {
-    max-width: 700px;
-    margin: 40px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
-  h2 { text-align:center; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-  }
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-  }
-  th {
-    background: #f0f0f0;
-  }
-  .late { background: #ffdddd; }
-  .early { background: #ddffdd; }
-  a.button {
-    display:block;
-    padding:12px;
-    margin:10px 0;
-    background:#4a90e2;
-    color:white;
-    text-decoration:none;
-    border-radius:6px;
-    text-align:center;
-  }
-  
+  .container { max-width:1000px; margin:32px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.08); }
+  .controls { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:16px 0; }
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; min-width:760px; }
+  th,td { border:1px solid #ddd; padding:9px; text-align:center; }
+  th { background:#f0f0f0; }
+  tr.late td:last-child, tr.early td:last-child, tr.alert td:last-child { color:#a32020; font-weight:700; }
+  tr.ok td:last-child { color:#176b37; font-weight:700; }
+  #statusMessage { white-space:pre-wrap; }
 </style>
-<meta name="robots" content="noindex, nofollow">
-<meta name="robots" content="noindex, nofollow">
 </head>
-
 <body>
-<div class="container">
-  <h2>遅刻・早退確認</h2>
-  <p id="statusMessage">読み込み中...</p>
-
-  <table id="resultTable">
-    <tr>
-      <th>生徒ID</th>
-      <th>名前</th>
-      <th>予定シフト</th>
-      <th>出勤時間</th>
-      <th>判定</th>
-    </tr>
-  </table>
-</div>
-
+<main class="container">
+  <h1>遅刻・早退確認</h1>
+  <p id="statusMessage" role="status" aria-live="polite">読み込み中...</p>
+  <div class="controls">
+    <label for="weekSelector">対象週：</label>
+    <input type="week" id="weekSelector">
+    <button type="button" id="reloadButton">再読み込み</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>日付</th><th>ユーザーID</th><th>名前</th><th>予定シフト</th>
+        <th>出勤時刻</th><th>退勤時刻</th><th>判定</th>
+      </tr></thead>
+      <tbody id="resultRows"><tr><td colspan="7">読み込み中...</td></tr></tbody>
+    </table>
+  </div>
+</main>
 <script type="module">
-  import { 
-    getFirestore, collection, getDocs 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  
+import { db } from "./shared/firebase.js";
+import { requireAdmin } from "./shared/auth.js";
+import { mountAppShell } from "./shared/app-shell.js";
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  import { db } from "./shared/firebase.js";
-  import { requireAdmin } from "./shared/auth.js";
-  import { mountAppShell } from "./shared/app-shell.js";
+const $ = id => document.getElementById(id);
+const links = [
+  { id:"home", label:"ホーム", href:"./home.html" },
+  { id:"attendance", label:"出勤", href:"./employee_home.html" },
+  { id:"learning", label:"学習", href:"./learning/index.html" },
+  { id:"wood", label:"木材", href:"./wood/index.html" }
+];
 
-  let students = {};
-  let latestShift = null;
-
-  const shiftTimes = {
-    morning: "09:00",
-    noon: "13:00",
-    evening: "17:00",
-    night: "21:00"
-  };
-
-  const days = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"];
-  const labels = ["月","火","水","木","金","土","日"];
-
-  requireAdmin({
-    loginUrl: "./index.html",
-    deniedUrl: "./employee_home.html",
-    onReady: async ({ profile }) => {
-      mountAppShell({ active: "attendance", profile, homeHref: "./home.html", logoutUrl: "./index.html", links: [
-        { id: "home", label: "ホーム", href: "./home.html" },
-        { id: "attendance", label: "出勤", href: "./employee_home.html" },
-        { id: "learning", label: "学習", href: "./learning/index.html" },
-        { id: "wood", label: "木材", href: "./wood/index.html" }
-      ] });
-    await loadStudents();
-    await loadShift();
-    await loadAttendance();
-    }
+function isoWeekId(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return d.getUTCFullYear() + "-W" + String(week).padStart(2, "0");
+}
+function getWeekDates(weekId) {
+  const [year, week] = weekId.split("-W").map(Number);
+  const jan4 = new Date(Date.UTC(year, 0, 4));
+  const monday = new Date(jan4);
+  monday.setUTCDate(jan4.getUTCDate() - ((jan4.getUTCDay() + 6) % 7) + (week - 1) * 7);
+  return Array.from({ length:7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setUTCDate(monday.getUTCDate() + i);
+    return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
   });
-
-  // 生徒一覧読み込み
-  async function loadStudents() {
-    const snapshot = await getDocs(collection(db, "students"));
-    snapshot.forEach(docSnap => {
-      students[docSnap.id] = docSnap.data().name;
-    });
+}
+function toDate(value, fallback) {
+  if (value && typeof value.toDate === "function") return value.toDate();
+  if (value instanceof Date) return value;
+  if (value) {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) return parsed;
   }
-
-  // 最新の週シフト読み込み
-  async function loadShift() {
-    const snapshot = await getDocs(collection(db, "weeklyShifts"));
-    if (!snapshot.empty) {
-      latestShift = snapshot.docs[snapshot.docs.length - 1].data();
+  if (fallback) {
+    const parsed = new Date(fallback);
+    if (!Number.isNaN(parsed.getTime())) return parsed;
+  }
+  return null;
+}
+function dayKey(date) {
+  return [date.getFullYear(), String(date.getMonth()+1).padStart(2,"0"), String(date.getDate()).padStart(2,"0")].join("-");
+}
+function formatTime(date) {
+  return date ? date.toLocaleTimeString("ja-JP", { hour:"2-digit", minute:"2-digit" }) : "—";
+}
+function makeShiftDate(day, time) {
+  const match = String(time || "").match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return null;
+  const result = new Date(day);
+  result.setHours(Number(match[1]), Number(match[2]), 0, 0);
+  return result;
+}
+function shiftBounds(shift) {
+  const match = String(shift || "").match(/^(\d{1,2}:\d{2})-(\d{1,2}:\d{2})$/);
+  return match ? { start:match[1], end:match[2] } : null;
+}
+function appendCell(row, value) {
+  const cell = document.createElement("td");
+  cell.textContent = value == null || value === "" ? "—" : String(value);
+  row.append(cell);
+}
+function assignPunches(punches, schedules, target) {
+  for (const punch of punches) {
+    let best = null, bestDistance = Infinity;
+    for (const schedule of schedules) {
+      const point = target === "start" ? schedule.startAt : schedule.endAt;
+      const distance = Math.abs(punch.at.getTime() - point.getTime());
+      if (distance < bestDistance) { best = schedule; bestDistance = distance; }
     }
+    if (best) best[target === "start" ? "clockIns" : "clockOuts"].push(punch);
   }
-
-  // 打刻読み込みと判定
-  async function loadAttendance() {
-    const snapshot = await getDocs(collection(db, "attendanceItems"));
-    const table = document.getElementById("resultTable");
-
-    snapshot.forEach(docSnap => {
-      const data = docSnap.data();
-
-      if (data.state !== "出勤") return;
-
-      const userId = data.userId;
-      const timeStr = data.time;
-      const time = new Date(timeStr);
-
-      const dayIndex = time.getDay(); // 0=日曜
-      const dayKey = days[dayIndex === 0 ? 6 : dayIndex - 1];
-
-      const shift = latestShift?.[dayKey];
-      if (!shift) return;
-
-      let assigned = null;
-      for (const key of ["morning","noon","evening","night"]) {
-        if (shift[key] === userId) assigned = key;
+}
+function classify(schedule, now) {
+  const firstIn = schedule.clockIns.slice().sort((a,b)=>a.at-b.at)[0]?.at || null;
+  const lastOut = schedule.clockOuts.slice().sort((a,b)=>b.at-a.at)[0]?.at || null;
+  const labels = [];
+  if (!firstIn) labels.push(now < schedule.startAt ? "予定" : "出勤未打刻");
+  else if (firstIn > schedule.startAt) labels.push("遅刻");
+  else labels.push("出勤OK");
+  if (!lastOut) {
+    if (firstIn && now < schedule.endAt) labels.push("勤務中");
+    else if (now >= schedule.endAt) labels.push("退勤未打刻");
+  } else if (lastOut < schedule.endAt) labels.push("早退");
+  else labels.push("退勤OK");
+  const alert = labels.some(x => ["遅刻","早退","出勤未打刻","退勤未打刻"].includes(x));
+  return { firstIn, lastOut, label:labels.join("・"), css:labels.includes("遅刻") ? "late" : labels.includes("早退") ? "early" : alert ? "alert" : "ok" };
+}
+async function load() {
+  const weekId = $("weekSelector").value;
+  if (!weekId) return;
+  $("reloadButton").disabled = true;
+  $("statusMessage").textContent = "シフトと打刻を読み込んでいます...";
+  $("resultRows").replaceChildren();
+  try {
+    const [studentsSnapshot, attendanceSnapshot] = await Promise.all([
+      getDocs(collection(db, "students")),
+      getDocs(collection(db, "attendanceItems"))
+    ]);
+    const names = new Map(studentsSnapshot.docs.map(d => [d.id, d.data().name || "名前未設定"]));
+    const weekDates = getWeekDates(weekId);
+    const start = weekDates[0], end = new Date(weekDates[6]);
+    end.setDate(end.getDate()+1);
+    const schedules = [];
+    const punchesByDayUser = new Map();
+    for (const snap of attendanceSnapshot.docs) {
+      const data = snap.data();
+      const at = toDate(data.date, data.time);
+      if (!at || at < start || at >= end || !data.userId) continue;
+      const key = dayKey(at) + "|" + data.userId;
+      if (data.state === "出勤予定") {
+        const bounds = shiftBounds(data.shift);
+        if (!bounds) continue;
+        const startAt = makeShiftDate(at, bounds.start);
+        const endAt = makeShiftDate(at, bounds.end);
+        if (!startAt || !endAt) continue;
+        schedules.push({
+          id:snap.id, userId:data.userId, day:new Date(at.getFullYear(),at.getMonth(),at.getDate()),
+          shift:data.shift, startAt, endAt, clockIns:[], clockOuts:[]
+        });
+      } else if (data.state === "出勤" || data.state === "退勤") {
+        if (!punchesByDayUser.has(key)) punchesByDayUser.set(key, { clockIns:[], clockOuts:[] });
+        punchesByDayUser.get(key)[data.state === "出勤" ? "clockIns" : "clockOuts"].push({ at, id:snap.id });
       }
-
-      if (!assigned) return;
-
-      const limit = shiftTimes[assigned];
-      const limitDate = new Date(timeStr.split(" ")[0] + " " + limit);
-
-      let result = "OK";
-      let css = "";
-
-      if (time > limitDate) {
-        result = "遅刻";
-        css = "late";
-      }
-
+    }
+    const byDayUser = new Map();
+    for (const schedule of schedules) {
+      const key = dayKey(schedule.day) + "|" + schedule.userId;
+      if (!byDayUser.has(key)) byDayUser.set(key, []);
+      byDayUser.get(key).push(schedule);
+    }
+    for (const [key, group] of byDayUser) {
+      const punches = punchesByDayUser.get(key);
+      if (!punches) continue;
+      assignPunches(punches.clockIns, group, "start");
+      assignPunches(punches.clockOuts, group, "end");
+    }
+    schedules.sort((a,b)=>a.startAt-b.startAt || a.userId.localeCompare(b.userId,"ja"));
+    const now = new Date();
+    for (const schedule of schedules) {
+      const result = classify(schedule, now);
       const row = document.createElement("tr");
-      row.className = css;
-
-      const cells = [
-        userId,
-        students[userId] || "不明",
-        labels[days.indexOf(dayKey)] + "（" + assigned + "）",
-        timeStr,
-        result
-      ];
-      cells.forEach(value => {
-        const cell = document.createElement("td");
-        cell.textContent = String(value ?? "");
-        row.appendChild(cell);
-      });
-
-      table.appendChild(row);
-    });
-
-    document.getElementById("statusMessage").textContent = "";
+      row.className = result.css;
+      appendCell(row, schedule.day.toLocaleDateString("ja-JP"));
+      appendCell(row, schedule.userId);
+      appendCell(row, names.get(schedule.userId) || "不明");
+      appendCell(row, schedule.shift);
+      appendCell(row, formatTime(result.firstIn));
+      appendCell(row, formatTime(result.lastOut));
+      appendCell(row, result.label);
+      $("resultRows").append(row);
+    }
+    if (!schedules.length) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 7;
+      cell.textContent = "この週の出勤予定は登録されていません。";
+      row.append(cell);
+      $("resultRows").append(row);
+    }
+    $("statusMessage").textContent = schedules.length + " 件の予定を確認しました。";
+  } catch (error) {
+    console.error("遅刻・早退確認エラー:", error);
+    $("statusMessage").textContent = "読み込みに失敗しました。シフト・打刻データとFirestoreの権限を確認してください。";
+    const row = document.createElement("tr"), cell = document.createElement("td");
+    cell.colSpan = 7; cell.textContent = "データを読み込めませんでした。";
+    row.append(cell); $("resultRows").append(row);
+  } finally {
+    $("reloadButton").disabled = false;
   }
+}
+$("weekSelector").value = isoWeekId(new Date());
+$("reloadButton").addEventListener("click", load);
+$("weekSelector").addEventListener("change", load);
+requireAdmin({
+  loginUrl:"./index.html",
+  deniedUrl:"./employee_home.html",
+  onReady:async ({ profile }) => {
+    mountAppShell({ active:"attendance", profile, homeHref:"./home.html", logoutUrl:"./index.html", links });
+    await load();
+  },
+  onError:error => {
+    console.error("管理者確認エラー:", error);
+    $("statusMessage").textContent = "管理者情報を確認できませんでした。";
+  }
+});
 </script>
-
 </body>
 </html>
