@@ -48,10 +48,19 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly([
             'userId', 'date', 'shift', 'state', 'time', 'notes', 'check', 'history'
           ])
+          && request.resource.data.keys().hasAll([
+            'userId', 'date', 'shift', 'state', 'time', 'notes', 'check', 'history'
+          ])
           && request.resource.data.userId is string
           && request.resource.data.state in ['出勤', '退勤']
           && request.resource.data.date is timestamp
+          && request.resource.data.date == request.time
+          && request.resource.data.shift == '未設定'
           && request.resource.data.time is string
+          && request.resource.data.notes is string
+          && request.resource.data.check is bool
+          && request.resource.data.history is list
+          && request.resource.data.history.size() == 0
           && exists(/databases/$(database)/documents/students/$(request.resource.data.userId)));
       allow update, delete: if isAdmin();
     }
