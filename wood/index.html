@@ -131,7 +131,6 @@ $("groupForm").addEventListener("submit",async e=>{
    for(let n=0;n<quantity;n++){const itemRef=doc(collection(db,"woodItems"));batch.set(itemRef,{groupId:groupRef.id,process:"未着手",progress:null,assignee:"",assigneeName:"",updatedBy:currentUser.uid,updatedAt:serverTimestamp(),notes:"",check:false,history:[]})}
    await batch.commit();
   }else{
-   const existing=items.filter(x=>x.groupId===id),batch=writeBatch(db);
    const existing=items.filter(x=>x.groupId===id),batch=writeBatch(db);batch.update(doc(db,"woodGroups",id),{name,material,length,quantity,notes,updatedAt:serverTimestamp()});
    if(quantity>existing.length)for(let n=existing.length;n<quantity;n++){const itemRef=doc(collection(db,"woodItems"));batch.set(itemRef,{groupId:id,process:"未着手",progress:null,assignee:"",assigneeName:"",updatedBy:currentUser.uid,updatedAt:serverTimestamp(),notes:"",check:false,history:[]})}
    if(quantity<existing.length)for(const item of existing.slice(quantity)){batch.delete(doc(db,"woodItems",item.id))}
