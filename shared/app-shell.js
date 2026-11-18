@@ -1,10 +1,10 @@
 import { logout } from "./auth.js";
 
 const DEFAULT_LINKS = [
-  { id: "home", label: "ホーム", href: "../home.html" },
-  { id: "attendance", label: "出勤", href: "../employee_home.html" },
-  { id: "learning", label: "学習", href: "../learning/index.html" },
-  { id: "wood", label: "木材", href: "../wood/index.html" }
+  { id: "home", label: "ホーム", icon: "🏠", href: "../home.html" },
+  { id: "attendance", label: "出勤", icon: "🕒", href: "../employee_home.html" },
+  { id: "learning", label: "学習", icon: "📚", href: "../learning/index.html" },
+  { id: "wood", label: "木材", icon: "🪵", href: "../wood/index.html" }
 ];
 
 export function mountAppShell({
@@ -58,7 +58,14 @@ export function mountAppShell({
   for (const item of links) {
     const link = document.createElement("a");
     link.href = item.href;
-    link.textContent = item.label;
+    const icon = document.createElement("span");
+    icon.className = "app-nav-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = item.icon || "";
+    const label = document.createElement("span");
+    label.className = "app-nav-label";
+    label.textContent = item.label;
+    link.append(icon, label);
     link.className = item.id === active ? "app-nav-link is-active" : "app-nav-link";
     if (item.id === active) link.setAttribute("aria-current", "page");
     nav.append(link);
