@@ -133,7 +133,7 @@
 
 <script type="module">
   import { collection, getDocs, query, where, doc, getDoc, setDoc, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { auth, db } from "./shared/firebase.js";
 
   const $ = (id) => document.getElementById(id);
@@ -405,8 +405,13 @@
   async function initializeKiosk() {
     try {
       setMessage("共有タブレットを確認しています...");
-      const credential = await signInAnonymously(auth);
-      const deviceId = credential.user.uid;
+      let kioskUser = auth.currentUser;
+      if (kioskUser && !kioskUser.isAnonymous) {
+        await signOut(auth);
+        kioskUser = null;
+      }
+      if (!kioskUser) kioskUser = (await signInAnonymously(auth)).user;
+      const deviceId = kioskUser.uid;
       const deviceSnapshot = await getDoc(doc(db,"tabletDevices",deviceId));
       if (!deviceSnapshot.exists() || deviceSnapshot.data().enabled !== true) {
         document.querySelectorAll("button,input").forEach(element=>element.disabled=true);
