@@ -158,13 +158,18 @@
       const row = document.createElement("tr");
       row.className = css;
 
-      row.innerHTML = `
-        <td>${userId}</td>
-        <td>${students[userId] || "不明"}</td>
-        <td>${labels[days.indexOf(dayKey)]}（${assigned}）</td>
-        <td>${timeStr}</td>
-        <td>${result}</td>
-      `;
+      const cells = [
+        userId,
+        students[userId] || "不明",
+        labels[days.indexOf(dayKey)] + "（" + assigned + "）",
+        timeStr,
+        result
+      ];
+      cells.forEach(value => {
+        const cell = document.createElement("td");
+        cell.textContent = String(value ?? "");
+        row.appendChild(cell);
+      });
 
       table.appendChild(row);
     });
