@@ -92,3 +92,31 @@
 ## 現時点で未実施
 
 Firebase Emulator、実Firebaseへの読み書き、iOS/Android実機、カメラQR読取、旧学習データの実移行、本番Rules適用、本番デプロイは未実施。
+
+## 8. 2026-11-18 週次移行準備レビュー
+
+### リポジトリのコードから確認できたこと（Firebase実データの確認ではない）
+
+- 統合先のFirebase設定は `shared/firebase.js` の projectId が `attendance-system-eb7d1`。旧学習情報側は `learning-info-site` で、移行画面の接続先と一致する。
+- 共通ログインは統合先Authenticationを使うメールアドレス＋パスワード方式。プロフィールは `students/{uid}` から取得し、管理者判定は `isAdmin === true`。`role` から管理者権限を推測しない。
+- 旧学習情報の移行対象は `learningInfos`、`searchDictionary`、`subjectDocuments`。ソースコード上の主なフィールドは移行計画書を参照。移行画面はID衝突確認、JSONバックアップ、400件単位のコピーを実装し、旧データを削除しない。
+- 出勤記録・シフトのコードでは `attendanceItems.userId` を利用者UIDとして使用している。
+- 木材のコード・Rules案は `woodGroups`、`woodItems`、`historyLogs` を使用し、一般ユーザーの個別木材更新を許可する構成になっている。
+
+### 今週も未確認のこと（Firebaseへの実アクセスが必要）
+
+- 両プロジェクトのFirestore実コレクション件数・全フィールド・型・Timestamp・null・欠損値。
+- 統合先Authenticationの約40アカウントの現存状況、管理者UID、該当する `students/{uid}.isAdmin` の値。旧学習管理者と統合先管理者のUID対応。
+- Firebase Consoleに現在デプロイされているSecurity Rules。リポジトリの `firestore.rules` は本番適用済みとは扱わない。
+- Emulatorでの権限テスト、既存機能の実機テスト、移行前バックアップの復元可能性、実データ移行、移行後照合。
+
+### Rulesの適用を止める既知の不整合
+
+- `tablet.html` は未ログインで `students` と当日の `attendanceItems` を読み、選択した利用者名義で打刻を作成する。現在のRules案はログインを要求するため、そのままではタブレット打刻が拒否される。タブレットを維持する安全な認証・打刻方式が決まるまでRules案を本番適用しない。
+- `user.html` は旧 `attendance` コレクションを使い、Rules案では拒否される。現役利用の有無を確認する。
+- `admin_late_early.html` の `weeklyShifts` と、週シフト作成画面の `attendanceItems` / `attendanceGroups` の関係を実データと運用で確認する。
+- `firestore.rules` には一般ユーザーの `woodItems` 更新許可が追加されている。古いRulesレビュー文書の「木材は管理者のみ書き込み」という記述は現行ブランチ案と一致しないため、Emulatorで許可フィールド・履歴・予約制御を検証する。
+
+### 次の具体的な一手
+
+Firebase Consoleで、まず統合先・旧学習情報側それぞれのFirestoreコレクション一覧と代表ドキュメントのフィールド／型を確認し、件数とともに記録する。同時に統合先の `students` で管理者UIDと `isAdmin` を確認する。ここが終わるまで実データ移行・Rulesデプロイは行わない。
