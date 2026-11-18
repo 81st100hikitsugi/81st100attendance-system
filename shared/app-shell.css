@@ -59,14 +59,21 @@
 }
 
 .app-nav-link {
-  display: block;
-  padding: 10px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 7px 4px;
   border-radius: 8px;
   color: #566273;
-  font-size: .85rem;
+  font-size: .78rem;
   text-align: center;
   text-decoration: none;
 }
+
+.app-nav-icon { font-size: 1.25rem; line-height: 1.2; }
+.app-nav-label { line-height: 1.2; }
 
 .app-nav-link.is-active {
   color: var(--app-primary);
@@ -76,26 +83,22 @@
 
 body:has(.app-shell) {
   margin: 0;
-  padding-bottom: 76px;
+  padding-bottom: calc(82px + env(safe-area-inset-bottom));
   background: var(--app-bg);
 }
 
 @media (min-width: 800px) {
   .app-bottom-nav {
-    position: static;
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    padding: 10px 20px;
-    border-top: 0;
-    border-bottom: 1px solid var(--app-border);
+    position: fixed;
+    inset: auto 0 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    justify-content: stretch;
+    gap: 0;
+    padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--app-border);
+    border-bottom: 0;
   }
-
-  .app-nav-link {
-    min-width: 110px;
-  }
-
-  body:has(.app-shell) {
-    padding-bottom: 0;
-  }
+  .app-nav-link { min-width: 0; }
+  body:has(.app-shell) { padding-bottom: calc(82px + env(safe-area-inset-bottom)); }
 }
