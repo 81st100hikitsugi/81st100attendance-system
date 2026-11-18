@@ -136,3 +136,15 @@ Firebase Emulator、実Firebaseへの読み書き、iOS/Android実機、カメ�
 Firebase Consoleで、まず統合先・旧学習情報側それぞれのFirestoreコレクション一覧と代表ドキュメントのフィールド／型を確認し、件数とともに記録する。同時に統合先の `students` で管理者UIDと `isAdmin` を確認する。ここが終わるまで実データ移行・Rulesデプロイは行わない。
 
 - [ ] 通知の管理者作成・対象ユーザー表示を実機で確認する（通知表示は安全なDOM構築に変更、オフライン時はキャッシュ参照に対応）
+
+
+## 2026-11-18 追加の静的確認
+
+- [x] `learning/index.html` の末尾に混入していた不要な文字列を削除（GitHub上の更新後ファイルを再取得して確認）
+- [x] `admin_late_early.html` の一覧描画を `innerHTML` から `textContent` を使うDOM構築へ変更
+- [x] `README.md` に統合システムの構成、開発・本番ブランチの扱い、ローカル確認方法、Firebaseの注意事項を記載
+- [ ] ローカルHTTPサーバーで画面を開き、ConsoleとNetworkを確認
+- [ ] Firebase Authentication・Firestoreへの実接続と権限を確認
+- [ ] iPhone / Android / PCで主要画面を確認
+
+上のチェック済み項目はソースの静的確認を示す。ブラウザ・Firebaseの実動作確認は未完了。
