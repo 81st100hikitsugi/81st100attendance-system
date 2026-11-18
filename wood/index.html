@@ -22,8 +22,11 @@ button,a.button{border:0;border-radius:8px;padding:10px 14px;background:#2878c8;
     <div class="filters">
       <div class="field"><label for="nameFilter">名称</label><input id="nameFilter" placeholder="名称で検索"></div>
       <div class="field"><label for="materialFilter">素材</label><input id="materialFilter" placeholder="素材で検索"></div>
-      <div class="field"><label for="lengthMin">長さ（最小）</label><input id="lengthMin" type="number" min="0" step="any" placeholder="最小値"></div>
-      <div class="field"><label for="lengthMax">長さ（最大）</label><input id="lengthMax" type="number" min="0" step="any" placeholder="最大値"></div>
+      <div class="field"><label for="lengthMode">長さの指定方法</label><select id="lengthMode"><option value="range">範囲指定</option><option value="tolerance">基準値＋許容差</option></select></div>
+      <div class="field" id="rangeMinField"><label for="lengthMin">長さ（最小）</label><input id="lengthMin" type="number" min="0" step="any" placeholder="最小値"></div>
+      <div class="field" id="rangeMaxField"><label for="lengthMax">長さ（最大）</label><input id="lengthMax" type="number" min="0" step="any" placeholder="最大値"></div>
+      <div class="field" id="targetLengthField" hidden><label for="lengthTarget">長さ（基準値）</label><input id="lengthTarget" type="number" min="0" step="any" placeholder="基準値"></div>
+      <div class="field" id="toleranceField" hidden><label for="lengthTolerance">許容差</label><input id="lengthTolerance" type="number" min="0" step="any" value="0" placeholder="許容差"></div>
       <div class="field"><label for="quantitySort">数量順</label><select id="quantitySort"><option value="">指定なし</option><option value="asc">少ない順</option><option value="desc">多い順</option></select></div>
       <div class="field"><label for="processFilter">工程</label><select id="processFilter" multiple size="4"><option>未着手</option><option>罫書き</option><option>切断</option><option>やすり</option><option>組立</option><option>完了</option></select><div class="multi-actions"><button type="button" class="secondary" data-all="processFilter">すべて選択</button><button type="button" class="secondary" data-none="processFilter">クリア</button></div></div>
       <div class="field"><label for="progressFilter">進行</label><select id="progressFilter" multiple size="3"><option>予約</option><option>中</option><option>終了</option><option value="なし">なし</option></select><div class="multi-actions"><button type="button" class="secondary" data-all="progressFilter">すべて選択</button><button type="button" class="secondary" data-none="progressFilter">クリア</button></div></div>
