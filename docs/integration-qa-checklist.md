@@ -114,6 +114,7 @@ Firebase Emulator、実Firebaseへの読み書き、iOS/Android実機、カメ�
 
 - `tablet.html` は未ログインで `students` と当日の `attendanceItems` を読み、選択した利用者名義で打刻を作成する。現在のRules案はログインを要求するため、そのままではタブレット打刻が拒否される。タブレットを維持する安全な認証・打刻方式が決まるまでRules案を本番適用しない。
 - `user.html` は旧 `attendance` コレクションを使い、Rules案では拒否される。現役利用の有無を確認する。
+- 木材Rules案では一般ユーザーにも `woodGroups.representativeState`・`check`・`updatedAt` の更新を許可している。個別木材更新後の自動集計用だが、Rulesだけでは集計値が実際の個別木材から算出されたことを保証できない。まとめ行の変更は管理者のみという要件との整合性をEmulatorで確認する。
 - `admin_late_early.html` の `weeklyShifts` と、週シフト作成画面の `attendanceItems` / `attendanceGroups` の関係を実データと運用で確認する。
 - `firestore.rules` には一般ユーザーの `woodItems` 更新許可が追加されている。古いRulesレビュー文書の「木材は管理者のみ書き込み」という記述は現行ブランチ案と一致しないため、Emulatorで許可フィールド・履歴・予約制御を検証する。
 
