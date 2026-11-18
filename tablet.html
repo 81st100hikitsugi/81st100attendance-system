@@ -132,8 +132,9 @@
 </main>
 
 <script type="module">
-  import { collection, getDocs, query, where, doc, setDoc, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { db } from "./shared/firebase.js";
+  import { collection, getDocs, query, where, doc, getDoc, setDoc, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { auth, db } from "./shared/firebase.js";
 
   const $ = (id) => document.getElementById(id);
   let students = [];
@@ -401,12 +402,32 @@
   $("qrManual").addEventListener("keydown",e=>{if(e.key==="Enter") $("qrManualSubmit").click();});
   window.addEventListener("beforeunload",stopCamera);
   clockText(); setInterval(clockText,1000);
-  refreshData().catch(error=>{
-    console.error("初期データ読み込みエラー:",error);
-    setMessage("データを読み込めませんでした。接続状態とFirestoreの設定を確認してください。",true);
-    $("allPeople").textContent="読み込みに失敗しました。";
-    $("shiftPeople").textContent="読み込みに失敗しました。";
-  });
+  async function initializeKiosk() {
+    try {
+      setMessage("共有タブレットを確認しています...");
+      const credential = await signInAnonymously(auth);
+      const deviceId = credential.user.uid;
+      const deviceSnapshot = await getDoc(doc(db,"tabletDevices",deviceId));
+      if (!deviceSnapshot.exists() || deviceSnapshot.data().enabled !== true) {
+        document.querySelectorAll("button,input").forEach(element=>element.disabled=true);
+        $("allPeople").textContent="この端末はまだ登録されていません。";
+        $("shiftPeople").textContent="管理者による端末登録が必要です。";
+        $("statusRows").replaceChildren();
+        const row=document.createElement("tr"),cell=document.createElement("td");
+        cell.colSpan=4;cell.textContent="未登録端末です。次の端末IDを管理者に伝えてください："+deviceId;
+        row.append(cell);$("statusRows").append(row);
+        setMessage("この共有タブレットは未登録です。管理者に端末IDを伝えてください："+deviceId,true);
+        return;
+      }
+      await refreshData();
+    } catch(error) {
+      console.error("共有タブレット初期化エラー:",error);
+      setMessage("共有タブレットを認証できませんでした。Firebaseの匿名認証設定とFirestoreルールを確認してください。",true);
+      $("allPeople").textContent="端末認証に失敗しました。";
+      $("shiftPeople").textContent="端末認証に失敗しました。";
+    }
+  }
+  initializeKiosk();
 </script>
 </body>
 </html>
