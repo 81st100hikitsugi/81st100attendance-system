@@ -150,8 +150,8 @@ function render(){
   tr.append(name);for(let n=0;n<vals.length;n++){const td=document.createElement("td");td.textContent=text(vals[n]);if(n===3){const pill=document.createElement("span");pill.className="pill";pill.textContent=text(vals[n]);td.replaceChildren(pill)}tr.append(td)}
   if(isAdmin){
    const actions=document.createElement("td");
-   const edit=document.createElement("button");edit.type="button";edit.className="secondary";edit.textContent="編集";edit.disabled=!online;edit.addEventListener("click",()=>editGroup(g));
-   const remove=document.createElement("button");remove.type="button";remove.className="danger";remove.style.marginLeft="6px";remove.textContent="削除";remove.disabled=!online;remove.addEventListener("click",()=>removeGroup(g));
+   const edit=document.createElement("button");edit.type="button";edit.className="secondary";edit.textContent="編集";edit.disabled=!online||g.id.startsWith("__sample_");edit.addEventListener("click",()=>editGroup(g));
+   const remove=document.createElement("button");remove.type="button";remove.className="danger";remove.style.marginLeft="6px";remove.textContent="削除";remove.disabled=!online||g.id.startsWith("__sample_");remove.addEventListener("click",()=>removeGroup(g));
    actions.append(edit,remove);tr.append(actions);
   }
   body.append(tr);
