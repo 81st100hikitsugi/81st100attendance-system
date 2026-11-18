@@ -1,6 +1,6 @@
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {getAuth,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {getFirestore,collection,getDocs,doc,getDoc,writeBatch} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {getFirestore,collection,getDocs,doc,getDoc,getDocFromServer,writeBatch} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {db} from "../../shared/firebase.js";
 import {requireUser} from "../../shared/auth.js";
 import {mountAppShell} from "../../shared/app-shell.js";
@@ -186,14 +186,27 @@ $("migrateButton").addEventListener("click",async()=>{
 });
 requireUser({
   loginUrl:"../../index.html",
-  onReady:({profile})=>{
-    if(profile?.isAdmin!==true){
-      status("connectionStatus","この機能は管理者専用です。");
+  onReady:async({user,profile})=>{
+    try{
+      // 移行画面ではローカルキャッシュの古い権限情報を使わず、
+      // サーバー上の最新プロフィールで管理者権限を確認する。
+      const freshProfileSnapshot=await getDocFromServer(doc(db,"students",user.uid));
+      const freshProfile=freshProfileSnapshot.exists()
+        ? {uid:user.uid,...freshProfileSnapshot.data()}
+        : null;
+      if(freshProfile?.isAdmin!==true){
+        status("connectionStatus","管理者権限をサーバーで確認できませんでした。ホーム画面を再読み込みしてから、もう一度お試しください。");
+        $("connectButton").disabled=true;
+        return;
+      }
+      mountAppShell({active:"learning",profile:freshProfile,links,homeHref:"../../home.html",logoutUrl:"../../index.html"});
+      $("connectButton").disabled=false;
+      status("connectionStatus","管理者権限を確認しました。旧システムに接続できます。");
+    }catch(error){
+      console.error("管理者権限の再確認に失敗しました:",error);
+      status("connectionStatus","管理者権限を最新の状態に確認できませんでした。通信状態を確認して再読み込みしてください。");
       $("connectButton").disabled=true;
-      return;
     }
-    mountAppShell({active:"learning",profile,links,homeHref:"../../home.html",logoutUrl:"../../index.html"});
-    $("connectButton").disabled=false;
   },
   onError:()=>status("connectionStatus","統合先のユーザー情報を確認できませんでした。")
 });
