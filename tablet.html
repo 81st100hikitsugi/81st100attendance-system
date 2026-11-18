@@ -435,6 +435,7 @@
       await refreshData();
     } catch(error) {
       console.error("共有タブレット初期化エラー:",error);
+      document.querySelectorAll("button,input").forEach(element=>element.disabled=true);
       setMessage("共有タブレットを認証できませんでした。Firebaseの匿名認証設定とFirestoreルールを確認してください。",true);
       $("allPeople").textContent="端末認証に失敗しました。";
       $("shiftPeople").textContent="端末認証に失敗しました。";
