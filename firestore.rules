@@ -101,6 +101,16 @@ service cloud.firestore {
             || request.resource.data.reservedBy == resource.data.reservedBy
             || resource.data.reservedBy == null
             || resource.data.reservedBy == request.auth.uid)
+          && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['reservedBy', 'reservedAt', 'reservedName'])
+            || ((!('reservedBy' in resource.data) || resource.data.reservedBy == null || resource.data.reservedBy == request.auth.uid)
+              && ('reservedBy' in request.resource.data)
+              && (request.resource.data.reservedBy == null || request.resource.data.reservedBy == request.auth.uid)
+              && ((request.resource.data.reservedBy == null
+                  && request.resource.data.reservedAt == null
+                  && request.resource.data.reservedName == null)
+                || (request.resource.data.reservedBy == request.auth.uid
+                  && request.resource.data.reservedAt is timestamp
+                  && request.resource.data.reservedName is string))))
           && ((!('history' in resource.data) && !('history' in request.resource.data))
             || (!('history' in resource.data) && request.resource.data.history.size() == 1)
             || (('history' in resource.data)
