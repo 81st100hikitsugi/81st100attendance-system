@@ -7,6 +7,8 @@ import {mountAppShell} from "../../shared/app-shell.js";
 
 const $=id=>document.getElementById(id);
 const collections=["learningInfos","searchDictionary","subjectDocuments"];
+// 旧サイトのログイン画面と同じ管理者アカウントを使用する（メール入力は不要）。
+const sourceAdminEmail="hina_takahashi@icloud.com";
 const sourceApp=initializeApp({
   apiKey:"AIzaSyAESnBMgGQQKRcPE7J9OzuW04YX7SWUOWc",
   authDomain:"learning-info-site.firebaseapp.com",
@@ -67,7 +69,7 @@ $("connectButton").addEventListener("click",async()=>{
   button.disabled=true;
   status("connectionStatus","接続中...");
   try{
-    await signInWithEmailAndPassword(sourceAuth,$("sourceEmail").value.trim(),$("sourcePassword").value);
+    await signInWithEmailAndPassword(sourceAuth,sourceAdminEmail,$("sourcePassword").value);
     connected=true;
     $("sourcePassword").value="";
     $("previewButton").disabled=false;
