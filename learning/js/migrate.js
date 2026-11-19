@@ -73,8 +73,19 @@ $("connectButton").addEventListener("click",async()=>{
     $("previewButton").disabled=false;
     status("connectionStatus","旧システムに接続しました。");
   }catch(error){
-    console.error(error);
-    status("connectionStatus","接続できませんでした。メールアドレス・パスワードと旧Firebaseの認証状態を確認してください。");
+    console.error("旧Firebase認証エラー:",error);
+    const code=error?.code||"unknown";
+    const messages={
+      "auth/invalid-email":"メールアドレスの形式を確認してください。",
+      "auth/user-not-found":"旧Firebaseに該当するユーザーが見つかりません。",
+      "auth/wrong-password":"パスワードが一致しません。",
+      "auth/invalid-credential":"認証情報が正しくないか、このアカウントではメール・パスワード認証ができません。",
+      "auth/too-many-requests":"試行回数が多すぎます。時間をおいてから再試行してください。",
+      "auth/operation-not-allowed":"旧Firebaseでメール・パスワード認証が有効になっていません。",
+      "auth/network-request-failed":"通信に失敗しました。ネットワーク接続を確認してください。",
+      "auth/unauthorized-domain":"このサイトのドメインが旧Firebaseの承認済みドメインに登録されていません。"
+    };
+    status("connectionStatus","接続できませんでした（"+code+"）。"+(messages[code]||"エラーコードを確認して原因を調べます。"));
   }finally{button.disabled=false}
 });
 $("previewButton").addEventListener("click",async()=>{
