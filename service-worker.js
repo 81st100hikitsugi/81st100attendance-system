@@ -1,4 +1,4 @@
-const CACHE_NAME = "attendance-system-v21";
+const CACHE_NAME = "attendance-system-v22";
 const FIREBASE_SDK_ASSETS = [
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
@@ -28,6 +28,9 @@ const CORE_ASSETS = [
   "./learning/admin/migrate.html",
   "./learning/css/learning.css",
   "./learning-info-site/public/css/subject.css",
+  "./learning-info-site/public/css/common.css",
+  "./learning-info-site/public/css/admin.css",
+  "./learning-info-site/public/css/dictionary.css",
   "./learning/js/index.js",
   "./learning/js/subject.js",
   "./learning/js/dictionary.js",
