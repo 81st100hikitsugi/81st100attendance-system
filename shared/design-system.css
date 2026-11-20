@@ -203,7 +203,7 @@ html body .learning-container .learning-card .info-menu button.delete-menu-butto
 body:has(.app-shell) {
   box-sizing:border-box;
   margin:0 !important;
-  padding:0 0 calc(88px + env(safe-area-inset-bottom)) !important;
+  padding:68px 0 calc(88px + env(safe-area-inset-bottom)) !important;
   color:var(--ui-text);
   background:var(--ui-bg) !important;
 }
@@ -330,3 +330,5 @@ body:has(.app-shell) .table-wrap {
     width:100%;
   }
 }
+
+@media(max-width:600px){body:has(.app-shell){padding-top:60px !important;}}
