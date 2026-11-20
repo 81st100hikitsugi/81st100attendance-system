@@ -1,4 +1,4 @@
-@import url("./design-system.css?v=20261120-6");
+@import url("./design-system.css?v=20261120-7");
 
 :root {
   --app-primary: #2878c8;
@@ -379,4 +379,38 @@ body:has(.app-shell) .app-page-header {
   body:has(.app-shell) > .app-shell {
     padding-top: 58px !important;
   }
+}
+
+
+/* 共通ヘッダーの配色と戻るボタンの最終スタイル */
+body:has(.app-shell) .app-home-header,
+body:has(.app-shell) .app-page-header {
+  background: #eaf2fb !important;
+  border-bottom: 1px solid #cbd9e8 !important;
+  box-shadow: 0 2px 8px rgba(23, 54, 93, .08) !important;
+}
+body:has(.app-shell) .app-home-header-title,
+body:has(.app-shell) .app-page-header-title {
+  color: #18324f !important;
+}
+body:has(.app-shell) .app-page-header .app-page-back-link {
+  border: 0 !important;
+  border-color: transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #18324f !important;
+  -webkit-text-fill-color: #18324f !important;
+  box-shadow: none !important;
+  outline: none;
+}
+body:has(.app-shell) .app-page-header .app-page-back-link:hover {
+  border: 0 !important;
+  background: transparent !important;
+  color: #0759a5 !important;
+  -webkit-text-fill-color: #0759a5 !important;
+  box-shadow: none !important;
+}
+body:has(.app-shell) .app-page-header .app-page-back-link:focus-visible {
+  outline: 2px solid #356fa8 !important;
+  outline-offset: 2px !important;
 }
