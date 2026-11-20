@@ -1,4 +1,4 @@
-const CACHE_NAME = "attendance-system-v40";
+const CACHE_NAME = "attendance-system-v41";
 const FIREBASE_SDK_ASSETS = [
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
@@ -75,6 +75,28 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   const isFirebaseSdk = url.origin === "https://www.gstatic.com" && url.pathname.startsWith("/firebasejs/10.7.1/");
   if (url.origin !== self.location.origin && !isFirebaseSdk) return;
+
+  // 共通ヘッダーCSSは古いクエリ付きURLのキャッシュが残っていても、
+  // オンライン時は必ず最新ファイルを取得する。
+  if (url.origin === self.location.origin && /\/shared\/app-shell\.css$/.test(url.pathname)) {
+    event.respondWith(
+      fetch(request, { cache: "no-store" }).then(async (response) => {
+        if (response && response.ok) {
+          const copy = response.clone();
+          await caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      }).catch(async () => {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        return new Response("オフラインです。共通スタイルを取得できませんでした。", {
+          status: 503,
+          headers: { "Content-Type": "text/plain; charset=utf-8" }
+        });
+      })
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(request).then((cached) => {
