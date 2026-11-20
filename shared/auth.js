@@ -25,14 +25,17 @@ export function requireUser({ loginUrl = "../index.html", onReady, onError } = {
     try {
       const profile = await getUserProfile(user);
       if (!profile) {
-        if (onError) onError(new Error("ユーザー情報が登録されていません。"));
-        else window.location.replace(loginUrl);
+        if (onError) {
+          onError(new Error("ユーザー情報が登録されていません。"));
+          document.body.classList.add("app-shell-ready");
+        } else window.location.replace(loginUrl);
         return;
       }
       if (onReady) await onReady({ user, profile });
     } catch (error) {
       console.error("ユーザー情報の取得に失敗しました:", error);
       if (onError) onError(error);
+      document.body.classList.add("app-shell-ready");
     }
   });
 }
