@@ -439,15 +439,29 @@ html body:has(.app-shell) .learning-container .learning-card .info-menu button.d
 }
 
 
-/* 学習情報管理：共通シェルのボタン指定より優先して教科一覧トグルの文字を表示 */
-html body:has(.app-shell) .learning-home-container button.subject-toggle,
-html body:has(.app-shell) .learning-home-container button.subject-toggle span {
-  color: #26384b !important;
+
+/* 教科一覧の開閉ボタン。共通ボタンCSSの色指定に左右されないようIDで固定。 */
+html body:has(.app-shell) #subjectToggle,
+html body:has(.app-shell) #subjectToggle span {
+  color:#26384b !important;
+  -webkit-text-fill-color:#26384b !important;
+  opacity:1 !important;
+  visibility:visible !important;
 }
-html body:has(.app-shell) .learning-home-container button.subject-toggle {
-  background: #f1f4f8 !important;
-  border: 1px solid #dce1e8 !important;
+html body:has(.app-shell) #subjectToggle {
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  min-height:48px !important;
+  background:#f1f4f8 !important;
+  border:1px solid #cbd5e1 !important;
+  text-align:left !important;
 }
-html body:has(.app-shell) .learning-home-container button.subject-toggle:hover {
-  background: #e9eef5 !important;
+html body:has(.app-shell) #subjectToggle:hover {
+  background:#e9eef5 !important;
+}
+html body:has(.app-shell) #subjectToggle span {
+  display:inline-block !important;
+  line-height:1.5 !important;
 }
