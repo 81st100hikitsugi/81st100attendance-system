@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#2878c8"><title>全体作業予定の管理</title><link rel="stylesheet" href="./shared/app-shell.css">
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#2878c8"><title>全体作業予定の管理</title><link rel="stylesheet" href="./shared/app-shell.css?v=20261120-7">
 <style>*{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#202833;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}main{width:min(980px,calc(100% - 28px));margin:24px auto 80px}.panel{background:#fff;border:1px solid #e1e6ed;border-radius:14px;padding:18px;margin:16px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-weight:650;font-size:.88rem;color:#526174}.field input,.field textarea{padding:10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}.wide{grid-column:1/-1}button{border:0;border-radius:8px;padding:10px 14px;background:#2878c8;color:white;font:inherit;font-weight:650;cursor:pointer}button.secondary{background:#e9eef5;color:#334155}button.danger{background:#b93838}button:disabled{opacity:.5}.plan{padding:14px 0;border-bottom:1px solid #edf0f4}.plan:last-child{border-bottom:0}.plan h3{margin:0 0 5px}.muted{color:#667085}.actions{display:flex;gap:7px;margin-top:9px}.status{min-height:24px}@media(max-width:600px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}}</style><meta name="robots" content="noindex, nofollow">
 <meta name="robots" content="noindex, nofollow">
 </head>
-<body><main>
+<body class="app-shell-pending"><main>
 <header><h1>全体作業予定の管理</h1><p class="muted">ホーム画面に表示する日ごとの全体作業内容を登録・編集します。</p></header>
 <section class="panel"><h2 id="formTitle">作業予定を登録</h2><form id="planForm"><input type="hidden" id="planId"><div class="grid">
 <div class="field"><label for="planDate">日付</label><input id="planDate" type="date" required></div>
