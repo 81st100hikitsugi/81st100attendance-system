@@ -88,3 +88,31 @@ html body :where(img,video,canvas,svg) { max-width:100%; }
   }
   html body :where(input:not([type=checkbox]):not([type=radio]),select,textarea) { width:100%; }
 }
+
+
+/* Consistent in-page navigation */
+.page-back-row {
+  display:flex;
+  align-items:center;
+  margin:0 0 18px;
+}
+.page-back-link {
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  min-height:38px;
+  padding:8px 13px;
+  border:1px solid var(--ui-border);
+  border-radius:9px;
+  background:#fff;
+  color:#34506d !important;
+  font-size:.9rem;
+  font-weight:600;
+  text-decoration:none;
+  box-shadow:0 1px 3px rgba(23,43,77,.04);
+}
+.page-back-link:hover {
+  background:#f2f7fc;
+  border-color:#b9cde1;
+  text-decoration:none;
+}
