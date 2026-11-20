@@ -189,3 +189,28 @@
 .subject-list[hidden] {
   display: none;
 }
+
+
+/* 「続きを読む」を以前のリンクに近いシンプルな見た目にする */
+.note-toggle,
+button.note-toggle {
+  display: inline !important;
+  margin: 6px 0 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #205f9f !important;
+  font: inherit !important;
+  font-size: .9rem !important;
+  font-weight: 600 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+.note-toggle:hover,
+button.note-toggle:hover {
+  background: transparent !important;
+  color: #174875 !important;
+}
