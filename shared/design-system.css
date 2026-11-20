@@ -1,0 +1,90 @@
+/* Shared visual system for every page */
+:root {
+  --ui-primary:#2878c8;
+  --ui-primary-dark:#205f9f;
+  --ui-bg:#f3f5f8;
+  --ui-surface:#ffffff;
+  --ui-text:#202833;
+  --ui-muted:#667085;
+  --ui-border:#e1e6ed;
+  --ui-focus:rgba(40,120,200,.22);
+  --ui-radius:12px;
+  --ui-shadow:0 2px 8px rgba(23,43,77,.06);
+}
+html { color-scheme:light; }
+html body {
+  color:var(--ui-text);
+  font-family:system-ui,-apple-system,"Segoe UI","Yu Gothic",sans-serif;
+  background:var(--ui-bg);
+}
+html body :where(h1,h2,h3,h4) { color:var(--ui-text); line-height:1.4; }
+html body :where(p,li,label,small) { line-height:1.6; }
+html body :where(.container,.panel,.section,.card,.learning-section,.subject-section,.learning-card,.dictionary-item) {
+  background:var(--ui-surface);
+  border:1px solid var(--ui-border);
+  border-radius:var(--ui-radius);
+  box-shadow:var(--ui-shadow);
+}
+html body :where(input:not([type=checkbox]):not([type=radio]):not([type=submit]),select,textarea) {
+  max-width:100%;
+  min-height:40px;
+  padding:9px 11px;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  background:#fff;
+  color:var(--ui-text);
+  font:inherit;
+}
+html body textarea { min-height:88px; }
+html body :where(input,select,textarea):focus-visible {
+  outline:3px solid var(--ui-focus);
+  outline-offset:1px;
+  border-color:var(--ui-primary);
+}
+html body button,
+html body input[type=button],
+html body input[type=submit],
+html body a.button {
+  border:1px solid transparent;
+  border-radius:8px;
+  background:var(--ui-primary);
+  color:#fff;
+  font:inherit;
+  font-weight:600;
+  cursor:pointer;
+  transition:background .15s ease,border-color .15s ease,box-shadow .15s ease;
+}
+html body button:hover,
+html body input[type=button]:hover,
+html body input[type=submit]:hover,
+html body a.button:hover { background:var(--ui-primary-dark); }
+html body :where(button,a,input,select,textarea):focus-visible {
+  outline:3px solid var(--ui-focus);
+  outline-offset:2px;
+}
+html body button:disabled { opacity:.55; cursor:not-allowed; }
+html body a { color:var(--ui-primary-dark); }
+html body :where(table) { border-color:var(--ui-border); }
+html body :where(th) { background:#edf2f7; color:#344256; }
+html body :where(td,th) { border-color:#dce3eb; }
+html body :where(.muted,.small,.hint,.lead,.date) { color:var(--ui-muted); }
+html body :where(.secondary,.btn-secondary,button.secondary) {
+  background:#e9eef5;
+  color:#334155;
+  border-color:#d8e0e9;
+}
+html body :where(.secondary,.btn-secondary,button.secondary):hover { background:#dfe7f0; }
+html body :where(.danger,button.danger) { background:#b93838; color:#fff; }
+html body :where(.danger,button.danger):hover { background:#982d2d; }
+html body :where(.success,button.success) { background:#25845a; color:#fff; }
+html body :where(.success,button.success):hover { background:#1e6e4b; }
+html body :where(.status,.error,.message,[role=status]) { line-height:1.6; }
+html body :where(.table-wrap) { max-width:100%; overflow-x:auto; }
+html body :where(img,video,canvas,svg) { max-width:100%; }
+@media(max-width:600px) {
+  html body { overflow-wrap:anywhere; }
+  html body :where(.container,.panel,.section,.card,.learning-section,.subject-section) {
+    border-radius:10px;
+  }
+  html body :where(input:not([type=checkbox]):not([type=radio]),select,textarea) { width:100%; }
+}
