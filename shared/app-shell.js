@@ -78,7 +78,8 @@ export function mountAppShell({
     const backLink = document.createElement("a");
     backLink.className = "app-page-back-link";
     backLink.href = backConfig.href;
-    backLink.textContent = "← " + backConfig.label;
+    backLink.textContent = "← 戻る";
+    backLink.setAttribute("aria-label", backConfig.label);
     backRow.append(backLink);
     shell.append(backRow);
   }
