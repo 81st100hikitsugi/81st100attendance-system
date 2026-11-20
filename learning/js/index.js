@@ -1,6 +1,6 @@
 import { db } from "../../shared/firebase.js";
 import { requireUser } from "../../shared/auth.js";
-import { mountAppShell } from "../../shared/app-shell.js?v=20261120-8";
+import { mountAppShell } from "../../shared/app-shell.js?v=20261120-9";
 import { collection, getDocs, getDocsFromCache } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { persistenceReady } from "../../shared/firebase.js";
 const subjects=["数学Ⅰ・Ⅱ","現代の国語","論理・表現Ⅰ","情報Ⅰ","保健","言語文化","数学A","公共","英語コミュニケーションⅠ","生物基礎","地理総合","歴史総合","その他"],$=id=>document.getElementById(id);
