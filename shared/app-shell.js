@@ -1,5 +1,3 @@
-import { logout } from "./auth.js";
-
 const PAGE_BACK_LINKS = [
   { path: "employee_attendance.html", href: "./employee_home.html", label: "出勤管理へ戻る" },
   { path: "employee_history.html", href: "./employee_home.html", label: "出勤管理へ戻る" },
@@ -36,46 +34,12 @@ export function mountAppShell({
   shell.className = "app-shell";
 
   const header = document.createElement("header");
-  header.className = "app-header";
-
-  const brand = document.createElement("a");
-  brand.className = "app-brand";
-  brand.href = homeHref;
-  brand.textContent = "業務管理";
-
-  const userArea = document.createElement("div");
-  userArea.className = "app-user-area";
-
-  const userName = document.createElement("span");
-  userName.className = "app-user-name";
-  userName.textContent = profile.name || profile.email || "ユーザー";
-
-  const logoutButton = document.createElement("button");
-  logoutButton.className = "app-logout";
-  logoutButton.type = "button";
-  logoutButton.textContent = "ログアウト";
-  logoutButton.addEventListener("click", async () => {
-    logoutButton.disabled = true;
-    try {
-      await logout(logoutUrl);
-    } catch (error) {
-      console.error("ログアウトに失敗しました:", error);
-      logoutButton.disabled = false;
-      alert("ログアウトに失敗しました。通信状態を確認してください。");
-    }
-  });
-
-  userArea.append(userName, logoutButton);
-  header.append(brand, userArea);
-
   const currentPath = window.location.pathname;
   const backConfig = PAGE_BACK_LINKS.find((item) => currentPath.endsWith(item.path));
 
   if (backConfig) {
-    // サブページでは共通のシステムヘッダーを表示せず、
-    // ページ名と戻るボタンを一体化した専用ヘッダーを表示する。
+    // 下層ページ：戻るボタンとページ名を一体化したヘッダー
     header.className = "app-page-header";
-    header.replaceChildren();
 
     const backLink = document.createElement("a");
     backLink.className = "app-page-back-link";
@@ -90,10 +54,22 @@ export function mountAppShell({
 
     header.append(backLink, pageTitle);
   } else {
-    // 各システムのトップページだけ、ユーザー情報付き共通ヘッダーを表示する。
-    header.className = "app-header";
-  }
+    // 各システムのホーム：ユーザー情報欄を廃止し、システム名だけを表示
+    header.className = "app-home-header";
+    const title = document.createElement("h1");
+    title.className = "app-home-header-title";
 
+    if (currentPath.endsWith("/learning/index.html")) {
+      title.textContent = "学習情報管理";
+    } else if (currentPath.endsWith("/wood/index.html")) {
+      title.textContent = "木材管理";
+    } else if (currentPath.endsWith("/employee_home.html") || currentPath.endsWith("/admin_home.html")) {
+      title.textContent = "出勤管理";
+    } else {
+      title.textContent = "業務管理";
+    }
+    header.append(title);
+  }
   shell.append(header);
 
   const nav = document.createElement("nav");
