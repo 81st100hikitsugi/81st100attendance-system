@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#2878c8"><title>木材管理</title>
-<link rel="stylesheet" href="../shared/app-shell.css?v=20261120-9">
+<link rel="stylesheet" href="../shared/app-shell.css?v=20261120-10">
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#202833;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
 main{width:min(1240px,calc(100% - 28px));margin:24px auto 90px}.heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.heading h1{margin:0 0 6px;font-size:1.7rem}.muted{color:#667085}.panel{background:#fff;border:1px solid #e1e6ed;border-radius:14px;padding:18px;margin:16px 0;box-shadow:0 2px 8px #172b4d08}
@@ -66,7 +66,7 @@ button,a.button{border:0;border-radius:8px;padding:10px 14px;background:#2878c8;
 import {collection,getDocs,getDocsFromCache,doc,addDoc,updateDoc,deleteDoc,writeBatch,query,where,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {db,persistenceReady} from "../shared/firebase.js";
 import {requireUser} from "../shared/auth.js";
-import {mountAppShell} from "../shared/app-shell.js?v=20261120-9";
+import {mountAppShell} from "../shared/app-shell.js?v=20261120-10";
 const $=id=>document.getElementById(id), processes=["未着手","罫書き","切断","やすり","組立","完了"];
 let currentUser=null,profile=null,isAdmin=false,groups=[],items=[],activeFilters={},online=navigator.onLine,sampleVisible=false;
 const status=(s,error=false)=>{$("status").textContent=s;$("status").style.color=error?"#b93838":"#526174"};
