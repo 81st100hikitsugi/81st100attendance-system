@@ -253,3 +253,52 @@ body:has(.app-shell) .app-page-back-link:focus-visible {
 @media (max-width:600px) {
   .app-page-back-row { width:calc(100% - 28px); margin-top:10px; }
 }
+
+
+/* サブページ専用ヘッダー：システム共通ヘッダーを置き換え、戻る操作とページ名を一列に配置 */
+body:has(.app-shell) .app-page-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  width: 100%;
+  min-height: 64px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 10px max(20px, calc((100% - 1180px) / 2));
+  background: #fff;
+  border-bottom: 1px solid var(--app-border);
+  box-shadow: 0 2px 8px rgba(23,43,77,.045);
+}
+body:has(.app-shell) .app-page-header-title {
+  min-width: 0;
+  margin: 0;
+  color: #202833;
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+body:has(.app-shell) .app-page-header .app-page-back-link {
+  flex: 0 0 44px !important;
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+@media (max-width:600px) {
+  body:has(.app-shell) .app-page-header {
+    min-height: 58px;
+    gap: 11px;
+    padding: 8px 14px;
+  }
+  body:has(.app-shell) .app-page-header-title {
+    font-size: 1rem;
+  }
+}
