@@ -130,3 +130,43 @@ html body :where(img,video,canvas,svg) { max-width:100%; }
   text-align:left !important;
 }
 .page-back-row + h1 { line-height:1.4; }
+
+
+/* Ensure text remains readable on light-background controls in legacy pages */
+html body button.subject-toggle,
+html body .editor-toolbar button,
+html body .document-toolbar button,
+html body .info-menu button,
+html body button.info-menu-button,
+html body .dictionary-item button:first-of-type,
+html body button#cancelDictionaryButton,
+html body button#cancelInfoButton,
+html body button#cancelDocumentButton {
+  color:#334155;
+}
+html body .info-menu button {
+  background:#fff;
+}
+html body button.subject-toggle {
+  background:#f1f4f8;
+}
+html body .editor-toolbar button,
+html body .document-toolbar button,
+html body .dictionary-item button:first-of-type,
+html body button#cancelDictionaryButton,
+html body button#cancelInfoButton,
+html body button#cancelDocumentButton {
+  background:#e9eef5;
+}
+html body .info-menu button:hover,
+html body .editor-toolbar button:hover,
+html body .document-toolbar button:hover,
+html body .dictionary-item button:first-of-type:hover,
+html body button#cancelDictionaryButton:hover,
+html body button#cancelInfoButton:hover,
+html body button#cancelDocumentButton:hover {
+  background:#dfe7f0;
+}
+html body button.info-menu-button {
+  background:transparent;
+}
