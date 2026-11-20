@@ -68,22 +68,33 @@ export function mountAppShell({
   userArea.append(userName, logoutButton);
   header.append(brand, userArea);
 
-  shell.append(header);
-
   const currentPath = window.location.pathname;
   const backConfig = PAGE_BACK_LINKS.find((item) => currentPath.endsWith(item.path));
+
   if (backConfig) {
-    const backRow = document.createElement("div");
-    backRow.className = "app-page-back-row";
+    // サブページでは共通のシステムヘッダーを表示せず、
+    // ページ名と戻るボタンを一体化した専用ヘッダーを表示する。
+    header.className = "app-page-header";
+    header.replaceChildren();
+
     const backLink = document.createElement("a");
     backLink.className = "app-page-back-link";
     backLink.href = backConfig.href;
     backLink.textContent = "＜";
     backLink.title = backConfig.label;
     backLink.setAttribute("aria-label", backConfig.label);
-    backRow.append(backLink);
-    shell.append(backRow);
+
+    const pageTitle = document.createElement("h1");
+    pageTitle.className = "app-page-header-title";
+    pageTitle.textContent = (document.title || "ページ").split(" - ")[0].trim();
+
+    header.append(backLink, pageTitle);
+  } else {
+    // 各システムのトップページだけ、ユーザー情報付き共通ヘッダーを表示する。
+    header.className = "app-header";
   }
+
+  shell.append(header);
 
   const nav = document.createElement("nav");
   nav.className = "app-bottom-nav";
