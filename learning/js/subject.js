@@ -1,6 +1,6 @@
 import { db, persistenceReady } from "../../shared/firebase.js";
 import { requireUser } from "../../shared/auth.js";
-import { mountAppShell } from "../../shared/app-shell.js";
+import { mountAppShell } from "../../shared/app-shell.js?v=20261120-8";
 import {
   collection, getDocs, getDocsFromCache, query, where, doc, getDoc,
   getDocFromCache, addDoc, updateDoc, setDoc, serverTimestamp
