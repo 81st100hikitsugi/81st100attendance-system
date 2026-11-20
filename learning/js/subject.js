@@ -1,6 +1,6 @@
 import { db, persistenceReady } from "../../shared/firebase.js";
 import { requireUser } from "../../shared/auth.js";
-import { mountAppShell } from "../../shared/app-shell.js";
+import { mountAppShell } from "../../shared/app-shell.js?v=20261120-8";
 import {
   collection, getDocs, getDocsFromCache, query, where, doc, getDoc,
   getDocFromCache, addDoc, updateDoc, setDoc, serverTimestamp
@@ -250,7 +250,7 @@ async function load() {
     console.error(error);
     $("learningInfoList").textContent = "学習情報を読み込めませんでした。";
     $("documentContent").textContent = "資料を読み込めませんでした。";
-    $("learningStatus").textContent = "データ移行またはアクセス権限を確認してください。";
+    $("learningStatus").textContent = "アクセス権限を確認してください。";
   }
 }
 async function softDelete(info) {

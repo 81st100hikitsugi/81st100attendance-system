@@ -97,28 +97,36 @@
 .app-logout:disabled { opacity: .55; cursor: wait; }
 
 .app-page-back-row {
+  display: flex;
+  align-items: center;
   width: min(1180px, calc(100% - 40px));
   box-sizing: border-box;
-  margin: 14px auto 0;
+  margin: 12px auto 0;
 }
 .app-page-back-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 38px;
-  padding: 8px 13px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 44px;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
   border: 1px solid #d8e0e9;
-  border-radius: 9px;
+  border-radius: 10px;
   background: #fff;
-  color: #34506d !important;
-  font-size: .9rem;
-  font-weight: 650;
+  color: #26384b !important;
+  font-family: Arial, sans-serif;
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1;
   text-decoration: none;
-  box-shadow: 0 1px 3px rgba(23,43,77,.04);
+  box-shadow: 0 1px 3px rgba(23,43,77,.06);
 }
 .app-page-back-link:hover {
   border-color: #b9cde1;
   background: #f2f7fc;
+  color: #26384b !important;
   text-decoration: none;
 }
 
@@ -202,33 +210,46 @@ body.app-shell-pending:not(.app-shell-ready) { visibility:hidden; }
 body.app-shell-pending.app-shell-ready { visibility:visible; }
 
 
-/* 全ページの戻るリンクを共通デザインに統一 */
-body:has(.app-shell) :is(.app-page-back-link, .page-back-link, .back-link, .back-button) {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 7px !important;
-  min-height: 38px !important;
-  padding: 8px 13px !important;
-  border: 1px solid #d8e0e9 !important;
-  border-radius: 9px !important;
-  background: #fff !important;
-  color: #34506d !important;
-  font-size: .9rem !important;
-  font-weight: 650 !important;
-  line-height: 1.4 !important;
-  text-decoration: none !important;
-  box-shadow: 0 1px 3px rgba(23,43,77,.04) !important;
+
+/* 全システム共通の左上戻るボタン。旧ページ固有のボタン指定から独立させる。 */
+body:has(.app-shell) .app-page-back-row { display:flex !important; align-items:center !important; }
+body:has(.app-shell) .app-page-back-link {
+  display:grid !important;
+  place-items:center !important;
+  flex:0 0 44px !important;
+  box-sizing:border-box !important;
+  width:44px !important;
+  min-width:44px !important;
+  max-width:44px !important;
+  height:44px !important;
+  min-height:44px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:1px solid #d8e0e9 !important;
+  border-radius:10px !important;
+  background:#fff !important;
+  color:#26384b !important;
+  -webkit-text-fill-color:#26384b !important;
+  font-family:Arial,sans-serif !important;
+  font-size:25px !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  text-align:center !important;
+  text-decoration:none !important;
+  box-shadow:0 1px 3px rgba(23,43,77,.06) !important;
+  opacity:1 !important;
+  visibility:visible !important;
 }
-body:has(.app-shell) :is(.app-page-back-link, .page-back-link, .back-link, .back-button):hover {
-  border-color: #b9cde1 !important;
-  background: #f2f7fc !important;
-  color: #34506d !important;
+body:has(.app-shell) .app-page-back-link:hover {
+  border-color:#b9cde1 !important;
+  background:#f2f7fc !important;
+  color:#26384b !important;
+  -webkit-text-fill-color:#26384b !important;
 }
-@media (max-width: 600px) {
-  body:has(.app-shell) :is(.app-page-back-link, .page-back-link, .back-link, .back-button) {
-    min-height: 36px !important;
-    padding: 7px 11px !important;
-    font-size: .84rem !important;
-  }
+body:has(.app-shell) .app-page-back-link:focus-visible {
+  outline:3px solid rgba(40,120,200,.24) !important;
+  outline-offset:2px !important;
+}
+@media (max-width:600px) {
+  .app-page-back-row { width:calc(100% - 28px); margin-top:10px; }
 }

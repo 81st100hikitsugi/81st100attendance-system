@@ -11,6 +11,7 @@ const PAGE_BACK_LINKS = [
   { path: "admin_notifications_create.html", href: "./admin_home.html", label: "管理者メニューへ戻る" },
   { path: "admin_students.html", href: "./admin_home.html", label: "管理者メニューへ戻る" },
   { path: "admin_work_plans.html", href: "./admin_home.html", label: "管理者メニューへ戻る" },
+
   { path: "wood/detail.html", href: "./index.html", label: "木材一覧へ戻る" },
   { path: "learning/subjects/subject.html", href: "../index.html", label: "学習情報一覧へ戻る" },
   { path: "learning/admin/dictionary.html", href: "../index.html", label: "学習情報一覧へ戻る" }
@@ -77,7 +78,8 @@ export function mountAppShell({
     const backLink = document.createElement("a");
     backLink.className = "app-page-back-link";
     backLink.href = backConfig.href;
-    backLink.textContent = "← 戻る";
+    backLink.textContent = "＜";
+    backLink.title = backConfig.label;
     backLink.setAttribute("aria-label", backConfig.label);
     backRow.append(backLink);
     shell.append(backRow);
