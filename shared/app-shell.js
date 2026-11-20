@@ -105,5 +105,6 @@ export function mountAppShell({
 
   shell.append(nav);
   root.prepend(shell);
+  document.body.classList.add("app-shell-ready");
   return shell;
 }
