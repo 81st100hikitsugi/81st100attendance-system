@@ -437,3 +437,17 @@ html body:has(.app-shell) .learning-container .learning-card .info-menu button.d
     padding:14px 50px 14px 14px;
   }
 }
+
+
+/* 学習情報管理：共通シェルのボタン指定より優先して教科一覧トグルの文字を表示 */
+html body:has(.app-shell) .learning-home-container button.subject-toggle,
+html body:has(.app-shell) .learning-home-container button.subject-toggle span {
+  color: #26384b !important;
+}
+html body:has(.app-shell) .learning-home-container button.subject-toggle {
+  background: #f1f4f8 !important;
+  border: 1px solid #dce1e8 !important;
+}
+html body:has(.app-shell) .learning-home-container button.subject-toggle:hover {
+  background: #e9eef5 !important;
+}
