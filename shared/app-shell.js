@@ -13,8 +13,7 @@ const PAGE_BACK_LINKS = [
   { path: "admin_work_plans.html", href: "./admin_home.html", label: "管理者メニューへ戻る" },
   { path: "wood/detail.html", href: "./index.html", label: "木材一覧へ戻る" },
   { path: "learning/subjects/subject.html", href: "../index.html", label: "学習情報一覧へ戻る" },
-  { path: "learning/admin/dictionary.html", href: "../index.html", label: "学習情報一覧へ戻る" },
-  { path: "learning/admin/migrate.html", href: "../index.html", label: "学習情報一覧へ戻る" }
+  { path: "learning/admin/dictionary.html", href: "../index.html", label: "学習情報一覧へ戻る" }
 ];
 
 const DEFAULT_LINKS = [

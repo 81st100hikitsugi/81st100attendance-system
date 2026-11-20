@@ -200,3 +200,35 @@ body:has(.app-shell) .app-header .app-logout:hover {
 /* Prevent an unstyled/half-initialized frame while authentication mounts the shared shell. */
 body.app-shell-pending:not(.app-shell-ready) { visibility:hidden; }
 body.app-shell-pending.app-shell-ready { visibility:visible; }
+
+
+/* 全ページの戻るリンクを共通デザインに統一 */
+body:has(.app-shell) :is(.app-page-back-link, .page-back-link, .back-link, .back-button) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  min-height: 38px !important;
+  padding: 8px 13px !important;
+  border: 1px solid #d8e0e9 !important;
+  border-radius: 9px !important;
+  background: #fff !important;
+  color: #34506d !important;
+  font-size: .9rem !important;
+  font-weight: 650 !important;
+  line-height: 1.4 !important;
+  text-decoration: none !important;
+  box-shadow: 0 1px 3px rgba(23,43,77,.04) !important;
+}
+body:has(.app-shell) :is(.app-page-back-link, .page-back-link, .back-link, .back-button):hover {
+  border-color: #b9cde1 !important;
+  background: #f2f7fc !important;
+  color: #34506d !important;
+}
+@media (max-width: 600px) {
+  body:has(.app-shell) :is(.app-page-back-link, .page-back-link, .back-link, .back-button) {
+    min-height: 36px !important;
+    padding: 7px 11px !important;
+    font-size: .84rem !important;
+  }
+}

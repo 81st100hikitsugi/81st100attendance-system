@@ -363,7 +363,6 @@ requireUser({
     mountAppShell({active:"learning",profile,links,homeHref:"../../home.html",logoutUrl:"../../index.html"});
     $("addInfoButton").hidden = !isAdmin;
     $("documentAdminTools").hidden = !isAdmin;
-    $("dictionaryAdminLink").hidden = !isAdmin;
     await load();
   },
   onError:() => { $("learningStatus").textContent = "ユーザー情報を確認できませんでした。"; }
