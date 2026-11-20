@@ -196,3 +196,7 @@ body:has(.app-shell) .app-header .app-logout {
 body:has(.app-shell) .app-header .app-logout:hover {
   background: #edf3f9 !important;
 }
+
+/* Prevent an unstyled/half-initialized frame while authentication mounts the shared shell. */
+body.app-shell-pending:not(.app-shell-ready) { visibility:hidden; }
+body.app-shell-pending.app-shell-ready { visibility:visible; }
