@@ -180,3 +180,17 @@ body:has(.app-shell) {
   .app-nav-link { padding: 7px 2px; font-size: .72rem; }
   .app-nav-icon { font-size: 1.12rem; }
 }
+
+/* Keep the shared logout control neutral despite legacy page button rules. */
+body:has(.app-shell) .app-header .app-logout {
+  min-height: 36px !important;
+  padding: 7px 13px !important;
+  border: 1px solid #d8e0e9 !important;
+  border-radius: 8px !important;
+  background: #f7f9fc !important;
+  color: #344256 !important;
+  font-size: .86rem !important;
+}
+body:has(.app-shell) .app-header .app-logout:hover {
+  background: #edf3f9 !important;
+}
