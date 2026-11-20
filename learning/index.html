@@ -4,13 +4,19 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#173B57"><title>学習情報管理</title>
 <link rel="stylesheet" href="../shared/app-shell.css?v=20261119-1">
-<link rel="stylesheet" href="./css/learning.css?v=20261119-1">
+<link rel="stylesheet" href="./css/learning.css?v=20261120-3">
 <meta name="robots" content="noindex, nofollow">
 </head>
 <body>
-<header class="learning-heading"><h1>学習情報管理</h1><p>課題・小テストなどの学習情報を確認できます</p></header>
-<main class="learning-container">
-<section class="learning-section" id="learningAdminTools" hidden><h2>管理者メニュー</h2><a href="./admin/dictionary.html">検索辞書を管理</a> ｜ <a href="./admin/migrate.html">旧学習情報を移行</a></section>
+<header class="learning-heading learning-page-header"><h1>学習情報管理</h1><p>課題・小テストなどの学習情報を確認できます</p></header>
+<main class="learning-container learning-home-container">
+<section class="learning-section learning-admin-section" id="learningAdminTools" hidden>
+  <h2>管理者メニュー</h2>
+  <div class="learning-admin-links">
+    <a href="./admin/dictionary.html">検索辞書を管理</a>
+    <a href="./admin/migrate.html">旧学習情報を移行</a>
+  </div>
+</section>
 <section class="learning-section">
 <button id="subjectToggle" class="subject-toggle" type="button" aria-expanded="false"><span id="subjectToggleText">すべての教科を表示</span><span id="subjectToggleIcon">▼</span></button>
 <div id="subjectList" class="subject-list" hidden></div>
