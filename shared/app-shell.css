@@ -302,3 +302,38 @@ body:has(.app-shell) .app-page-header .app-page-back-link {
     font-size: 1rem;
   }
 }
+
+
+/* ホーム・下層ページ共通：ヘッダーを画面最上端に密着させる */
+body:has(.app-shell) .app-home-header,
+body:has(.app-shell) .app-page-header {
+  position: sticky;
+  top: 0;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+body:has(.app-shell) .app-home-header {
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+  padding: 10px max(20px, calc((100% - 1180px) / 2));
+  background: #fff;
+  border-bottom: 1px solid var(--app-border);
+  box-shadow: 0 2px 8px rgba(23,43,77,.045);
+}
+body:has(.app-shell) .app-home-header-title {
+  margin: 0;
+  color: #202833;
+  font-size: 1.18rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+@media (max-width:600px) {
+  body:has(.app-shell) .app-home-header {
+    min-height: 58px;
+    padding: 8px 14px;
+  }
+  body:has(.app-shell) .app-home-header-title { font-size: 1.05rem; }
+}
