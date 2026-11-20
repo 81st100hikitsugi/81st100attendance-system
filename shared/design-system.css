@@ -170,3 +170,163 @@ html body button#cancelDocumentButton:hover {
 html body button.info-menu-button {
   background:transparent;
 }
+
+
+/* Learning information action menu: keep every action legible */
+html body .learning-container .learning-card .info-menu button,
+html body .learning-container .learning-card .info-menu button.delete-menu-button {
+  display:block;
+  width:100%;
+  min-height:40px;
+  padding:9px 12px;
+  border:0;
+  border-radius:6px;
+  background:#fff !important;
+  color:#26384b !important;
+  font-size:14px;
+  font-weight:600;
+  text-align:left;
+}
+html body .learning-container .learning-card .info-menu button:hover {
+  background:#edf3f9 !important;
+  color:#1f4f7d !important;
+}
+html body .learning-container .learning-card .info-menu button.delete-menu-button {
+  color:#b42318 !important;
+}
+html body .learning-container .learning-card .info-menu button.delete-menu-button:hover {
+  background:#fff1f0 !important;
+  color:#912018 !important;
+}
+
+/* Attendance pages: shared layout, surfaces, controls and typography */
+body:has(.app-shell) {
+  box-sizing:border-box;
+  margin:0 !important;
+  padding:0 0 calc(88px + env(safe-area-inset-bottom)) !important;
+  color:var(--ui-text);
+  background:var(--ui-bg) !important;
+}
+body:has(.app-shell) main,
+body:has(.app-shell) .container {
+  box-sizing:border-box;
+  width:min(1100px,calc(100% - 32px)) !important;
+  max-width:1100px !important;
+  margin:28px auto 48px !important;
+}
+body:has(.app-shell) .container,
+body:has(.app-shell) main > .panel,
+body:has(.app-shell) main > section,
+body:has(.app-shell) .panel {
+  padding:22px;
+  border:1px solid var(--ui-border);
+  border-radius:var(--ui-radius);
+  background:var(--ui-surface);
+  box-shadow:var(--ui-shadow);
+}
+body:has(.app-shell) h1,
+body:has(.app-shell) h2,
+body:has(.app-shell) h3 {
+  color:var(--ui-text) !important;
+  text-align:left !important;
+}
+body:has(.app-shell) h1 {
+  margin:0 0 10px;
+  font-size:clamp(1.4rem,3vw,1.8rem);
+  font-weight:700;
+}
+body:has(.app-shell) h2 {
+  margin:0 0 16px;
+  font-size:1.2rem;
+  font-weight:700;
+}
+body:has(.app-shell) label {
+  color:#344256;
+  font-weight:600;
+}
+body:has(.app-shell) input:not([type=checkbox]):not([type=radio]):not([type=color]),
+body:has(.app-shell) select,
+body:has(.app-shell) textarea {
+  box-sizing:border-box;
+  max-width:100%;
+  min-height:40px;
+  padding:9px 11px;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  background:#fff;
+  color:#202833;
+  font:inherit;
+}
+body:has(.app-shell) button,
+body:has(.app-shell) a.button,
+body:has(.app-shell) .button {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:40px;
+  padding:9px 14px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:var(--ui-primary);
+  color:#fff !important;
+  font:inherit;
+  font-weight:600;
+  text-decoration:none;
+  cursor:pointer;
+}
+body:has(.app-shell) button:hover,
+body:has(.app-shell) a.button:hover,
+body:has(.app-shell) .button:hover {
+  background:var(--ui-primary-dark);
+}
+body:has(.app-shell) button.secondary,
+body:has(.app-shell) .button.secondary,
+body:has(.app-shell) button.cancel,
+body:has(.app-shell) .page-back-link {
+  border-color:#d8e0e9;
+  background:#e9eef5;
+  color:#334155 !important;
+}
+body:has(.app-shell) .page-back-link:hover,
+body:has(.app-shell) button.secondary:hover,
+body:has(.app-shell) .button.secondary:hover {
+  background:#dfe7f0;
+}
+body:has(.app-shell) table {
+  width:100%;
+  border-collapse:collapse;
+  color:#263445;
+}
+body:has(.app-shell) th {
+  background:#edf2f7 !important;
+  color:#344256 !important;
+  font-weight:700;
+}
+body:has(.app-shell) th,
+body:has(.app-shell) td {
+  padding:11px 9px;
+  border:1px solid var(--ui-border);
+}
+body:has(.app-shell) .table-wrap {
+  max-width:100%;
+  overflow-x:auto;
+  border-radius:8px;
+}
+@media(max-width:600px) {
+  body:has(.app-shell) main,
+  body:has(.app-shell) .container {
+    width:calc(100% - 24px) !important;
+    margin:18px auto 36px !important;
+  }
+  body:has(.app-shell) .container,
+  body:has(.app-shell) main > .panel,
+  body:has(.app-shell) main > section,
+  body:has(.app-shell) .panel {
+    padding:16px;
+  }
+  body:has(.app-shell) input:not([type=checkbox]):not([type=radio]):not([type=color]),
+  body:has(.app-shell) select,
+  body:has(.app-shell) textarea {
+    width:100%;
+  }
+}
