@@ -325,3 +325,115 @@
   .filter-area > label { min-height:38px; }
   .period-area select { flex:1 1 160px; }
 }
+
+
+/* 教科別ページ：三点メニューを常に見える位置とサイズで表示 */
+html body:has(.app-shell) .learning-container .learning-card {
+  position:relative;
+  overflow:visible;
+  padding:16px 54px 16px 16px;
+}
+html body:has(.app-shell) .learning-container .learning-card .info-menu-container {
+  position:absolute;
+  top:8px;
+  right:8px;
+  z-index:30;
+  display:block;
+  width:36px;
+  height:36px;
+}
+html body:has(.app-shell) .learning-container .learning-card .info-menu-container .info-menu-button {
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  width:36px !important;
+  min-width:36px !important;
+  max-width:36px !important;
+  height:36px !important;
+  min-height:36px !important;
+  margin:0 !important;
+  padding:0 0 3px !important;
+  border:1px solid #d7e0ea !important;
+  border-radius:8px !important;
+  background:#f7f9fc !important;
+  color:#344256 !important;
+  font-family:Arial,sans-serif !important;
+  font-size:25px !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  letter-spacing:0 !important;
+  text-align:center !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  cursor:pointer !important;
+}
+html body:has(.app-shell) .learning-container .learning-card .info-menu-container .info-menu-button:hover {
+  border-color:#b9cde1 !important;
+  background:#edf3f9 !important;
+  color:#1f4f7d !important;
+}
+html body:has(.app-shell) .learning-container .learning-card .info-menu {
+  position:absolute;
+  top:40px;
+  right:0;
+  z-index:31;
+  min-width:120px;
+  padding:5px;
+  border:1px solid #d8e0e9;
+  border-radius:9px;
+  background:#fff;
+  box-shadow:0 8px 22px rgba(23,43,77,.16);
+}
+html body:has(.app-shell) .learning-container .learning-card .info-menu[hidden] {
+  display:none !important;
+}
+html body:has(.app-shell) .learning-container .learning-card .info-menu button {
+  width:100% !important;
+  min-height:40px !important;
+  margin:0 !important;
+  padding:9px 12px !important;
+  border:0 !important;
+  border-radius:6px !important;
+  background:#fff !important;
+  color:#26384b !important;
+  font-size:14px !important;
+  font-weight:600 !important;
+  text-align:left !important;
+  justify-content:flex-start !important;
+}
+html body:has(.app-shell) .learning-container .learning-card .info-menu button:hover {
+  background:#edf3f9 !important;
+}
+html body:has(.app-shell) .learning-container .learning-card .info-menu button.delete-menu-button {
+  color:#b42318 !important;
+}
+html body:has(.app-shell) .learning-container .learning-card .info-menu button.delete-menu-button:hover {
+  background:#fff1f0 !important;
+}
+
+/* 学習ページのタイトルは共通ヘッダー直下の本文見出しとして統一 */
+.learning-page-title {
+  margin:0 0 22px;
+  padding:0 0 14px;
+  border-bottom:1px solid var(--ui-border);
+}
+.learning-page-title h1 {
+  margin:0 0 5px;
+  color:var(--ui-text);
+  font-size:clamp(21px,3vw,25px);
+  font-weight:700;
+  line-height:1.4;
+}
+.learning-page-title p {
+  margin:0;
+  color:var(--ui-muted);
+  font-size:13px;
+  line-height:1.6;
+}
+@media(max-width:600px) {
+  .learning-page-title { margin-bottom:16px; padding-bottom:11px; }
+  html body:has(.app-shell) .learning-container .learning-card {
+    padding:14px 50px 14px 14px;
+  }
+}
