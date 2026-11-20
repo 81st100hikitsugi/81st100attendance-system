@@ -1,5 +1,22 @@
 import { logout } from "./auth.js";
 
+const PAGE_BACK_LINKS = [
+  { path: "employee_attendance.html", href: "./employee_home.html", label: "出勤管理へ戻る" },
+  { path: "employee_history.html", href: "./employee_home.html", label: "出勤管理へ戻る" },
+  { path: "employee_notifications.html", href: "./employee_home.html", label: "出勤管理へ戻る" },
+  { path: "employee_shift.html", href: "./employee_home.html", label: "出勤管理へ戻る" },
+  { path: "admin_shift_create.html", href: "./admin_home.html", label: "管理者メニューへ戻る" },
+  { path: "admin_shift_attendance_all.html", href: "./admin_home.html", label: "管理者メニューへ戻る" },
+  { path: "admin_late_early.html", href: "./admin_home.html", label: "管理者メニューへ戻る" },
+  { path: "admin_notifications_create.html", href: "./admin_home.html", label: "管理者メニューへ戻る" },
+  { path: "admin_students.html", href: "./admin_home.html", label: "管理者メニューへ戻る" },
+  { path: "admin_work_plans.html", href: "./admin_home.html", label: "管理者メニューへ戻る" },
+  { path: "wood/detail.html", href: "./index.html", label: "木材一覧へ戻る" },
+  { path: "learning/subjects/subject.html", href: "../index.html", label: "学習情報一覧へ戻る" },
+  { path: "learning/admin/dictionary.html", href: "../index.html", label: "学習情報一覧へ戻る" },
+  { path: "learning/admin/migrate.html", href: "../index.html", label: "学習情報一覧へ戻る" }
+];
+
 const DEFAULT_LINKS = [
   { id: "home", label: "ホーム", icon: "🏠", href: "../home.html" },
   { id: "attendance", label: "出勤", icon: "🕒", href: "../employee_home.html" },
@@ -51,6 +68,21 @@ export function mountAppShell({
   userArea.append(userName, logoutButton);
   header.append(brand, userArea);
 
+  shell.append(header);
+
+  const currentPath = window.location.pathname;
+  const backConfig = PAGE_BACK_LINKS.find((item) => currentPath.endsWith(item.path));
+  if (backConfig) {
+    const backRow = document.createElement("div");
+    backRow.className = "app-page-back-row";
+    const backLink = document.createElement("a");
+    backLink.className = "app-page-back-link";
+    backLink.href = backConfig.href;
+    backLink.textContent = "← " + backConfig.label;
+    backRow.append(backLink);
+    shell.append(backRow);
+  }
+
   const nav = document.createElement("nav");
   nav.className = "app-bottom-nav";
   nav.setAttribute("aria-label", "メインメニュー");
@@ -71,7 +103,7 @@ export function mountAppShell({
     nav.append(link);
   }
 
-  shell.append(header, nav);
+  shell.append(nav);
   root.prepend(shell);
   return shell;
 }
