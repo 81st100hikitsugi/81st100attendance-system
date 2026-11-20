@@ -116,3 +116,17 @@ html body :where(img,video,canvas,svg) { max-width:100%; }
   border-color:#b9cde1;
   text-decoration:none;
 }
+
+
+/* Shift and attendance subpage title hierarchy */
+.page-back-row + h1,
+.page-back-row + h2 {
+  margin:0 0 18px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--ui-border);
+  color:var(--ui-text);
+  font-size:clamp(1.35rem,3vw,1.65rem);
+  font-weight:700;
+  text-align:left !important;
+}
+.page-back-row + h1 { line-height:1.4; }
