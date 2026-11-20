@@ -382,35 +382,35 @@ body:has(.app-shell) .app-page-header {
 }
 
 
-/* 共通ヘッダーの配色と戻るボタンの最終スタイル */
+/* 共通ヘッダー：主要ボタンと同じプライマリーカラーに統一 */
 body:has(.app-shell) .app-home-header,
 body:has(.app-shell) .app-page-header {
-  background: #eaf2fb !important;
-  border-bottom: 1px solid #cbd9e8 !important;
-  box-shadow: 0 2px 8px rgba(23, 54, 93, .08) !important;
+  background: #2878c8 !important;
+  border-bottom: 1px solid #205f9f !important;
+  box-shadow: 0 2px 8px rgba(23, 54, 93, .16) !important;
 }
 body:has(.app-shell) .app-home-header-title,
 body:has(.app-shell) .app-page-header-title {
-  color: #18324f !important;
+  color: #fff !important;
 }
 body:has(.app-shell) .app-page-header .app-page-back-link {
   border: 0 !important;
   border-color: transparent !important;
   border-radius: 0 !important;
   background: transparent !important;
-  color: #18324f !important;
-  -webkit-text-fill-color: #18324f !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
   box-shadow: none !important;
   outline: none;
 }
 body:has(.app-shell) .app-page-header .app-page-back-link:hover {
   border: 0 !important;
   background: transparent !important;
-  color: #0759a5 !important;
-  -webkit-text-fill-color: #0759a5 !important;
+  color: #e5f1ff !important;
+  -webkit-text-fill-color: #e5f1ff !important;
   box-shadow: none !important;
 }
 body:has(.app-shell) .app-page-header .app-page-back-link:focus-visible {
-  outline: 2px solid #356fa8 !important;
+  outline: 2px solid #fff !important;
   outline-offset: 2px !important;
 }
