@@ -81,3 +81,134 @@
   .learning-heading { padding: 18px 16px; }
   #addInfoForm { padding: 16px; }
 }
+
+/* 学習情報管理トップページ：教科別ページと共通のレイアウト */
+.learning-page-header {
+  display: flex;
+  align-items: center;
+  min-height: 94px;
+}
+.learning-page-header h1 {
+  color: #202833;
+  letter-spacing: .01em;
+}
+.learning-page-header p {
+  line-height: 1.6;
+}
+.learning-home-container {
+  width: min(100% - 32px, 1000px);
+  margin: 30px auto 100px;
+}
+.learning-home-container .learning-section,
+.learning-home-container .subject-section {
+  margin-bottom: 24px;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e1e6ed;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(25, 45, 70, .035);
+}
+.learning-home-container h2 {
+  color: #202833;
+  line-height: 1.4;
+}
+.learning-admin-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.learning-admin-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1px solid #d5e2f0;
+  border-radius: 7px;
+  background: #f4f8fd;
+  color: #285f96;
+  text-decoration: none;
+  font-size: 14px;
+}
+.learning-admin-links a:hover {
+  background: #eaf2fb;
+}
+.learning-home-container .subject-toggle {
+  align-items: center;
+  color: #26384b;
+  font-weight: 600;
+  transition: background .15s ease;
+}
+.learning-home-container .subject-toggle:hover {
+  background: #e9eef5;
+}
+.learning-home-container .subject-link {
+  align-items: center;
+  min-height: 46px;
+  transition: background .15s ease, border-color .15s ease;
+}
+.learning-home-container .subject-link:hover {
+  background: #f5f8fc;
+  border-color: #cbd8e6;
+}
+.learning-home-container input[type="search"],
+.learning-home-container select {
+  min-height: 40px;
+  background: #fff;
+  color: #202833;
+}
+.learning-home-container input:focus-visible,
+.learning-home-container select:focus-visible,
+.learning-home-container button:focus-visible,
+.learning-home-container a:focus-visible {
+  outline: 3px solid rgba(40, 120, 200, .24);
+  outline-offset: 2px;
+}
+.learning-home-container .category-filters {
+  gap: 14px;
+}
+.learning-home-container .category-filters label,
+.learning-home-container .filter-area > label {
+  min-height: 36px;
+}
+.learning-home-container .learning-card {
+  background: #fff;
+  border-color: #e1e6ed;
+  border-radius: 8px;
+}
+.learning-home-container .learning-card h3 {
+  color: #202833;
+  line-height: 1.5;
+}
+.learning-home-container .empty-message {
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .learning-page-header {
+    min-height: 0;
+    padding: 18px 16px;
+  }
+  .learning-page-header h1 {
+    font-size: 21px;
+  }
+  .learning-home-container {
+    width: calc(100% - 24px);
+    margin-top: 18px;
+  }
+  .learning-home-container .learning-section,
+  .learning-home-container .subject-section {
+    margin-bottom: 16px;
+    padding: 16px;
+  }
+  .learning-admin-links {
+    flex-direction: column;
+  }
+  .learning-admin-links a {
+    width: 100%;
+  }
+  .learning-home-container .category-filters {
+    flex-wrap: wrap;
+  }
+  .learning-home-container .period-area {
+    flex-wrap: wrap;
+  }
+}
