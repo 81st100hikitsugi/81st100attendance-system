@@ -493,3 +493,23 @@ html body .learning-container .learning-card .note-toggle:hover {
   color: #174875 !important;
   text-decoration-thickness: 2px !important;
 }
+
+
+/* 三点メニューはカード内に置き、共通ヘッダー・フッターより前面に出さない */
+html body:has(.app-shell) .learning-container .learning-card .info-menu-container {
+  z-index: 10 !important;
+}
+html body:has(.app-shell) .learning-container .learning-card .info-menu-container .info-menu-button {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html body:has(.app-shell) .learning-container .learning-card .info-menu-container .info-menu-button:hover {
+  border: 0 !important;
+  background: transparent !important;
+  color: #174875 !important;
+}
+html body:has(.app-shell) .learning-container .learning-card .info-menu-container .info-menu {
+  z-index: 11 !important;
+}
