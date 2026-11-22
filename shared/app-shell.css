@@ -159,7 +159,7 @@
   text-align: center;
   text-decoration: none;
 }
-.app-nav-icon { font-size: 1.2rem; line-height: 1.2; }
+.app-nav-icon { display:block; width:23px; height:23px; object-fit:contain; flex:0 0 23px; opacity:.82; }
 .app-nav-label { line-height: 1.2; }
 .app-nav-link.is-active {
   color: var(--app-primary) !important;
@@ -188,7 +188,7 @@ body:has(.app-shell) {
   .app-page-back-link { min-height: 36px; padding: 7px 11px; font-size: .84rem; }
   .app-bottom-nav { gap: 2px; padding-left: 5px; padding-right: 5px; }
   .app-nav-link { padding: 7px 2px; font-size: .72rem; }
-  .app-nav-icon { font-size: 1.12rem; }
+  .app-nav-icon { width:21px; height:21px; flex-basis:21px; }
 }
 
 /* Keep the shared logout control neutral despite legacy page button rules. */
