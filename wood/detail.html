@@ -15,6 +15,32 @@ body:has(.app-shell) .table-wrap table td:nth-child(5){width:105px}
  body:has(.app-shell) .table-wrap table th,
  body:has(.app-shell) .table-wrap table td{padding:3px 3px!important}
 }
+
+/* スマートフォンの詳細表はセルの左右・上下余白を最小化 */
+@media(max-width:700px){
+ body:has(.app-shell) .table-wrap table th,
+ body:has(.app-shell) .table-wrap table td{
+  padding:1px!important;
+  line-height:1.05!important;
+  font-size:.65rem!important;
+ }
+ body:has(.app-shell) .table-wrap table input,
+ body:has(.app-shell) .table-wrap table select{
+  padding:1px!important;
+  min-height:24px;
+  font-size:.65rem!important;
+ }
+ body:has(.app-shell) .table-wrap table button{
+  padding:2px 4px!important;
+  min-height:24px;
+  font-size:.62rem!important;
+ }
+}
+@media(max-width:430px){
+ body:has(.app-shell) .table-wrap table th,
+ body:has(.app-shell) .table-wrap table td{padding:0!important}
+}
+
 </style><meta name="robots" content="noindex, nofollow">
 </head><body class="app-shell-pending"><main>
 <div class="topline"><div><h1 id="groupTitle">木材詳細</h1><p id="groupSubtitle" class="muted"></p></div><div id="adminActions" hidden><button id="addItem">＋ 個別木材を追加</button></div></div>
