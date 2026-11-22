@@ -36,6 +36,34 @@
   }
   #selectedWeekLabel { margin-top: 10px; font-weight: 700; color: #425466; }
   #statusMessage { min-height: 22px; margin: 12px 0; text-align: center; color: #526273; }
+  .zoom-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin: 14px 0;
+    padding: 10px;
+    border: 1px solid #dce3eb;
+    border-radius: 9px;
+    background: #f8fafc;
+  }
+  .zoom-toolbar button, .zoom-toolbar input {
+    font: inherit;
+  }
+  .zoom-toolbar button {
+    min-width: 38px;
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #fff;
+    color: #243447;
+    cursor: pointer;
+  }
+  .zoom-toolbar button:hover { border-color: #2878c8; background: #f0f7ff; }
+  .zoom-toolbar input[type="range"] { width: min(180px, 34vw); accent-color: #2878c8; }
+  #zoomLabel { min-width: 48px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .table-zoom-content { width: max-content; min-width: 100%; transform-origin: top left; }
   .table-wrap {
     width: 100%;
     max-height: 68vh;
@@ -118,10 +146,22 @@
     outline: 2px solid #2878c8;
     outline-offset: -2px;
   }
-  .date-cell.is-selected-day,
-  .slot-cell.is-selected-slot {
+  /* 選択中は○×を含む行全体を同じ背景色で強調 */
+  .densuke-table tbody tr.is-selected-row > td {
     background: #dceeff !important;
-    box-shadow: inset 0 0 0 2px #2878c8;
+    box-shadow: inset 0 2px 0 #2878c8, inset 0 -2px 0 #2878c8;
+  }
+  .densuke-table tbody tr.is-selected-row > td:first-child,
+  .densuke-table tbody tr.is-selected-row > td:nth-child(2) {
+    box-shadow: inset 2px 0 0 #2878c8, inset 0 2px 0 #2878c8, inset 0 -2px 0 #2878c8;
+  }
+  .densuke-table tbody tr.is-selected-row > td:last-child {
+    box-shadow: inset -2px 0 0 #2878c8, inset 0 2px 0 #2878c8, inset 0 -2px 0 #2878c8;
+  }
+  .densuke-table tbody tr.is-selected-row .cell:hover { background: #c9e2ff; }
+  .densuke-table .date-cell.is-selected-day,
+  .densuke-table .slot-cell.is-selected-slot {
+    background: #dceeff !important;
   }
   .slot-legend {
     display: flex;
@@ -182,6 +222,8 @@
     h2 { font-size: 19px; }
     .table-wrap { max-height: 62vh; }
     .densuke-table th, .densuke-table td { height: 44px; }
+    .zoom-toolbar { gap: 6px; padding: 8px; }
+    .zoom-toolbar input[type="range"] { width: 110px; }
   }
 </style>
 <meta name="robots" content="noindex, nofollow">
@@ -196,15 +238,26 @@
 
   <div class="week-area">
     <label for="weekSelector">対象週：</label>
-    <input type="week" id="weekSelector">
+    <input type="date" id="weekSelector" aria-label="表示する週の日付を選択">
 
     <p id="selectedWeekLabel"></p>
   </div>
 
   <p id="statusMessage">読み込み中...</p>
 
+  <div class="zoom-toolbar" aria-label="表の表示倍率">
+    <button type="button" id="zoomMinus" aria-label="縮小">−</button>
+    <span id="zoomLabel">100%</span>
+    <button type="button" id="zoomPlus" aria-label="拡大">＋</button>
+    <input type="range" id="zoomRange" min="60" max="150" step="5" value="100" aria-label="表示倍率">
+    <button type="button" id="zoomReset">倍率を戻す</button>
+    <span style="font-size:12px;color:#64748b">60〜150%</span>
+  </div>
+
   <div class="table-wrap">
-    <table id="shiftTable" class="densuke-table"></table>
+    <div class="table-zoom-content" id="tableZoomContent">
+      <table id="shiftTable" class="densuke-table"></table>
+    </div>
   </div>
 
   <div class="slot-legend" aria-label="時間帯">
@@ -271,6 +324,7 @@ let cellInfoMap = new Map();
 
 let selectedDay = null;
 let selectedSlot = null;
+let zoomScale = 100;
 
 const shifts = [
   { label: "8:00〜10:00", value: "8:00-10:00" },
@@ -384,7 +438,8 @@ requireAdmin({
     try {
       await loadStudents();
       const currentWeek = getISOWeekId(new Date());
-      weekSelector.value = currentWeek;
+      const monday = getWeekDates(currentWeek)[0];
+      weekSelector.value = dateToKey(monday);
       await loadWeek(currentWeek);
     } catch (error) {
       console.error(error);
@@ -563,6 +618,8 @@ function buildShiftTable(weekDates) {
 
     shifts.forEach((shift, shiftIndex) => {
       const row = document.createElement("tr");
+      row.dataset.pickDay = String(dayIndex);
+      row.dataset.pickSlot = String(shiftIndex);
 
       if (shiftIndex === 0) {
         const dateCell = document.createElement("td");
@@ -653,11 +710,22 @@ function updateCellDisplay(button, key) {
 
 
 function updateSelectionStyles() {
-  shiftTable.querySelectorAll("[data-pick-day]").forEach(element => {
+  shiftTable.querySelectorAll("tbody tr").forEach(row => {
+    row.classList.remove("is-selected-row");
+    if (selectedDay === null) return;
+    if (Number(row.dataset.pickDay) !== selectedDay) return;
+
+    // 日付だけの選択なら、その日の4行すべてを強調。
+    // 時間帯を選択した場合は、該当する1行だけを強調。
+    if (selectedSlot === null || Number(row.dataset.pickSlot) === selectedSlot) {
+      row.classList.add("is-selected-row");
+    }
+  });
+
+  shiftTable.querySelectorAll(".date-cell, .slot-cell").forEach(element => {
     element.classList.remove("is-selected-day", "is-selected-slot");
     if (selectedDay === null || Number(element.dataset.pickDay) !== selectedDay) return;
-
-    if (element.dataset.pickSlot === undefined) {
+    if (element.classList.contains("date-cell")) {
       element.classList.add("is-selected-day");
     } else if (selectedSlot !== null && Number(element.dataset.pickSlot) === selectedSlot) {
       element.classList.add("is-selected-slot");
@@ -911,25 +979,47 @@ async () => {
 // ==================================
 
 weekSelector.addEventListener("change", async () => {
+  if (!weekSelector.value) return;
 
-  if (weekSelector.value) {
+  try {
+    const [year, month, day] = weekSelector.value.split("-").map(Number);
+    const pickedDate = new Date(year, month - 1, day);
+    const weekId = getISOWeekId(pickedDate);
+    const monday = getWeekDates(weekId)[0];
 
-    try {
-
-      await loadWeek(weekSelector.value);
-
-    } catch (error) {
-
-      console.error(error);
-
-      statusMessage.textContent =
-        "シフトの読み込みに失敗しました。";
-
-    }
-
+    // 選択した日付が属する週の月曜日にカレンダーをそろえる
+    weekSelector.value = dateToKey(monday);
+    await loadWeek(weekId);
+  } catch (error) {
+    console.error(error);
+    statusMessage.textContent = "シフトの読み込みに失敗しました。";
   }
-
 });
+
+// 表の拡大・縮小
+function applyZoom() {
+  const content = document.getElementById("tableZoomContent");
+  content.style.zoom = String(zoomScale / 100);
+  document.getElementById("zoomRange").value = String(zoomScale);
+  document.getElementById("zoomLabel").textContent = zoomScale + "%";
+}
+document.getElementById("zoomRange").addEventListener("input", event => {
+  zoomScale = Number(event.target.value);
+  applyZoom();
+});
+document.getElementById("zoomMinus").addEventListener("click", () => {
+  zoomScale = Math.max(60, zoomScale - 5);
+  applyZoom();
+});
+document.getElementById("zoomPlus").addEventListener("click", () => {
+  zoomScale = Math.min(150, zoomScale + 5);
+  applyZoom();
+});
+document.getElementById("zoomReset").addEventListener("click", () => {
+  zoomScale = 100;
+  applyZoom();
+});
+applyZoom();
 
 
 </script>
