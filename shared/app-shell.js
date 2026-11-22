@@ -93,7 +93,7 @@ export function mountAppShell({
     icon.setAttribute("aria-hidden", "true");
     const iconKey = item.icon || item.id;
     const iconFile = NAV_ICON_FILES[iconKey];
-    if (iconFile) { const iconUrl = new URL(iconFile, NAV_ICON_BASE); if (iconKey === "wood") iconUrl.searchParams.set("v", "20261122-3"); icon.src = iconUrl.href; }
+    if (iconFile) { const iconUrl = new URL(iconFile, NAV_ICON_BASE); if (iconKey === "wood") iconUrl.searchParams.set("v", "20261122-4"); icon.src = iconUrl.href; }
     const label = document.createElement("span");
     label.className = "app-nav-label";
     label.textContent = item.label;
