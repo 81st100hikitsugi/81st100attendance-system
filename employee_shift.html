@@ -331,15 +331,15 @@ weekSelector.addEventListener("change", async () => {
 });
 
 // スマホは2本指ピンチ、PCはCtrl＋マウスホイールで倍率を変更。
-function applyZoom(){document.getElementById("tableZoomContent").style.zoom=String(zoomScale/100);document.getElementById("zoomLabel").textContent=zoomScale+"%";}
+function applyZoom(){document.getElementById("tableZoomContent").style.zoom=String(zoomScale*0.6/100);document.getElementById("zoomLabel").textContent=zoomScale+"%";}
 const tableWrap=document.querySelector(".table-wrap");
 let pinchStartDistance=0,pinchStartZoom=zoomScale;
 function getTouchDistance(touches){const dx=touches[0].clientX-touches[1].clientX,dy=touches[0].clientY-touches[1].clientY;return Math.hypot(dx,dy);}
 tableWrap.addEventListener("touchstart",event=>{if(event.touches.length!==2)return;pinchStartDistance=getTouchDistance(event.touches);pinchStartZoom=zoomScale;},{passive:true});
-tableWrap.addEventListener("touchmove",event=>{if(event.touches.length!==2||!pinchStartDistance)return;event.preventDefault();const ratio=getTouchDistance(event.touches)/pinchStartDistance;zoomScale=Math.max(60,Math.min(150,Math.round(pinchStartZoom*ratio)));applyZoom();},{passive:false});
+tableWrap.addEventListener("touchmove",event=>{if(event.touches.length!==2||!pinchStartDistance)return;event.preventDefault();const ratio=getTouchDistance(event.touches)/pinchStartDistance;zoomScale=Math.max(100,Math.min(150,Math.round(pinchStartZoom*ratio)));applyZoom();},{passive:false});
 function resetPinch(){pinchStartDistance=0;}
 tableWrap.addEventListener("touchend",resetPinch,{passive:true});tableWrap.addEventListener("touchcancel",resetPinch,{passive:true});
-tableWrap.addEventListener("wheel",event=>{if(!event.ctrlKey)return;event.preventDefault();zoomScale=Math.max(60,Math.min(150,zoomScale+(event.deltaY<0?5:-5)));applyZoom();},{passive:false});
+tableWrap.addEventListener("wheel",event=>{if(!event.ctrlKey)return;event.preventDefault();zoomScale=Math.max(100,Math.min(150,zoomScale+(event.deltaY<0?5:-5)));applyZoom();},{passive:false});
 document.getElementById("zoomReset").addEventListener("click",()=>{zoomScale=100;applyZoom();});
 applyZoom();// ==================================
 </script>
