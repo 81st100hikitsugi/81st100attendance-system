@@ -8,92 +8,23 @@
 <title>シフト確認 - 生徒用</title>
 
 <style>
-  body {
-    font-family: sans-serif;
-    background: #f5f5f5;
-    padding: 20px;
-    margin: 0;
-  }
-
-  .container {
-    max-width: 1100px;
-    margin: 40px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
-
-  h2 {
-    text-align: center;
-  }
-
-  .week-area {
-    text-align: center;
-    margin: 20px 0;
-  }
-
-  .week-area input {
-    padding: 8px;
-    font-size: 16px;
-  }
-
-  #selectedWeekLabel {
-    font-weight: bold;
-  }
-
-  .table-wrap {
-    width: 100%;
-    overflow-x: auto;
-  }
-
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    min-width: 850px;
-    margin-top: 20px;
-  }
-
-  th, td {
-    border: 1px solid #ccc;
-    padding: 12px 8px;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  th {
-    background: #f0f0f0;
-  }
-
-  .date-header {
-    background: #e0e0e0;
-  }
-
-  .selected {
-    color: #219653;
-    font-size: 20px;
-    font-weight: bold;
-  }
-
-  a.button {
-    display: block;
-    padding: 12px;
-    margin: 10px 0;
-    background: #4a90e2;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    text-align: center;
-  }
-
-  #logoutBtn {
-    background: #e24a4a;
-  }
-
-  #statusMessage {
-    text-align: center;
-    min-height: 20px;
-  }
+*{box-sizing:border-box}body{margin:0;padding:20px 20px 100px;background:#f5f7fa;color:#243447;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.container{max-width:1100px;margin:28px auto;padding:20px;background:#fff;border:1px solid #e1e6ed;border-radius:12px;box-shadow:0 2px 8px rgba(23,43,77,.06)}h2{margin:0 0 18px;text-align:center;font-size:22px}
+.week-area{margin:16px 0 20px;text-align:center}.week-area input{padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;font-size:16px}#selectedWeekLabel{margin-top:10px;font-weight:700;color:#425466}
+#statusMessage{min-height:22px;margin:12px 0;text-align:center;color:#526273}.zoom-toolbar{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0;padding:9px 12px;border:1px solid #dce3eb;border-radius:9px;background:#f8fafc;color:#64748b;font-size:13px}
+#zoomLabel{min-width:48px;color:#243447;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}#zoomReset{padding:7px 12px;border:1px solid #94a3b8;border-radius:7px;background:#fff!important;color:#1e293b!important;-webkit-text-fill-color:#1e293b!important;font:inherit;font-weight:600;cursor:pointer}
+#zoomReset:hover{border-color:#2878c8;background:#eaf3ff!important;color:#174f86!important;-webkit-text-fill-color:#174f86!important}#zoomReset:focus-visible{outline:2px solid #2878c8;outline-offset:2px}
+.table-zoom-content{width:max-content;min-width:100%;transform-origin:top left}.table-wrap{width:100%;max-height:68vh;overflow:auto;margin-top:16px;border:1px solid #d8e0e9;border-radius:9px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
+.densuke-table{width:max-content;min-width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;font-size:13px}.densuke-table th,.densuke-table td{min-width:88px;height:48px;padding:5px 7px;border-right:1px solid #dce3eb;border-bottom:1px solid #dce3eb;background:#fff;text-align:center;vertical-align:middle;white-space:nowrap}
+.densuke-table thead th{position:sticky;top:0;z-index:2;height:46px;background:#edf3f9;font-weight:700}.densuke-table thead th:first-child,.densuke-table thead th:nth-child(2){background:#e5edf6}
+.densuke-table .date-cell{width:112px;min-width:112px;background:#f5f7fa;font-weight:700}.densuke-table .slot-cell{width:82px;min-width:82px;background:#f8fafc;color:#425466;font-size:16px;font-weight:800}
+.densuke-table .assignment-cell{width:130px;min-width:130px}.scheduled-mark{color:#16834a;font-size:23px;font-weight:800}.not-scheduled-mark{color:#a0a8b2;font-size:21px;font-weight:700}
+.slot-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:10px 2px 0;color:#64748b;font-size:12px}
+@media(max-width:650px){body{padding:10px 8px 100px}.container{margin:14px auto;padding:12px}h2{font-size:19px}.table-wrap{max-height:62vh}.densuke-table th,.densuke-table td{height:44px}.zoom-toolbar{gap:8px;padding:8px;text-align:center}}
+body:has(.app-shell) .table-wrap .table-zoom-content{display:block!important;width:max-content!important;min-width:100%!important;visibility:visible!important}
+body:has(.app-shell) .table-wrap table.densuke-table{display:table!important;width:max-content!important;min-width:100%!important;table-layout:fixed!important;border-collapse:separate!important;border-spacing:0!important;visibility:visible!important;color:#243447!important}
+body:has(.app-shell) .table-wrap .densuke-table th,body:has(.app-shell) .table-wrap .densuke-table td{display:table-cell!important;visibility:visible!important;opacity:1!important;color:#243447!important;border-right:1px solid #dce3eb!important;border-bottom:1px solid #dce3eb!important;padding:5px 7px!important;text-align:center!important;vertical-align:middle!important;white-space:nowrap!important}
+body:has(.app-shell) .table-wrap .densuke-table thead{display:table-header-group!important}body:has(.app-shell) .table-wrap .densuke-table tbody{display:table-row-group!important}body:has(.app-shell) .table-wrap .densuke-table tr{display:table-row!important}
 </style>
 <meta name="robots" content="noindex, nofollow">
 </head>
@@ -108,13 +39,13 @@
 
   <div class="week-area">
     <label for="weekSelector">対象週：</label>
-    <input type="week" id="weekSelector">
+    <input type="date" id="weekSelector" aria-label="表示する週の日付を選択">
     <p id="selectedWeekLabel"></p>
   </div>
 
-  <div class="table-wrap">
-    <table id="shiftTable"></table>
-  </div>
+  <div class="zoom-toolbar" aria-label="表の表示倍率"><span id="zoomLabel">100%</span><button type="button" id="zoomReset">ズームをリセット</button></div>
+  <div class="table-wrap"><div class="table-zoom-content" id="tableZoomContent"><table id="shiftTable" class="densuke-table"></table></div></div>
+  <div class="slot-legend" aria-label="時間帯"><span>① 8:00〜10:00</span><span>② 10:00〜12:00</span><span>③ 12:30〜14:15</span><span>④ 14:15〜16:00</span><span>○：出勤予定　×：出勤予定なし</span></div>
 
 </div>
 
@@ -144,6 +75,7 @@ import { auth, db } from "./shared/firebase.js";
 // ==================================
 
 let currentUserId = null;
+let zoomScale = 100;
 
 const weekSelector =
   document.getElementById("weekSelector");
@@ -265,7 +197,8 @@ onAuthStateChanged(auth, async (user) => {
 
   const currentWeek = getISOWeekId(new Date());
 
-  weekSelector.value = currentWeek;
+  const monday = getWeekDates(currentWeek)[0];
+  weekSelector.value = dateToKey(monday);
 
   try {
     await loadShift(currentWeek);
@@ -355,123 +288,60 @@ async function loadShift(weekId) {
 // ==================================
 
 function buildShiftTable(weekDates, scheduledCells) {
-
   shiftTable.innerHTML = "";
-
-  const thead = document.createElement("thead");
-
-  // 日付行
-  const dateRow = document.createElement("tr");
-
-  const dateTitle = document.createElement("th");
-
-  dateTitle.textContent = "時間帯";
-
-  dateTitle.rowSpan = 2;
-
-  dateRow.appendChild(dateTitle);
-
-
-  weekDates.forEach((date, i) => {
-
-    const th = document.createElement("th");
-
-    th.colSpan = 4;
-
-    th.className = "date-header";
-
-    th.textContent =
-      `${dayLabels[i]}曜日 (${date.getMonth() + 1}/${date.getDate()})`;
-
-    dateRow.appendChild(th);
-
-  });
-
-  thead.appendChild(dateRow);
-
-
-  // 時間帯行
-  const shiftRow = document.createElement("tr");
-
-  weekDates.forEach(() => {
-
-    shifts.forEach(shift => {
-
-      const th = document.createElement("th");
-
-      th.textContent = shift.label;
-
-      shiftRow.appendChild(th);
-
+  shiftTable.classList.add("densuke-table");
+  const colgroup=document.createElement("colgroup");
+  [112,82,130].forEach(width=>{const col=document.createElement("col");col.style.width=width+"px";colgroup.appendChild(col);});
+  shiftTable.appendChild(colgroup);
+  const thead=document.createElement("thead"),headerRow=document.createElement("tr");
+  ["日付","時間帯","自分"].forEach(label=>{const th=document.createElement("th");th.textContent=label;headerRow.appendChild(th);});
+  thead.appendChild(headerRow);shiftTable.appendChild(thead);
+  const tbody=document.createElement("tbody");
+  weekDates.slice(0,5).forEach((date,dayIndex)=>{
+    const dateKey=dateToKey(date);
+    shifts.forEach((shift,shiftIndex)=>{
+      const row=document.createElement("tr");
+      if(shiftIndex===0){const d=document.createElement("td");d.className="date-cell";d.rowSpan=4;d.textContent=(date.getMonth()+1)+"/"+date.getDate()+"（"+dayLabels[dayIndex]+"）";row.appendChild(d);}
+      const slot=document.createElement("td");slot.className="slot-cell";slot.textContent=["①","②","③","④"][shiftIndex];slot.title=shift.label;row.appendChild(slot);
+      const cell=document.createElement("td");cell.className="assignment-cell";
+      const mark=document.createElement("span");
+      if(scheduledCells.has(dateKey+"|"+shift.value)){mark.textContent="○";mark.className="scheduled-mark";mark.setAttribute("aria-label","出勤予定");}
+      else{mark.textContent="×";mark.className="not-scheduled-mark";mark.setAttribute("aria-label","出勤予定なし");}
+      cell.appendChild(mark);row.appendChild(cell);tbody.appendChild(row);
     });
-
   });
-
-  thead.appendChild(shiftRow);
-
-  shiftTable.appendChild(thead);
-
-
-  // 本人のシフト表示
-  const tbody = document.createElement("tbody");
-
-  const row = document.createElement("tr");
-
-  const labelCell = document.createElement("td");
-
-  labelCell.textContent = "出勤予定";
-
-  row.appendChild(labelCell);
-
-
-  weekDates.forEach(date => {
-
-    const dateKey = dateToKey(date);
-
-    shifts.forEach(shift => {
-
-      const td = document.createElement("td");
-
-      const key = `${dateKey}|${shift.value}`;
-
-      if (scheduledCells.has(key)) {
-        td.textContent = "○";
-        td.className = "selected";
-      }
-
-      row.appendChild(td);
-
-    });
-
-  });
-
-  tbody.appendChild(row);
-
   shiftTable.appendChild(tbody);
-
 }
 
 
-// ==================================
 // 週変更
 // ==================================
 
 weekSelector.addEventListener("change", async () => {
-
   if (!weekSelector.value) return;
-
   try {
-    await loadShift(weekSelector.value);
-  } catch (error) {
+    const [year,month,day]=weekSelector.value.split("-").map(Number);
+    const weekId=getISOWeekId(new Date(year,month-1,day));
+    weekSelector.value=dateToKey(getWeekDates(weekId)[0]);
+    await loadShift(weekId);
+  } catch(error) {
     console.error(error);
-    statusMessage.textContent =
-      "シフトの読み込みに失敗しました。";
+    statusMessage.textContent="シフトの読み込みに失敗しました。";
   }
-
 });
 
-
-// ==================================
+// スマホは2本指ピンチ、PCはCtrl＋マウスホイールで倍率を変更。
+function applyZoom(){document.getElementById("tableZoomContent").style.zoom=String(zoomScale/100);document.getElementById("zoomLabel").textContent=zoomScale+"%";}
+const tableWrap=document.querySelector(".table-wrap");
+let pinchStartDistance=0,pinchStartZoom=zoomScale;
+function getTouchDistance(touches){const dx=touches[0].clientX-touches[1].clientX,dy=touches[0].clientY-touches[1].clientY;return Math.hypot(dx,dy);}
+tableWrap.addEventListener("touchstart",event=>{if(event.touches.length!==2)return;pinchStartDistance=getTouchDistance(event.touches);pinchStartZoom=zoomScale;},{passive:true});
+tableWrap.addEventListener("touchmove",event=>{if(event.touches.length!==2||!pinchStartDistance)return;event.preventDefault();const ratio=getTouchDistance(event.touches)/pinchStartDistance;zoomScale=Math.max(60,Math.min(150,Math.round(pinchStartZoom*ratio)));applyZoom();},{passive:false});
+function resetPinch(){pinchStartDistance=0;}
+tableWrap.addEventListener("touchend",resetPinch,{passive:true});tableWrap.addEventListener("touchcancel",resetPinch,{passive:true});
+tableWrap.addEventListener("wheel",event=>{if(!event.ctrlKey)return;event.preventDefault();zoomScale=Math.max(60,Math.min(150,zoomScale+(event.deltaY<0?5:-5)));applyZoom();},{passive:false});
+document.getElementById("zoomReset").addEventListener("click",()=>{zoomScale=100;applyZoom();});
+applyZoom();// ==================================
 </script>
 
 </body>
