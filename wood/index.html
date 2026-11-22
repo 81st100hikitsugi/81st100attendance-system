@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#2878c8"><title>木材管理</title>
-<link rel="stylesheet" href="../shared/app-shell.css?v=20261122-2">
+<link rel="stylesheet" href="../shared/app-shell.css?v=20261123-1">
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#202833;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
 main{width:min(1240px,calc(100% - 20px));margin:18px auto 90px}.heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.heading h1{margin:0 0 6px;font-size:1.7rem}.muted{color:#667085}.panel{background:#fff;border:1px solid #e1e6ed;border-radius:14px;padding:18px;margin:16px 0;box-shadow:0 2px 8px #172b4d08}
@@ -93,6 +93,48 @@ body:has(.app-shell) .row-menu-trigger:hover{padding:0!important}
   body.app-shell-ready .table-wrap table td{padding:0!important;font-size:.56rem!important;height:20px!important}
   body.app-shell-ready .table-wrap table th{font-size:.54rem!important}
 }
+
+/* 2026-11-23: 最終適用・スマートフォン木材一覧の表余白 */
+@media (max-width:760px) {
+  body:has(.app-shell) .table-wrap table { border-spacing:0!important; }
+  body:has(.app-shell) .table-wrap table > thead > tr > th,
+  body:has(.app-shell) .table-wrap table > tbody > tr > td {
+    box-sizing:border-box!important;
+    padding:0!important;
+    height:19px!important;
+    min-height:0!important;
+    line-height:1!important;
+    vertical-align:middle!important;
+  }
+  body:has(.app-shell) .table-wrap table > thead > tr > th { font-size:.56rem!important; }
+  body:has(.app-shell) .table-wrap table > tbody > tr > td { font-size:.58rem!important; }
+  body:has(.app-shell) .table-wrap table .group-link {
+    display:inline!important;
+    margin:0!important;
+    padding:0!important;
+    font-size:.58rem!important;
+    line-height:1!important;
+  }
+  body:has(.app-shell) .table-wrap table .row-menu,
+  body:has(.app-shell) .table-wrap table .row-menu-trigger {
+    margin:0!important;
+    padding:0!important;
+  }
+  body:has(.app-shell) .table-wrap table .row-menu-trigger {
+    height:18px!important;
+    min-height:18px!important;
+    width:18px!important;
+    min-width:18px!important;
+    max-width:18px!important;
+    font-size:12px!important;
+    line-height:1!important;
+  }
+}
+@media (max-width:430px) {
+  body:has(.app-shell) .table-wrap table > thead > tr > th { font-size:.53rem!important; }
+  body:has(.app-shell) .table-wrap table > tbody > tr > td { font-size:.55rem!important; }
+}
+
 </style>
 <meta name="robots" content="noindex, nofollow">
 </head>
