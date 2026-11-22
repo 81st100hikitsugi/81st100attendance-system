@@ -61,6 +61,38 @@ body:has(.app-shell) .row-menu-trigger:hover{padding:0!important}
  body:has(.app-shell) .table-wrap table td{font-size:.59rem!important}
 }
 
+
+
+/* スマートフォン木材一覧：セルと操作部品の余白をまとめて縮小 */
+@media(max-width:760px){
+  body.app-shell-ready main{width:calc(100% - 8px)!important;margin:6px auto 76px!important}
+  body.app-shell-ready main > .panel{padding:3px!important;margin:5px 0!important}
+  body.app-shell-ready main > .panel .heading{gap:4px}
+  body.app-shell-ready .table-wrap{margin:0 -2px!important;padding:0!important;overflow-x:auto!important}
+  body.app-shell-ready .table-wrap table{width:100%!important;min-width:420px!important;table-layout:fixed!important;border-spacing:0!important}
+  body.app-shell-ready .table-wrap table th,
+  body.app-shell-ready .table-wrap table td{
+    padding:0 1px!important;
+    line-height:1.05!important;
+    font-size:.59rem!important;
+    height:22px!important;
+  }
+  body.app-shell-ready .table-wrap table th{font-size:.57rem!important}
+  body.app-shell-ready .table-wrap table .group-link{font-size:.59rem!important;line-height:1.05!important}
+  body.app-shell-ready .table-wrap table .filter-indicator{margin-left:0!important;font-size:.55em!important}
+  body.app-shell-ready .table-wrap table .row-menu{width:20px!important;min-width:20px!important;max-width:20px!important}
+  body.app-shell-ready .table-wrap table .row-menu-trigger{
+    flex:0 0 19px!important;width:19px!important;min-width:19px!important;max-width:19px!important;
+    height:20px!important;min-height:20px!important;padding:0!important;margin:0!important;font-size:13px!important;
+  }
+}
+@media(max-width:430px){
+  body.app-shell-ready main > .panel{padding:2px!important}
+  body.app-shell-ready .table-wrap table{min-width:400px!important}
+  body.app-shell-ready .table-wrap table th,
+  body.app-shell-ready .table-wrap table td{padding:0!important;font-size:.56rem!important;height:20px!important}
+  body.app-shell-ready .table-wrap table th{font-size:.54rem!important}
+}
 </style>
 <meta name="robots" content="noindex, nofollow">
 </head>
