@@ -525,19 +525,30 @@ async function loadStudents() {
   );
 
   students = snapshot.docs
+    .map(docSnap => {
+      const data = docSnap.data();
+      // 認証UIDとは別に生徒番号が保存されている場合は、そちらを優先する。
+      const sortId =
+        data.studentId ??
+        data.studentNumber ??
+        data.studentNo ??
+        data.studentCode ??
+        data.id ??
+        docSnap.id;
 
-    .map(docSnap => ({
-      id: docSnap.id,
-      name: docSnap.data().name,
-      role: docSnap.data().role
-    }))
-// 表示順は名前ではなくIDで固定する（例：student01 → student02）。
+      return {
+        id: docSnap.id,
+        sortId: String(sortId),
+        name: data.name,
+        role: data.role
+      };
+    })
+    // 数字部分を数値として比較し、生徒IDの昇順に固定する。
     .sort((a, b) =>
-      (a.id || "").localeCompare(
-        b.id || "",
-        "en",
-        { numeric: true }
-      )
+      a.sortId.localeCompare(b.sortId, "en", {
+        numeric: true,
+        sensitivity: "base"
+      })
     );
 
 }
@@ -582,7 +593,7 @@ async function loadWeek(weekId) {
   document.getElementById(
     "selectedWeekLabel"
   ).textContent =
-    `${dateToKey(weekDates[0])} 〜 ${dateToKey(weekDates[6])}`;
+    `${dateToKey(weekDates[0])} 〜 ${dateToKey(weekDates[4])}`;
 
 
   // 先に表を描画する。出勤データの取得に失敗しても、日付・利用者一覧は表示する。
@@ -642,7 +653,7 @@ async function loadWeek(weekId) {
 
   buildShiftTable(weekDates);
 
-  statusMessage.textContent = `表を読み込みました（利用者 ${students.length} 人・28 枠）。`;
+  statusMessage.textContent = `表を読み込みました（利用者 ${students.length} 人・20 枠）。`;
 
 }
 
@@ -693,7 +704,7 @@ function buildShiftTable(weekDates) {
 
   const tbody = document.createElement("tbody");
 
-  weekDates.forEach((date, dayIndex) => {
+  weekDates.slice(0, 5).forEach((date, dayIndex) => {
     const dateKey = dateToKey(date);
 
     shifts.forEach((shift, shiftIndex) => {
