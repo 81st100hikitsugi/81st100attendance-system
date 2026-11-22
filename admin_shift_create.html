@@ -40,29 +40,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: 9px;
+    gap: 10px;
     margin: 14px 0;
-    padding: 10px;
+    padding: 9px 12px;
     border: 1px solid #dce3eb;
     border-radius: 9px;
     background: #f8fafc;
+    color: #64748b;
+    font-size: 13px;
   }
-  .zoom-toolbar button, .zoom-toolbar input {
-    font: inherit;
-  }
-  .zoom-toolbar button {
-    min-width: 38px;
-    padding: 7px 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 7px;
-    background: #fff;
-    color: #243447;
-    cursor: pointer;
-  }
-  .zoom-toolbar button:hover { border-color: #2878c8; background: #f0f7ff; }
-  .zoom-toolbar input[type="range"] { width: min(180px, 34vw); accent-color: #2878c8; }
-  #zoomLabel { min-width: 48px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+  #zoomLabel { min-width: 48px; color: #243447; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
   .table-zoom-content { width: max-content; min-width: 100%; transform-origin: top left; }
   .table-wrap {
     width: 100%;
@@ -73,6 +60,8 @@
     border-radius: 9px;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+    /* 1本指のスクロールは維持し、2本指操作は独自のズーム処理に使用 */
+    touch-action: pan-x pan-y;
   }
   .densuke-table {
     width: max-content;
@@ -252,8 +241,7 @@
     h2 { font-size: 19px; }
     .table-wrap { max-height: 62vh; }
     .densuke-table th, .densuke-table td { height: 44px; }
-    .zoom-toolbar { gap: 6px; padding: 8px; }
-    .zoom-toolbar input[type="range"] { width: 110px; }
+    .zoom-toolbar { gap: 8px; padding: 8px; text-align: center; }
   }
 
   /* 共通デザインCSSのtable指定より、このページのシフト表を優先 */
@@ -311,12 +299,8 @@
   <p id="statusMessage">読み込み中...</p>
 
   <div class="zoom-toolbar" aria-label="表の表示倍率">
-    <button type="button" id="zoomMinus" aria-label="縮小">−</button>
+    <span>表を2本指で広げると拡大、つまむと縮小できます</span>
     <span id="zoomLabel">100%</span>
-    <button type="button" id="zoomPlus" aria-label="拡大">＋</button>
-    <input type="range" id="zoomRange" min="60" max="150" step="5" value="100" aria-label="表示倍率">
-    <button type="button" id="zoomReset">倍率を戻す</button>
-    <span style="font-size:12px;color:#64748b">60〜150%</span>
   </div>
 
   <div class="table-wrap">
@@ -1083,29 +1067,46 @@ weekSelector.addEventListener("change", async () => {
   }
 });
 
-// 表の拡大・縮小
+// 表の2本指ピンチ操作による拡大・縮小
 function applyZoom() {
   const content = document.getElementById("tableZoomContent");
   content.style.zoom = String(zoomScale / 100);
-  document.getElementById("zoomRange").value = String(zoomScale);
   document.getElementById("zoomLabel").textContent = zoomScale + "%";
 }
-document.getElementById("zoomRange").addEventListener("input", event => {
-  zoomScale = Number(event.target.value);
+
+const tableWrap = document.querySelector(".table-wrap");
+let pinchStartDistance = 0;
+let pinchStartZoom = zoomScale;
+
+function getTouchDistance(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.hypot(dx, dy);
+}
+
+tableWrap.addEventListener("touchstart", event => {
+  if (event.touches.length !== 2) return;
+  pinchStartDistance = getTouchDistance(event.touches);
+  pinchStartZoom = zoomScale;
+}, { passive: true });
+
+tableWrap.addEventListener("touchmove", event => {
+  if (event.touches.length !== 2 || !pinchStartDistance) return;
+
+  // 2本指の距離の変化だけをズームに使い、1本指の通常スクロールは妨げない。
+  event.preventDefault();
+  const distance = getTouchDistance(event.touches);
+  const scaleRatio = distance / pinchStartDistance;
+  zoomScale = Math.max(60, Math.min(150, Math.round(pinchStartZoom * scaleRatio)));
   applyZoom();
-});
-document.getElementById("zoomMinus").addEventListener("click", () => {
-  zoomScale = Math.max(60, zoomScale - 5);
-  applyZoom();
-});
-document.getElementById("zoomPlus").addEventListener("click", () => {
-  zoomScale = Math.min(150, zoomScale + 5);
-  applyZoom();
-});
-document.getElementById("zoomReset").addEventListener("click", () => {
-  zoomScale = 100;
-  applyZoom();
-});
+}, { passive: false });
+
+function resetPinch() {
+  pinchStartDistance = 0;
+}
+tableWrap.addEventListener("touchend", resetPinch, { passive: true });
+tableWrap.addEventListener("touchcancel", resetPinch, { passive: true });
+
 applyZoom();
 
 
