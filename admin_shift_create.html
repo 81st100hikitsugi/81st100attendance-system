@@ -225,6 +225,41 @@
     .zoom-toolbar { gap: 6px; padding: 8px; }
     .zoom-toolbar input[type="range"] { width: 110px; }
   }
+
+  /* 共通デザインCSSのtable指定より、このページのシフト表を優先 */
+  body:has(.app-shell) .table-wrap .table-zoom-content {
+    display: block !important;
+    width: max-content !important;
+    min-width: 100% !important;
+    visibility: visible !important;
+  }
+  body:has(.app-shell) .table-wrap table.densuke-table {
+    display: table !important;
+    width: max-content !important;
+    min-width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    visibility: visible !important;
+    color: #243447 !important;
+  }
+  body:has(.app-shell) .table-wrap .densuke-table th,
+  body:has(.app-shell) .table-wrap .densuke-table td {
+    display: table-cell !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #243447 !important;
+    border-right: 1px solid #dce3eb !important;
+    border-bottom: 1px solid #dce3eb !important;
+    padding: 5px 7px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+  }
+  body:has(.app-shell) .table-wrap .densuke-table thead { display: table-header-group !important; }
+  body:has(.app-shell) .table-wrap .densuke-table tbody { display: table-row-group !important; }
+  body:has(.app-shell) .table-wrap .densuke-table tr { display: table-row !important; }
+
 </style>
 <meta name="robots" content="noindex, nofollow">
 <meta name="robots" content="noindex, nofollow">
@@ -575,7 +610,7 @@ async function loadWeek(weekId) {
 
   buildShiftTable(weekDates);
 
-  statusMessage.textContent = "";
+  statusMessage.textContent = `表を読み込みました（利用者 ${students.length} 人・28 枠）。`;
 
 }
 
