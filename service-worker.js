@@ -1,4 +1,4 @@
-const CACHE_NAME = "attendance-system-v44";
+const CACHE_NAME = "attendance-system-v45";
 const FIREBASE_SDK_ASSETS = [
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
