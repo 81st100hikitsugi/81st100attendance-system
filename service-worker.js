@@ -1,4 +1,4 @@
-const CACHE_NAME = "attendance-system-v43";
+const CACHE_NAME = "attendance-system-v44";
 const FIREBASE_SDK_ASSETS = [
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
@@ -38,7 +38,11 @@ const CORE_ASSETS = [
   "./shared/design-system.css",
   "./shared/app-shell.js",
   "./shared/auth.js",
-  "./shared/firebase.js"
+  "./shared/firebase.js",
+  "./assets/icons/home.svg",
+  "./assets/icons/attendance.svg",
+  "./assets/icons/learning.svg",
+  "./assets/icons/wood.svg"
 ];
 
 self.addEventListener("install", (event) => {
