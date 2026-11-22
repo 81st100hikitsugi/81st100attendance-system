@@ -527,14 +527,9 @@ async function loadStudents() {
   students = snapshot.docs
     .map(docSnap => {
       const data = docSnap.data();
-      // 認証UIDとは別に生徒番号が保存されている場合は、そちらを優先する。
-      const sortId =
-        data.studentId ??
-        data.studentNumber ??
-        data.studentNo ??
-        data.studentCode ??
-        data.id ??
-        docSnap.id;
+      // students/{UID} の各ドキュメント内にある id を表示順の基準にする。
+      // id が未設定の場合のみ、FirestoreドキュメントID（UID）を代替値にする。
+      const sortId = data.id ?? docSnap.id;
 
       return {
         id: docSnap.id,
