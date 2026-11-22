@@ -4,135 +4,233 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="./shared/app-shell.css?v=20261120-11">
+<link rel="stylesheet" href="./shared/app-shell.css">
 <title>週シフト作成 - 管理者</title>
 
 <style>
+  * { box-sizing: border-box; }
   body {
-    font-family: sans-serif;
-    background: #f5f5f5;
-    padding: 20px;
     margin: 0;
+    padding: 20px 20px 100px;
+    background: #f5f7fa;
+    color: #243447;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   }
-
   .container {
-    max-width: 1100px;
-    margin: 40px auto;
-    background: white;
+    max-width: 1400px;
+    margin: 28px auto;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    background: #fff;
+    border: 1px solid #e1e6ed;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(23,43,77,.06);
   }
-
-  h2 {
-    text-align: center;
-  }
-
-  .week-area {
-    margin: 20px 0;
-    text-align: center;
-  }
-
+  h2 { margin: 0 0 18px; text-align: center; font-size: 22px; }
+  .week-area { margin: 16px 0 20px; text-align: center; }
   .week-area input {
-    padding: 8px;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font: inherit;
     font-size: 16px;
   }
-
-  #selectedWeekLabel {
-    margin-top: 10px;
-    font-weight: bold;
+  #selectedWeekLabel { margin-top: 10px; font-weight: 700; color: #425466; }
+  #statusMessage { min-height: 22px; margin: 12px 0; text-align: center; color: #526273; }
+  .zoom-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin: 14px 0;
+    padding: 10px;
+    border: 1px solid #dce3eb;
+    border-radius: 9px;
+    background: #f8fafc;
   }
-
+  .zoom-toolbar button, .zoom-toolbar input {
+    font: inherit;
+  }
+  .zoom-toolbar button {
+    min-width: 38px;
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #fff;
+    color: #243447;
+    cursor: pointer;
+  }
+  .zoom-toolbar button:hover { border-color: #2878c8; background: #f0f7ff; }
+  .zoom-toolbar input[type="range"] { width: min(180px, 34vw); accent-color: #2878c8; }
+  #zoomLabel { min-width: 48px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .table-zoom-content { width: max-content; min-width: 100%; transform-origin: top left; }
   .table-wrap {
     width: 100%;
-    overflow-x: auto;
-    margin-top: 20px;
+    max-height: 68vh;
+    overflow: auto;
+    margin-top: 16px;
+    border: 1px solid #d8e0e9;
+    border-radius: 9px;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
-
-  table {
-    border-collapse: collapse;
-    min-width: 1250px;
-    width: 100%;
+  .densuke-table {
+    width: max-content;
+    min-width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
   }
-
-  th, td {
-    border: 1px solid #ccc;
-    padding: 8px;
+  .densuke-table th, .densuke-table td {
+    min-width: 88px;
+    height: 48px;
+    padding: 5px 7px;
+    border-right: 1px solid #dce3eb;
+    border-bottom: 1px solid #dce3eb;
+    background: #fff;
     text-align: center;
+    vertical-align: middle;
     white-space: nowrap;
   }
-
-  th {
-    background: #f0f0f0;
-  }
-
-  .date-header {
-    background: #e0e0e0;
-    font-weight: bold;
-  }
-
-  .name-cell {
-    min-width: 90px;
-    background: #f7f7f7;
+  .densuke-table thead th {
     position: sticky;
-    left: 0;
-    z-index: 1;
+    top: 0;
+    z-index: 2;
+    height: 46px;
+    background: #edf3f9;
+    font-weight: 700;
   }
-
-  .cell {
-    width: 55px;
-    height: 40px;
-    border: none;
-    background: white;
+  .densuke-table thead th:first-child,
+  .densuke-table thead th:nth-child(2) { background: #e5edf6; }
+  .densuke-table .date-cell {
+    width: 112px;
+    min-width: 112px;
+    background: #f5f7fa;
+    font-weight: 700;
     cursor: pointer;
-    font-size: 20px;
   }
-
-  .cell:hover {
-    background: #f0f8ff;
+  .densuke-table .slot-cell {
+    width: 82px;
+    min-width: 82px;
+    background: #f8fafc;
+    color: #425466;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
   }
-
-  .cell.selected {
-    color: #219653;
-    font-weight: bold;
+  .densuke-table .student-header {
+    width: 100px;
+    min-width: 100px;
   }
-
+  .densuke-table .assignment-cell { width: 100px; min-width: 100px; }
+  .cell {
+    display: block;
+    width: 100%;
+    height: 38px;
+    padding: 0;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1;
+    touch-action: manipulation;
+  }
+  .cell.is-scheduled { color: #16834a; }
+  .cell.is-not-scheduled { color: #a0a8b2; }
+  .cell:hover { background: #eef6ff; }
+  .cell:focus-visible, .date-cell:focus-visible, .slot-cell:focus-visible {
+    outline: 2px solid #2878c8;
+    outline-offset: -2px;
+  }
+  /* 選択中は○×を含む行全体を同じ背景色で強調 */
+  .densuke-table tbody tr.is-selected-row > td {
+    background: #dceeff !important;
+    box-shadow: inset 0 2px 0 #2878c8, inset 0 -2px 0 #2878c8;
+  }
+  .densuke-table tbody tr.is-selected-row > td:first-child,
+  .densuke-table tbody tr.is-selected-row > td:nth-child(2) {
+    box-shadow: inset 2px 0 0 #2878c8, inset 0 2px 0 #2878c8, inset 0 -2px 0 #2878c8;
+  }
+  .densuke-table tbody tr.is-selected-row > td:last-child {
+    box-shadow: inset -2px 0 0 #2878c8, inset 0 2px 0 #2878c8, inset 0 -2px 0 #2878c8;
+  }
+  .densuke-table tbody tr.is-selected-row .cell:hover { background: #c9e2ff; }
+  .densuke-table .date-cell.is-selected-day,
+  .densuke-table .slot-cell.is-selected-slot {
+    background: #dceeff !important;
+  }
+  .slot-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin: 10px 2px 0;
+    color: #64748b;
+    font-size: 12px;
+  }
+  .selection-summary {
+    margin-top: 18px;
+    padding: 15px;
+    border: 1px solid #dce3eb;
+    border-radius: 10px;
+    background: #fff;
+  }
+  .selection-summary h3 { margin: 0 0 8px; font-size: 15px; }
+  .summary-caption { margin: 0 0 12px; color: #64748b; font-size: 13px; }
+  .summary-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+  .summary-stat {
+    min-width: 130px;
+    padding: 9px 13px;
+    border-radius: 8px;
+    background: #f2f6fa;
+  }
+  .summary-stat small { display: block; color: #64748b; font-size: 11px; }
+  .summary-stat strong { font-size: 20px; }
+  .summary-slot { margin-top: 12px; }
+  .summary-slot-title { margin-bottom: 6px; font-size: 13px; font-weight: 700; }
+  .summary-names { display: flex; flex-wrap: wrap; gap: 6px; }
+  .summary-name {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #e9f2ff;
+    color: #245b91;
+    font-size: 12px;
+  }
+  .empty-summary { color: #8994a2; font-size: 12px; }
   button.action {
     display: block;
     width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 6px;
-    color: white;
+    margin: 16px 0 4px;
+    padding: 13px;
+    border: 0;
+    border-radius: 8px;
+    background: #2878c8;
+    color: #fff;
     cursor: pointer;
     font-size: 15px;
+    font-weight: 700;
   }
-
-  #saveBtn {
-    background: #4caf50;
-  }
-
-  
-
-  
-
-  #statusMessage {
-    text-align: center;
-    color: #555;
-    min-height: 20px;
-  }
-
-  button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  button.action:hover { background: #1f67ae; }
+  button:disabled { opacity: .6; cursor: not-allowed; }
+  @media (max-width: 650px) {
+    body { padding: 10px 8px 100px; }
+    .container { margin: 14px auto; padding: 12px; }
+    h2 { font-size: 19px; }
+    .table-wrap { max-height: 62vh; }
+    .densuke-table th, .densuke-table td { height: 44px; }
+    .zoom-toolbar { gap: 6px; padding: 8px; }
+    .zoom-toolbar input[type="range"] { width: 110px; }
   }
 </style>
 <meta name="robots" content="noindex, nofollow">
 <meta name="robots" content="noindex, nofollow">
 </head>
 
-<body class="app-shell-pending">
+<body>
 
 <div class="container">
 
@@ -140,20 +238,43 @@
 
   <div class="week-area">
     <label for="weekSelector">対象週：</label>
-    <input type="week" id="weekSelector">
+    <input type="date" id="weekSelector" aria-label="表示する週の日付を選択">
 
     <p id="selectedWeekLabel"></p>
   </div>
 
   <p id="statusMessage">読み込み中...</p>
 
-  <div class="table-wrap">
-    <table id="shiftTable"></table>
+  <div class="zoom-toolbar" aria-label="表の表示倍率">
+    <button type="button" id="zoomMinus" aria-label="縮小">−</button>
+    <span id="zoomLabel">100%</span>
+    <button type="button" id="zoomPlus" aria-label="拡大">＋</button>
+    <input type="range" id="zoomRange" min="60" max="150" step="5" value="100" aria-label="表示倍率">
+    <button type="button" id="zoomReset">倍率を戻す</button>
+    <span style="font-size:12px;color:#64748b">60〜150%</span>
   </div>
 
-  <button class="action" id="saveBtn">
-    この週のシフトを保存する
-  </button>
+  <div class="table-wrap">
+    <div class="table-zoom-content" id="tableZoomContent">
+      <table id="shiftTable" class="densuke-table"></table>
+    </div>
+  </div>
+
+  <div class="slot-legend" aria-label="時間帯">
+    <span>① 8:00〜10:00</span>
+    <span>② 10:00〜12:00</span>
+    <span>③ 12:30〜14:15</span>
+    <span>④ 14:15〜16:00</span>
+    <span>○：出勤予定　×：未登録</span>
+  </div>
+
+  <section class="selection-summary" aria-live="polite">
+    <h3>選択した日付・時間帯の出勤状況</h3>
+    <p class="summary-caption" id="summaryCaption">表の日付、または日付と時間帯をクリックすると、担当者と人数が表示されます。</p>
+    <div id="summaryDetails"></div>
+  </section>
+
+  <button class="action" id="saveBtn">この週のシフトを保存する</button>
 
   
 
@@ -186,7 +307,7 @@ import {
 
 import { db } from "./shared/firebase.js";
 import { requireAdmin } from "./shared/auth.js";
-import { mountAppShell } from "./shared/app-shell.js?v=20261120-10";
+import { mountAppShell } from "./shared/app-shell.js";
 
 
 // ==================================
@@ -200,6 +321,10 @@ let originalCells = new Set();
 
 let scheduledDocsByKey = new Map();
 let cellInfoMap = new Map();
+
+let selectedDay = null;
+let selectedSlot = null;
+let zoomScale = 100;
 
 const shifts = [
   { label: "8:00〜10:00", value: "8:00-10:00" },
@@ -313,7 +438,8 @@ requireAdmin({
     try {
       await loadStudents();
       const currentWeek = getISOWeekId(new Date());
-      weekSelector.value = currentWeek;
+      const monday = getWeekDates(currentWeek)[0];
+      weekSelector.value = dateToKey(monday);
       await loadWeek(currentWeek);
     } catch (error) {
       console.error(error);
@@ -362,6 +488,8 @@ async function loadWeek(weekId) {
 
   selectedCells = new Set();
   originalCells = new Set();
+  selectedDay = null;
+  selectedSlot = null;
 
   scheduledDocsByKey = new Map();
   cellInfoMap = new Map();
@@ -446,100 +574,80 @@ async function loadWeek(weekId) {
 function buildShiftTable(weekDates) {
 
   shiftTable.innerHTML = "";
+  shiftTable.classList.add("densuke-table");
+
+  const colgroup = document.createElement("colgroup");
+  const dateCol = document.createElement("col");
+  dateCol.style.width = "112px";
+  colgroup.appendChild(dateCol);
+  const slotCol = document.createElement("col");
+  slotCol.style.width = "82px";
+  colgroup.appendChild(slotCol);
+  students.forEach(() => {
+    const col = document.createElement("col");
+    col.style.width = "100px";
+    colgroup.appendChild(col);
+  });
+  shiftTable.appendChild(colgroup);
 
   const thead = document.createElement("thead");
-
-  // 日付行
-  const dateRow = document.createElement("tr");
+  const headerRow = document.createElement("tr");
 
   const dateTitle = document.createElement("th");
-
   dateTitle.textContent = "日付";
+  headerRow.appendChild(dateTitle);
 
-  dateTitle.className = "name-cell";
-
-  dateRow.appendChild(dateTitle);
-
-
-  weekDates.forEach((date, i) => {
-
-    const th = document.createElement("th");
-
-    th.colSpan = 4;
-
-    th.className = "date-header";
-
-    th.textContent =
-      `${dayLabels[i]}曜日 (${date.getMonth() + 1}/${date.getDate()})`;
-
-    dateRow.appendChild(th);
-
-  });
-
-  thead.appendChild(dateRow);
-
-
-  // 時間帯行
-  const shiftRow = document.createElement("tr");
-
-  const nameTitle = document.createElement("th");
-
-  nameTitle.textContent = "生徒名";
-
-  nameTitle.className = "name-cell";
-
-  shiftRow.appendChild(nameTitle);
-
-
-  weekDates.forEach(() => {
-
-    shifts.forEach(shift => {
-
-      const th = document.createElement("th");
-
-      th.textContent = shift.label;
-
-      shiftRow.appendChild(th);
-
-    });
-
-  });
-
-  thead.appendChild(shiftRow);
-
-  shiftTable.appendChild(thead);
-
-
-  // 生徒ごとの行
-  const tbody = document.createElement("tbody");
+  const slotTitle = document.createElement("th");
+  slotTitle.textContent = "時間帯";
+  headerRow.appendChild(slotTitle);
 
   students.forEach(student => {
+    const th = document.createElement("th");
+    th.className = "student-header";
+    th.textContent = student.name || "名前未設定";
+    headerRow.appendChild(th);
+  });
 
-    const row = document.createElement("tr");
+  thead.appendChild(headerRow);
+  shiftTable.appendChild(thead);
 
-    const nameCell = document.createElement("td");
+  const tbody = document.createElement("tbody");
 
-    nameCell.textContent = student.name || "名前未設定";
+  weekDates.forEach((date, dayIndex) => {
+    const dateKey = dateToKey(date);
 
-    nameCell.className = "name-cell";
+    shifts.forEach((shift, shiftIndex) => {
+      const row = document.createElement("tr");
+      row.dataset.pickDay = String(dayIndex);
+      row.dataset.pickSlot = String(shiftIndex);
 
-    row.appendChild(nameCell);
+      if (shiftIndex === 0) {
+        const dateCell = document.createElement("td");
+        dateCell.className = "date-cell";
+        dateCell.rowSpan = shifts.length;
+        dateCell.dataset.pickDay = String(dayIndex);
+        dateCell.tabIndex = 0;
+        dateCell.setAttribute("role", "button");
+        dateCell.setAttribute("aria-label", "日付 " + dayLabels[dayIndex] + "曜日 " + (date.getMonth() + 1) + "/" + date.getDate());
+        dateCell.textContent = (date.getMonth() + 1) + "/" + date.getDate() + "（" + dayLabels[dayIndex] + "）";
+        row.appendChild(dateCell);
+      }
 
+      const slotCell = document.createElement("td");
+      slotCell.className = "slot-cell";
+      slotCell.dataset.pickDay = String(dayIndex);
+      slotCell.dataset.pickSlot = String(shiftIndex);
+      slotCell.tabIndex = 0;
+      slotCell.setAttribute("role", "button");
+      slotCell.setAttribute("aria-label", (date.getMonth() + 1) + "/" + date.getDate() + " " + ["①", "②", "③", "④"][shiftIndex]);
+      slotCell.textContent = ["①", "②", "③", "④"][shiftIndex];
+      row.appendChild(slotCell);
 
-    weekDates.forEach(date => {
-
-      const dateKey = dateToKey(date);
-
-      shifts.forEach((shift, shiftIndex) => {
-
+      students.forEach(student => {
         const td = document.createElement("td");
+        td.className = "assignment-cell";
 
-        const key = makeCellKey(
-          student.id,
-          dateKey,
-          shift.value
-        );
-
+        const key = makeCellKey(student.id, dateKey, shift.value);
         cellInfoMap.set(key, {
           userId: student.id,
           date: date,
@@ -549,41 +657,31 @@ function buildShiftTable(weekDates) {
         });
 
         const button = document.createElement("button");
-
         button.type = "button";
-
         button.className = "cell";
-
         button.dataset.key = key;
-
         updateCellDisplay(button, key);
 
         button.addEventListener("click", () => {
-
           if (selectedCells.has(key)) {
             selectedCells.delete(key);
           } else {
             selectedCells.add(key);
           }
-
           updateCellDisplay(button, key);
-
+          updateSelectionSummary();
         });
 
         td.appendChild(button);
-
         row.appendChild(td);
-
       });
 
+      tbody.appendChild(row);
     });
-
-    tbody.appendChild(row);
-
   });
 
   shiftTable.appendChild(tbody);
-
+  updateSelectionSummary();
 }
 
 
@@ -593,25 +691,144 @@ function buildShiftTable(weekDates) {
 
 function updateCellDisplay(button, key) {
 
-  if (selectedCells.has(key)) {
+  const isScheduled = selectedCells.has(key);
+  button.textContent = isScheduled ? "○" : "×";
+  button.classList.toggle("is-scheduled", isScheduled);
+  button.classList.toggle("is-not-scheduled", !isScheduled);
+  button.setAttribute("aria-pressed", String(isScheduled));
 
-    button.textContent = "○";
+  const info = cellInfoMap.get(key);
+  if (info) {
+    const student = students.find(item => item.id === info.userId);
+    const name = student ? student.name : "従業員";
+    button.setAttribute(
+      "aria-label",
+      name + " " + info.dateKey + " " + shifts[info.shiftIndex].label + " " + (isScheduled ? "出勤予定" : "未登録")
+    );
+  }
+}
 
-    button.classList.add("selected");
 
-    button.setAttribute("aria-pressed", "true");
+function updateSelectionStyles() {
+  shiftTable.querySelectorAll("tbody tr").forEach(row => {
+    row.classList.remove("is-selected-row");
+    if (selectedDay === null) return;
+    if (Number(row.dataset.pickDay) !== selectedDay) return;
 
-  } else {
+    // 日付だけの選択なら、その日の4行すべてを強調。
+    // 時間帯を選択した場合は、該当する1行だけを強調。
+    if (selectedSlot === null || Number(row.dataset.pickSlot) === selectedSlot) {
+      row.classList.add("is-selected-row");
+    }
+  });
 
-    button.textContent = "";
+  shiftTable.querySelectorAll(".date-cell, .slot-cell").forEach(element => {
+    element.classList.remove("is-selected-day", "is-selected-slot");
+    if (selectedDay === null || Number(element.dataset.pickDay) !== selectedDay) return;
+    if (element.classList.contains("date-cell")) {
+      element.classList.add("is-selected-day");
+    } else if (selectedSlot !== null && Number(element.dataset.pickSlot) === selectedSlot) {
+      element.classList.add("is-selected-slot");
+    }
+  });
+}
 
-    button.classList.remove("selected");
+function escapeHtml(value) {
+  return String(value == null ? "" : value).replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character]);
+}
 
-    button.setAttribute("aria-pressed", "false");
+function updateSelectionSummary() {
+  updateSelectionStyles();
 
+  const caption = document.getElementById("summaryCaption");
+  const details = document.getElementById("summaryDetails");
+  if (!caption || !details) return;
+
+  if (selectedDay === null || !weekSelector.value) {
+    caption.textContent = "表の日付、または日付と時間帯をクリックすると、担当者と人数が表示されます。";
+    details.innerHTML = "";
+    return;
   }
 
+  const date = getWeekDates(weekSelector.value)[selectedDay];
+  const dateLabel = (date.getMonth() + 1) + "/" + date.getDate() + "（" + dayLabels[selectedDay] + "）";
+  const targetShiftIndexes = selectedSlot === null
+    ? shifts.map((shift, index) => index)
+    : [selectedSlot];
+
+  const uniqueStudents = new Map();
+  let totalAssignments = 0;
+  let sections = "";
+
+  targetShiftIndexes.forEach(shiftIndex => {
+    const shift = shifts[shiftIndex];
+    const assignedStudents = students.filter(student =>
+      selectedCells.has(makeCellKey(student.id, dateToKey(date), shift.value))
+    );
+
+    totalAssignments += assignedStudents.length;
+    assignedStudents.forEach(student => uniqueStudents.set(student.id, student));
+
+    const names = assignedStudents.length
+      ? assignedStudents.map(student => '<span class="summary-name">' + escapeHtml(student.name || "名前未設定") + '</span>').join("")
+      : '<span class="empty-summary">該当者はいません。</span>';
+
+    sections += '<div class="summary-slot">' +
+      '<div class="summary-slot-title">' + ["①", "②", "③", "④"][shiftIndex] +
+      "　" + escapeHtml(shift.label) + "（" + assignedStudents.length + "人）</div>" +
+      '<div class="summary-names">' + names + "</div></div>";
+  });
+
+  caption.textContent = selectedSlot === null
+    ? dateLabel + "・全時間帯"
+    : dateLabel + "・" + ["①", "②", "③", "④"][selectedSlot] + " " + shifts[selectedSlot].label;
+
+  details.innerHTML =
+    '<div class="summary-stats">' +
+      '<div class="summary-stat"><small>出勤人数（重複を除く）</small><strong>' + uniqueStudents.size + "人</strong></div>" +
+      '<div class="summary-stat"><small>延べ出勤枠</small><strong>' + totalAssignments + "人分</strong></div>" +
+    "</div>" + sections;
 }
+
+shiftTable.addEventListener("click", event => {
+  const target = event.target.closest(".date-cell, .slot-cell");
+  if (!target) return;
+
+  const day = Number(target.dataset.pickDay);
+
+  if (target.dataset.pickSlot !== undefined) {
+    const slot = Number(target.dataset.pickSlot);
+    if (selectedDay === day && selectedSlot === slot) {
+      selectedDay = null;
+      selectedSlot = null;
+    } else {
+      selectedDay = day;
+      selectedSlot = slot;
+    }
+  } else if (selectedDay === day && selectedSlot === null) {
+    selectedDay = null;
+    selectedSlot = null;
+  } else {
+    selectedDay = day;
+    selectedSlot = null;
+  }
+
+  updateSelectionSummary();
+});
+
+shiftTable.addEventListener("keydown", event => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  const target = event.target.closest(".date-cell, .slot-cell");
+  if (!target) return;
+  event.preventDefault();
+  target.click();
+});
 
 
 // ==================================
@@ -762,25 +979,47 @@ async () => {
 // ==================================
 
 weekSelector.addEventListener("change", async () => {
+  if (!weekSelector.value) return;
 
-  if (weekSelector.value) {
+  try {
+    const [year, month, day] = weekSelector.value.split("-").map(Number);
+    const pickedDate = new Date(year, month - 1, day);
+    const weekId = getISOWeekId(pickedDate);
+    const monday = getWeekDates(weekId)[0];
 
-    try {
-
-      await loadWeek(weekSelector.value);
-
-    } catch (error) {
-
-      console.error(error);
-
-      statusMessage.textContent =
-        "シフトの読み込みに失敗しました。";
-
-    }
-
+    // 選択した日付が属する週の月曜日にカレンダーをそろえる
+    weekSelector.value = dateToKey(monday);
+    await loadWeek(weekId);
+  } catch (error) {
+    console.error(error);
+    statusMessage.textContent = "シフトの読み込みに失敗しました。";
   }
-
 });
+
+// 表の拡大・縮小
+function applyZoom() {
+  const content = document.getElementById("tableZoomContent");
+  content.style.zoom = String(zoomScale / 100);
+  document.getElementById("zoomRange").value = String(zoomScale);
+  document.getElementById("zoomLabel").textContent = zoomScale + "%";
+}
+document.getElementById("zoomRange").addEventListener("input", event => {
+  zoomScale = Number(event.target.value);
+  applyZoom();
+});
+document.getElementById("zoomMinus").addEventListener("click", () => {
+  zoomScale = Math.max(60, zoomScale - 5);
+  applyZoom();
+});
+document.getElementById("zoomPlus").addEventListener("click", () => {
+  zoomScale = Math.min(150, zoomScale + 5);
+  applyZoom();
+});
+document.getElementById("zoomReset").addEventListener("click", () => {
+  zoomScale = 100;
+  applyZoom();
+});
+applyZoom();
 
 
 </script>
