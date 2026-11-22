@@ -135,6 +135,107 @@ body:has(.app-shell) .row-menu-trigger:hover{padding:0!important}
   body:has(.app-shell) .table-wrap table > tbody > tr > td { font-size:.55rem!important; }
 }
 
+
+/* 2026-11-23: 木材一覧の配置と列幅を整理 */
+@media (max-width:760px) {
+  body:has(.app-shell) main {
+    width:calc(100% - 16px)!important;
+    max-width:none!important;
+    margin:10px auto 80px!important;
+  }
+  body:has(.app-shell) main > .panel {
+    width:100%!important;
+    max-width:100%!important;
+    margin:8px 0!important;
+    padding:8px!important;
+    overflow:hidden!important;
+  }
+  body:has(.app-shell) main > .panel > .heading {
+    margin:0 2px 8px!important;
+    padding:0!important;
+    align-items:center!important;
+  }
+  body:has(.app-shell) main > .panel > .heading h2 {
+    margin:0!important;
+  }
+  body:has(.app-shell) .table-wrap {
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    border-radius:6px!important;
+  }
+  body:has(.app-shell) .table-wrap table {
+    display:table!important;
+    width:100%!important;
+    min-width:600px!important;
+    max-width:none!important;
+    margin:0!important;
+    table-layout:fixed!important;
+    border-collapse:collapse!important;
+  }
+  body:has(.app-shell) .table-wrap table col,
+  body:has(.app-shell) .table-wrap table th,
+  body:has(.app-shell) .table-wrap table td {
+    width:10%!important;
+    min-width:0!important;
+    max-width:none!important;
+    box-sizing:border-box!important;
+  }
+  body:has(.app-shell) .table-wrap table th,
+  body:has(.app-shell) .table-wrap table td {
+    padding:4px 3px!important;
+    height:30px!important;
+    line-height:1.2!important;
+    vertical-align:middle!important;
+  }
+  body:has(.app-shell) .table-wrap table th {font-size:.68rem!important}
+  body:has(.app-shell) .table-wrap table td {font-size:.7rem!important}
+  body:has(.app-shell) .table-wrap table .group-link {
+    font-size:inherit!important;
+    line-height:inherit!important;
+  }
+  body:has(.app-shell) .table-wrap table th:nth-child(10),
+  body:has(.app-shell) .table-wrap table td:nth-child(10) {
+    width:10%!important;
+    min-width:0!important;
+    max-width:none!important;
+    padding:4px 3px!important;
+    text-align:center!important;
+  }
+  body:has(.app-shell) .table-wrap table .row-menu {
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    justify-content:center!important;
+  }
+  body:has(.app-shell) .table-wrap table .row-menu-trigger {
+    flex:0 0 24px!important;
+    width:24px!important;
+    min-width:24px!important;
+    max-width:24px!important;
+    height:24px!important;
+    min-height:24px!important;
+    padding:0!important;
+    margin:0 auto!important;
+    font-size:15px!important;
+  }
+}
+@media (max-width:430px) {
+  body:has(.app-shell) main {width:calc(100% - 12px)!important}
+  body:has(.app-shell) main > .panel {padding:6px!important}
+  body:has(.app-shell) .table-wrap table {min-width:560px!important}
+  body:has(.app-shell) .table-wrap table th,
+  body:has(.app-shell) .table-wrap table td {
+    padding:3px 2px!important;
+    height:28px!important;
+    font-size:.66rem!important;
+  }
+}
+
 </style>
 <meta name="robots" content="noindex, nofollow">
 </head>
