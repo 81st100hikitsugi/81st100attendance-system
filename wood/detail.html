@@ -41,6 +41,54 @@ body:has(.app-shell) .table-wrap table td:nth-child(5){width:105px}
  body:has(.app-shell) .table-wrap table td{padding:0!important}
 }
 
+
+
+/* スマートフォン木材詳細：セル・入力欄・選択欄・ボタンの余白を縮小 */
+@media(max-width:760px){
+  body.app-shell-ready main{width:calc(100% - 8px)!important;margin:6px auto 76px!important}
+  body.app-shell-ready main > .panel{padding:4px!important;margin:5px 0!important}
+  body.app-shell-ready .table-wrap{margin:0 -2px!important;padding:0!important;overflow-x:auto!important}
+  body.app-shell-ready .table-wrap table{
+    width:100%!important;min-width:622px!important;table-layout:fixed!important;border-spacing:0!important;
+  }
+  body.app-shell-ready .table-wrap table th,
+  body.app-shell-ready .table-wrap table td{
+    padding:1px!important;line-height:1.05!important;font-size:.61rem!important;
+    height:25px!important;vertical-align:middle!important;
+  }
+  body.app-shell-ready .table-wrap table th:nth-child(1),body.app-shell-ready .table-wrap table td:nth-child(1){width:34px!important}
+  body.app-shell-ready .table-wrap table th:nth-child(2),body.app-shell-ready .table-wrap table td:nth-child(2){width:34px!important}
+  body.app-shell-ready .table-wrap table th:nth-child(3),body.app-shell-ready .table-wrap table td:nth-child(3){width:78px!important}
+  body.app-shell-ready .table-wrap table th:nth-child(4),body.app-shell-ready .table-wrap table td:nth-child(4){width:64px!important}
+  body.app-shell-ready .table-wrap table th:nth-child(5),body.app-shell-ready .table-wrap table td:nth-child(5){width:92px!important}
+  body.app-shell-ready .table-wrap table th:nth-child(6),body.app-shell-ready .table-wrap table td:nth-child(6){width:88px!important}
+  body.app-shell-ready .table-wrap table th:nth-child(7),body.app-shell-ready .table-wrap table td:nth-child(7){width:100px!important}
+  body.app-shell-ready .table-wrap table th:nth-child(8),body.app-shell-ready .table-wrap table td:nth-child(8){width:72px!important}
+  body.app-shell-ready .table-wrap table th:nth-child(9),body.app-shell-ready .table-wrap table td:nth-child(9){width:60px!important}
+  body.app-shell-ready .table-wrap table input:not([type=checkbox]),
+  body.app-shell-ready .table-wrap table select{
+    display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;
+    min-height:21px!important;height:21px!important;padding:0 2px!important;margin:0!important;
+    border-radius:3px!important;font-size:.59rem!important;line-height:1!important;
+  }
+  body.app-shell-ready .table-wrap table input[type=checkbox]{
+    width:14px!important;height:14px!important;min-width:14px!important;min-height:14px!important;
+    margin:0 auto!important;padding:0!important;display:block!important;
+  }
+  body.app-shell-ready .table-wrap table button{
+    display:inline-flex!important;min-width:0!important;width:100%!important;
+    min-height:22px!important;height:22px!important;padding:0 2px!important;margin:0!important;
+    border-radius:4px!important;font-size:.56rem!important;line-height:1!important;white-space:nowrap!important;
+  }
+}
+@media(max-width:430px){
+  body.app-shell-ready main > .panel{padding:2px!important}
+  body.app-shell-ready .table-wrap table th,
+  body.app-shell-ready .table-wrap table td{padding:0!important;font-size:.57rem!important}
+  body.app-shell-ready .table-wrap table input:not([type=checkbox]),
+  body.app-shell-ready .table-wrap table select{padding:0 1px!important;font-size:.56rem!important}
+  body.app-shell-ready .table-wrap table button{font-size:.53rem!important}
+}
 </style><meta name="robots" content="noindex, nofollow">
 </head><body class="app-shell-pending"><main>
 <div class="topline"><div><h1 id="groupTitle">木材詳細</h1><p id="groupSubtitle" class="muted"></p></div><div id="adminActions" hidden><button id="addItem">＋ 個別木材を追加</button></div></div>
