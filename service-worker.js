@@ -80,9 +80,9 @@ self.addEventListener("fetch", (event) => {
   const isFirebaseSdk = url.origin === "https://www.gstatic.com" && url.pathname.startsWith("/firebasejs/10.7.1/");
   if (url.origin !== self.location.origin && !isFirebaseSdk) return;
 
-  // 共通ヘッダーCSSは古いクエリ付きURLのキャッシュが残っていても、
+  // 共通ヘッダーのCSS・JavaScriptは古いクエリ付きURLのキャッシュが残っていても、
   // オンライン時は必ず最新ファイルを取得する。
-  if (url.origin === self.location.origin && /\/shared\/app-shell\.css$/.test(url.pathname)) {
+  if (url.origin === self.location.origin && /\/shared\/app-shell\.(css|js)$/.test(url.pathname)) {
     event.respondWith(
       fetch(request, { cache: "no-store" }).then(async (response) => {
         if (response && response.ok) {
