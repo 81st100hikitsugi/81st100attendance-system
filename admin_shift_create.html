@@ -51,15 +51,24 @@
   }
   #zoomLabel { min-width: 48px; color: #243447; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
   #zoomReset {
-    padding: 6px 11px;
-    border: 1px solid #cbd5e1;
+    padding: 7px 12px;
+    border: 1px solid #94a3b8;
     border-radius: 7px;
     background: #fff;
-    color: #243447;
+    color: #1e293b;
     font: inherit;
+    font-weight: 600;
     cursor: pointer;
   }
-  #zoomReset:hover { border-color: #2878c8; background: #f0f7ff; }
+  #zoomReset:hover {
+    border-color: #2878c8;
+    background: #eaf3ff;
+    color: #174f86;
+  }
+  #zoomReset:focus-visible {
+    outline: 2px solid #2878c8;
+    outline-offset: 2px;
+  }
   .table-zoom-content { width: max-content; min-width: 100%; transform-origin: top left; }
   .table-wrap {
     width: 100%;
@@ -309,7 +318,6 @@
   <p id="statusMessage">読み込み中...</p>
 
   <div class="zoom-toolbar" aria-label="表の表示倍率">
-    <span>スマホ：2本指で操作 ／ PC：Ctrl＋マウスホイールで操作</span>
     <span id="zoomLabel">100%</span>
     <button type="button" id="zoomReset">ズームをリセット</button>
   </div>
