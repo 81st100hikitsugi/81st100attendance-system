@@ -1091,7 +1091,7 @@ weekSelector.addEventListener("change", async () => {
 // 表の2本指ピンチ操作による拡大・縮小
 function applyZoom() {
   const content = document.getElementById("tableZoomContent");
-  content.style.zoom = String(zoomScale / 100);
+  content.style.zoom = String(zoomScale * 0.6 / 100);
   document.getElementById("zoomLabel").textContent = zoomScale + "%";
 }
 
@@ -1118,7 +1118,7 @@ tableWrap.addEventListener("touchmove", event => {
   event.preventDefault();
   const distance = getTouchDistance(event.touches);
   const scaleRatio = distance / pinchStartDistance;
-  zoomScale = Math.max(60, Math.min(150, Math.round(pinchStartZoom * scaleRatio)));
+  zoomScale = Math.max(100, Math.min(150, Math.round(pinchStartZoom * scaleRatio)));
   applyZoom();
 }, { passive: false });
 
@@ -1133,7 +1133,7 @@ tableWrap.addEventListener("wheel", event => {
   if (!event.ctrlKey) return;
   event.preventDefault();
   const zoomStep = event.deltaY < 0 ? 5 : -5;
-  zoomScale = Math.max(60, Math.min(150, zoomScale + zoomStep));
+  zoomScale = Math.max(100, Math.min(150, zoomScale + zoomStep));
   applyZoom();
 }, { passive: false });
 
