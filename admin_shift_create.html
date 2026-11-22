@@ -146,19 +146,43 @@
     outline: 2px solid #2878c8;
     outline-offset: -2px;
   }
-  /* 選択中は○×を含む行全体を同じ背景色で強調 */
+  /* 選択中は○×を含む行全体を背景色だけで強調（枠線なし） */
   .densuke-table tbody tr.is-selected-row > td {
     background: #dceeff !important;
-    box-shadow: inset 0 2px 0 #2878c8, inset 0 -2px 0 #2878c8;
+    box-shadow: none !important;
   }
-  .densuke-table tbody tr.is-selected-row > td:first-child,
-  .densuke-table tbody tr.is-selected-row > td:nth-child(2) {
-    box-shadow: inset 2px 0 0 #2878c8, inset 0 2px 0 #2878c8, inset 0 -2px 0 #2878c8;
+  .densuke-table tbody tr.is-selected-row .cell:hover { background: #dceeff !important; }
+
+  /* 共通CSSのボタン装飾を打ち消し、従来の○×表示に戻す */
+  body:has(.app-shell) .table-wrap .densuke-table button.cell {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 38px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+    font: inherit !important;
+    font-size: 21px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    transition: none !important;
+    cursor: pointer;
   }
-  .densuke-table tbody tr.is-selected-row > td:last-child {
-    box-shadow: inset -2px 0 0 #2878c8, inset 0 2px 0 #2878c8, inset 0 -2px 0 #2878c8;
+  body:has(.app-shell) .table-wrap .densuke-table button.cell:hover {
+    background: transparent !important;
   }
-  .densuke-table tbody tr.is-selected-row .cell:hover { background: #c9e2ff; }
+  body:has(.app-shell) .table-wrap .densuke-table button.cell:focus-visible,
+  body:has(.app-shell) .table-wrap .densuke-table .date-cell:focus-visible,
+  body:has(.app-shell) .table-wrap .densuke-table .slot-cell:focus-visible {
+    outline: none !important;
+    outline-offset: 0 !important;
+  }
   .densuke-table .date-cell.is-selected-day,
   .densuke-table .slot-cell.is-selected-slot {
     background: #dceeff !important;
