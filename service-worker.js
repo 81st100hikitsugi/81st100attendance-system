@@ -1,4 +1,4 @@
-const CACHE_NAME = "attendance-system-v49";
+const CACHE_NAME = "attendance-system-v50";
 const FIREBASE_SDK_ASSETS = [
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
@@ -79,6 +79,27 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   const isFirebaseSdk = url.origin === "https://www.gstatic.com" && url.pathname.startsWith("/firebasejs/10.7.1/");
   if (url.origin !== self.location.origin && !isFirebaseSdk) return;
+
+  // ナビゲーションアイコンはオンライン時に最新ファイルを優先し、古い画像キャッシュを再利用しない。
+  if (url.origin === self.location.origin && /\/assets\/icons\/[^/]+\.svg$/.test(url.pathname)) {
+    event.respondWith(
+      fetch(request, { cache: "no-store" }).then(async (response) => {
+        if (response && response.ok) {
+          const copy = response.clone();
+          await caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      }).catch(async () => {
+        const cached = await caches.match(request, { ignoreSearch: true });
+        if (cached) return cached;
+        return new Response("オフラインです。アイコンを取得できませんでした。", {
+          status: 503,
+          headers: { "Content-Type": "text/plain; charset=utf-8" }
+        });
+      })
+    );
+    return;
+  }
 
   // 共通ヘッダーのCSS・JavaScriptは古いクエリ付きURLのキャッシュが残っていても、
   // オンライン時は必ず最新ファイルを取得する。
