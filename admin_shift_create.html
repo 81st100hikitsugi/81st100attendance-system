@@ -325,6 +325,7 @@ let cellInfoMap = new Map();
 let selectedDay = null;
 let selectedSlot = null;
 let zoomScale = 100;
+let currentWeekId = null;
 
 const shifts = [
   { label: "8:00〜10:00", value: "8:00-10:00" },
@@ -437,10 +438,10 @@ requireAdmin({
 
     try {
       await loadStudents();
-      const currentWeek = getISOWeekId(new Date());
-      const monday = getWeekDates(currentWeek)[0];
+      currentWeekId = getISOWeekId(new Date());
+      const monday = getWeekDates(currentWeekId)[0];
       weekSelector.value = dateToKey(monday);
-      await loadWeek(currentWeek);
+      await loadWeek(currentWeekId);
     } catch (error) {
       console.error(error);
       statusMessage.textContent = "データの読み込みに失敗しました。";
@@ -483,6 +484,7 @@ async function loadWeek(weekId) {
 
   if (!weekId) return;
 
+  currentWeekId = weekId;
   statusMessage.textContent =
     "シフトを読み込み中...";
 
@@ -516,6 +518,9 @@ async function loadWeek(weekId) {
     `${dateToKey(weekDates[0])} 〜 ${dateToKey(weekDates[6])}`;
 
 
+  // 先に表を描画する。出勤データの取得に失敗しても、日付・利用者一覧は表示する。
+  buildShiftTable(weekDates);
+
   // attendanceItemsから対象週の記録を取得
   const attendanceQuery = query(
 
@@ -527,8 +532,16 @@ async function loadWeek(weekId) {
 
   );
 
-  const snapshot = await getDocs(attendanceQuery);
-
+  let snapshot;
+  try {
+    snapshot = await getDocs(attendanceQuery);
+  } catch (error) {
+    console.error("出勤データの取得に失敗しました:", error);
+    originalCells = new Set(selectedCells);
+    buildShiftTable(weekDates);
+    statusMessage.textContent = "出勤データを取得できませんでした。日付と利用者一覧のみ表示しています。";
+    return;
+  }
 
   // 出勤予定だけを読み込む
   snapshot.docs.forEach(docSnap => {
@@ -756,7 +769,7 @@ function updateSelectionSummary() {
     return;
   }
 
-  const date = getWeekDates(weekSelector.value)[selectedDay];
+  const date = getWeekDates(currentWeekId)[selectedDay];
   const dateLabel = (date.getMonth() + 1) + "/" + date.getDate() + "（" + dayLabels[selectedDay] + "）";
   const targetShiftIndexes = selectedSlot === null
     ? shifts.map((shift, index) => index)
@@ -838,7 +851,7 @@ shiftTable.addEventListener("keydown", event => {
 document.getElementById("saveBtn").onclick =
 async () => {
 
-  const weekId = weekSelector.value;
+  const weekId = currentWeekId;
 
   if (!weekId) return;
 
@@ -985,6 +998,7 @@ weekSelector.addEventListener("change", async () => {
     const [year, month, day] = weekSelector.value.split("-").map(Number);
     const pickedDate = new Date(year, month - 1, day);
     const weekId = getISOWeekId(pickedDate);
+    currentWeekId = weekId;
     const monday = getWeekDates(weekId)[0];
 
     // 選択した日付が属する週の月曜日にカレンダーをそろえる
