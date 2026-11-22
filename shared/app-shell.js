@@ -16,11 +16,19 @@ const PAGE_BACK_LINKS = [
 ];
 
 const DEFAULT_LINKS = [
-  { id: "home", label: "ホーム", icon: "🏠", href: "../home.html" },
-  { id: "attendance", label: "出勤", icon: "🕒", href: "../employee_home.html" },
-  { id: "learning", label: "学習", icon: "📚", href: "../learning/index.html" },
-  { id: "wood", label: "木材", icon: "🪵", href: "../wood/index.html" }
+  { id: "home", label: "ホーム", icon: "home", href: "../home.html" },
+  { id: "attendance", label: "出勤", icon: "attendance", href: "../employee_home.html" },
+  { id: "learning", label: "学習", icon: "learning", href: "../learning/index.html" },
+  { id: "wood", label: "木材", icon: "wood", href: "../wood/index.html" }
 ];
+
+const NAV_ICON_FILES = {
+  home: "home.svg",
+  attendance: "attendance.svg",
+  learning: "learning.svg",
+  wood: "wood.svg"
+};
+const NAV_ICON_BASE = new URL("../assets/icons/", import.meta.url);
 
 export function mountAppShell({
   active = "",
@@ -79,10 +87,13 @@ export function mountAppShell({
   for (const item of links) {
     const link = document.createElement("a");
     link.href = item.href;
-    const icon = document.createElement("span");
+    const icon = document.createElement("img");
     icon.className = "app-nav-icon";
+    icon.alt = "";
     icon.setAttribute("aria-hidden", "true");
-    icon.textContent = item.icon || ({ home: "🏠", attendance: "🕒", learning: "📚", wood: "🪵" }[item.id] || "");
+    const iconKey = item.icon || item.id;
+    const iconFile = NAV_ICON_FILES[iconKey];
+    if (iconFile) icon.src = new URL(iconFile, NAV_ICON_BASE).href;
     const label = document.createElement("span");
     label.className = "app-nav-label";
     label.textContent = item.label;
