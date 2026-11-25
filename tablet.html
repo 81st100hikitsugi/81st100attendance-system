@@ -122,7 +122,7 @@
 
   <section class="panel hidden" id="modeD">
     <h2>D：PIN入力</h2><p class="description">登録されているPINを入力して対象者を確認します。</p>
-    <div class="pin-area"><input id="pinInput" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="3" pattern="[0-9]{3}" placeholder="3桁のPIN"><button id="pinSubmit" class="action pin-submit" type="button">確認する</button><div class="selected-box hidden" id="selectedD"><strong id="selectedDName"></strong><div class="actions"><button class="action in" data-stamp="出勤" type="button">出勤する</button><button class="action out" data-stamp="退勤" type="button">退勤する</button></div></div></div>
+    <div class="pin-area"><input id="pinInput" class="pin-input" type="password" inputmode="numeric" autocomplete="off" placeholder="PINを入力"><button id="pinSubmit" class="action pin-submit" type="button">確認する</button><div class="selected-box hidden" id="selectedD"><strong id="selectedDName"></strong><div class="actions"><button class="action in" data-stamp="出勤" type="button">出勤する</button><button class="action out" data-stamp="退勤" type="button">退勤する</button></div></div></div>
   </section>
 
   <section class="panel hidden" id="modeE">
@@ -329,7 +329,6 @@
   }
   function findByPin(value) {
     const raw=String(value || "").trim();
-    if (!/^\d{3}$/.test(raw)) { setMessage("PINは半角数字3桁で入力してください。",true); return []; }
     if (!raw) return [];
     return students.filter(s=>String(s.pin ?? s.attendancePin ?? "").trim()===raw);
   }
@@ -397,7 +396,7 @@
   $("searchA").addEventListener("input",renderAllPeople);
   $("searchC").addEventListener("input",renderStatus);
   $("pinSubmit").addEventListener("click",()=>confirmIdentity(findByPin($("pinInput").value.trim()),"D"));
-  $("pinInput").addEventListener("input",()=>{ $("pinInput").value=$("pinInput").value.replace(/\D/g,"").slice(0,3); selected.D=null;$("selectedD").classList.add("hidden"); });
+  $("pinInput").addEventListener("input",()=>{ selected.D=null;$("selectedD").classList.add("hidden"); });
   $("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter") $("pinSubmit").click();});
   $("startCamera").addEventListener("click",startCamera);
   $("stopCamera").addEventListener("click",stopCamera);
