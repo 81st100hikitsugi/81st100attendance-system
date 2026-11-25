@@ -23,7 +23,7 @@
     .menu a:hover { border-color: #2878c8; background: #f8fbff; }
     .menu strong { margin-bottom: 6px; color: #2469ad; font-size: 1.05rem; }
     .menu span { color: #667085; font-size: .88rem; }
-    .admin-link { display: none; }
+    .admin-link[hidden] { display: none !important; }
     .error { padding: 14px; border-radius: 10px; background: #fff4e5; color: #8a4b08; }
     @media (max-width: 560px) { main { margin-top: 22px; } .menu { grid-template-columns: 1fr; } .menu a { min-height: 84px; } }
   </style>
@@ -49,7 +49,7 @@
         <strong>通知一覧</strong>
         <span>お知らせを確認します</span>
       </a>
-      <a class="admin-link" id="adminLink" href="./admin_home.html">
+      <a class="admin-link" id="adminLink" href="./admin_home.html" hidden>
         <strong>管理者メニュー</strong>
         <span>出勤管理の管理機能を開きます</span>
       </a>
@@ -77,7 +77,7 @@
           ]
         });
         if (profile.isAdmin === true) {
-          document.getElementById("adminLink").style.display = "flex";
+          document.getElementById("adminLink").hidden = false;
         }
         document.getElementById("statusMessage").textContent = "";
       },
