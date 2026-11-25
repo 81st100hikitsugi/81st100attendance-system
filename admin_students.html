@@ -86,7 +86,8 @@
         const role=document.createElement("div"); role.className="small"; role.textContent=data.role||"役割未設定";
         nameCell.append(name,role);
         const pinCell=document.createElement("td"), pin=document.createElement("input");
-        pin.type="text"; pin.inputMode="numeric"; pin.autocomplete="off"; pin.maxLength=64; pin.placeholder="PINを設定（64文字以内）";
+        pin.type="text"; pin.inputMode="numeric"; pin.autocomplete="off"; pin.maxLength=3; pin.placeholder="3桁の数字";
+        pin.addEventListener("input",()=>{ pin.value=pin.value.replace(/\\D/g,"").slice(0,3); });
         pin.value=String(data.pin??data.attendancePin??""); pinCell.append(pin);
         const qrCell=document.createElement("td"), qr=document.createElement("input");
         qr.type="text"; qr.autocomplete="off"; qr.placeholder="QR識別値";
@@ -121,6 +122,10 @@
           try{
             const nextPin = pin.value.trim();
             const nextQr = qr.value.trim();
+            if (nextPin && !/^\\d{3}$/.test(nextPin)) {
+              $("statusMessage").textContent="PINは半角数字3桁で入力してください。";
+              return;
+            }
             const duplicate = [...identifierRecords.entries()].find(([otherId, otherData]) => {
               if (otherId === id) return false;
               const otherIdentifiers = [otherId, otherData.pin, otherData.qr].filter(Boolean);
