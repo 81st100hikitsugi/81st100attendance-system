@@ -17,8 +17,7 @@
   input { width:100%; min-width:110px; box-sizing:border-box; padding:9px; border:1px solid #bbb; border-radius:6px; }
   button { border:0; border-radius:6px; padding:9px 12px; cursor:pointer; color:white; background:#2878c8; }
   button.save { background:#26945d; }
-  button.generate { background:#68778c; margin-top:6px; }
-  .qr-preview { min-height:110px; padding-top:8px; }
+    .qr-preview { min-height:110px; padding-top:8px; }
   .qr-preview img { max-width:110px; }
   .status { min-height:1.4em; color:#43536a; }
   .small { font-size:.82rem; color:#68778c; }
@@ -31,8 +30,8 @@
 <body class="app-shell-pending">
 <div class="container">
   <h2>利用者名簿・打刻情報</h2>
-  <p class="hint">各利用者のPINとQRコードを登録できます。PINは任意の文字列、QRコードは「QRを発行」を押すと個別の識別文字列を作成します。登録後、QRコードを印刷・配布してタブレットで読み取れます。</p>
-  <p class="hint">PIN・QRコードは利用者ごとに異なる値を設定してください。重複する値は保存できず、タブレット側でも複数人に一致した場合は打刻を止めて管理者に確認を促します。</p>
+  <p class="hint">各利用者のPINを登録できます。QRコードの内容はPINと同じ値に自動設定されます。PINを変更するとQRコードも連動して変更されます。</p>
+  <p class="hint">PINは利用者ごとに異なる値を設定してください。同じPINをQRコードにも使用します。ほかの利用者のID・PINと重複する値は保存できません。</p>
   <p id="statusMessage" class="status">読み込み中...</p>
   <div class="table-wrap">
     <table>
@@ -89,8 +88,8 @@
         pin.type="text"; pin.autocomplete="off"; pin.placeholder="PIN";
         pin.value=String(data.pin??data.attendancePin??""); pinCell.append(pin);
         const qrCell=document.createElement("td"), qr=document.createElement("input");
-        qr.type="text"; qr.autocomplete="off"; qr.placeholder="QR識別値";
-        qr.value=String(data.qrToken??data.qrCode??""); qrCell.append(qr);
+        qr.type="text"; qr.readOnly=true; qr.placeholder="PINと同じ値";
+        qr.value=pin.value.trim(); qrCell.append(qr);
         const qrViewCell=document.createElement("td"), preview=document.createElement("div");
         preview.className="qr-preview";
         const drawQr=()=>{
@@ -99,28 +98,18 @@
           if(typeof window.QRCode!=="function"){preview.textContent="QR表示ライブラリを読み込めませんでした";return;}
           new window.QRCode(preview,{text:qr.value.trim(),width:104,height:104});
         };
-        const generate=document.createElement("button"); generate.type="button"; generate.className="generate"; generate.textContent="QRを発行";
-        generate.addEventListener("click",()=>{
-          if(!qr.value.trim()) {
-            if (crypto.randomUUID) {
-              qr.value = crypto.randomUUID();
-            } else {
-              const bytes = new Uint8Array(16);
-              crypto.getRandomValues(bytes);
-              qr.value = Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
-            }
-          }
+        pin.addEventListener("input",()=>{
+          qr.value=pin.value.trim();
           drawQr();
         });
-        qr.addEventListener("input",drawQr);
-        qrViewCell.append(preview,generate);
+        qrViewCell.append(preview);
         const saveCell=document.createElement("td"), save=document.createElement("button");
         save.type="button"; save.className="save"; save.textContent="保存";
         save.addEventListener("click",async()=>{
           save.disabled=true; $("statusMessage").textContent=name.textContent+" さんの情報を保存しています...";
           try{
             const nextPin = pin.value.trim();
-            const nextQr = qr.value.trim();
+            const nextQr = nextPin;
             const duplicate = [...identifierRecords.entries()].find(([otherId, otherData]) => {
               if (otherId === id) return false;
               const otherIdentifiers = [otherId, otherData.pin, otherData.qr].filter(Boolean);
@@ -138,7 +127,8 @@
             }
             await updateDoc(doc(db,"students",id),{
               pin:nextPin,
-              qrToken:nextQr
+              qrToken:nextQr,
+              qrCode:nextQr
             });
             identifierRecords.set(id, { name: name.textContent, pin: nextPin, qr: nextQr });
             $("statusMessage").textContent=name.textContent+" さんのPIN・QR情報を保存しました。";
