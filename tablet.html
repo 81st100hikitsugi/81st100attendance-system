@@ -329,7 +329,7 @@
   }
   function findByPin(value) {
     const raw=String(value || "").trim();
-    if (!/^\\d{3}$/.test(raw)) { setMessage("PINは半角数字3桁で入力してください。",true); return []; }
+    if (!/^\d{3}$/.test(raw)) { setMessage("PINは半角数字3桁で入力してください。",true); return []; }
     if (!raw) return [];
     return students.filter(s=>String(s.pin ?? s.attendancePin ?? "").trim()===raw);
   }
@@ -397,7 +397,7 @@
   $("searchA").addEventListener("input",renderAllPeople);
   $("searchC").addEventListener("input",renderStatus);
   $("pinSubmit").addEventListener("click",()=>confirmIdentity(findByPin($("pinInput").value.trim()),"D"));
-  $("pinInput").addEventListener("input",()=>{ $("pinInput").value=$("pinInput").value.replace(/\\D/g,"").slice(0,3); selected.D=null;$("selectedD").classList.add("hidden"); });
+  $("pinInput").addEventListener("input",()=>{ $("pinInput").value=$("pinInput").value.replace(/\D/g,"").slice(0,3); selected.D=null;$("selectedD").classList.add("hidden"); });
   $("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter") $("pinSubmit").click();});
   $("startCamera").addEventListener("click",startCamera);
   $("stopCamera").addEventListener("click",stopCamera);
