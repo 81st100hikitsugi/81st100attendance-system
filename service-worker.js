@@ -129,15 +129,7 @@ self.addEventListener("fetch", (event) => {
     event.respondWith((async () => {
       const cached = await caches.match(request, { ignoreSearch: true });
       if (cached) {
-        // 画面はキャッシュからすぐ返し、最新HTMLの取得はバックグラウンドで行う。
-        event.waitUntil(
-          fetch(request).then(async (response) => {
-            if (response && response.ok) {
-              const copy = response.clone();
-              await caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-            }
-          }).catch(() => {})
-        );
+        // GitHub PagesのHTMLはデプロイ時にキャッシュ世代を更新するため、保存済みHTMLをすぐ返す。
         return cached;
       }
       try {
