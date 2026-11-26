@@ -234,23 +234,49 @@ async function readDoc(reference) {
   catch (error) { if (!navigator.onLine) return await getDocFromCache(reference); throw error; }
 }
 async function load() {
+  const infoRef = query(collection(db, "learningInfos"), where("subject", "==", subject));
+  const dictionaryRef = collection(db, "searchDictionary");
+  const documentRef = doc(db, "subjectDocuments", encodeURIComponent(subject));
+
   try {
     await persistenceReady;
+
+    // まず端末内のFirestoreキャッシュを表示し、画面を先に使える状態にする。
+    const [cachedInfo, cachedDictionary, cachedDocument] = await Promise.all([
+      getDocsFromCache(infoRef).catch(() => null),
+      getDocsFromCache(dictionaryRef).catch(() => null),
+      getDocFromCache(documentRef).catch(() => null)
+    ]);
+    if (cachedInfo) infos = cachedInfo.docs.map(item => ({id:item.id, ...item.data()})).filter(item => !item.deletedAt);
+    if (cachedDictionary) dictionary = cachedDictionary.docs.map(item => item.data());
+    if (cachedDocument) savedDocumentHtml = cachedDocument.exists() ? safeHtml(cachedDocument.data().content || "") : "";
+    if (cachedInfo || cachedDictionary || cachedDocument) {
+      render();
+      $("documentContent").innerHTML = savedDocumentHtml || "資料はありません。";
+      $("learningStatus").textContent = "保存済みデータを表示しています。最新情報を確認中...";
+    }
+
+    // オンライン時はサーバーの最新情報で更新する。オフライン時はキャッシュを利用する。
     const [infoSnapshot, dictionarySnapshot, documentSnapshot] = await Promise.all([
-      readDocs(query(collection(db, "learningInfos"), where("subject", "==", subject))),
-      readDocs(collection(db, "searchDictionary")),
-      readDoc(doc(db, "subjectDocuments", encodeURIComponent(subject)))
+      readDocs(infoRef),
+      readDocs(dictionaryRef),
+      readDoc(documentRef)
     ]);
     infos = infoSnapshot.docs.map(item => ({id:item.id, ...item.data()})).filter(item => !item.deletedAt);
     dictionary = dictionarySnapshot.docs.map(item => item.data());
-    render();
     savedDocumentHtml = documentSnapshot.exists() ? safeHtml(documentSnapshot.data().content || "") : "";
+    render();
     $("documentContent").innerHTML = savedDocumentHtml || "資料はありません。";
+    $("learningStatus").textContent = infos.length ? "" : "学習情報がまだ登録されていません。";
   } catch (error) {
     console.error(error);
-    $("learningInfoList").textContent = "学習情報を読み込めませんでした。";
-    $("documentContent").textContent = "資料を読み込めませんでした。";
-    $("learningStatus").textContent = "アクセス権限を確認してください。";
+    if (infos.length || savedDocumentHtml) {
+      $("learningStatus").textContent = "保存済みデータを表示しています。最新情報を取得できませんでした。";
+    } else {
+      $("learningInfoList").textContent = "学習情報を読み込めませんでした。";
+      $("documentContent").textContent = "資料を読み込めませんでした。";
+      $("learningStatus").textContent = "アクセス権限または通信状況を確認してください。";
+    }
   }
 }
 async function softDelete(info) {
