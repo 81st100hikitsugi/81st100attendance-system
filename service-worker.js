@@ -1,4 +1,4 @@
-const CACHE_NAME = "attendance-system-v57";
+const CACHE_NAME = "attendance-system-v58";
 const FIREBASE_SDK_ASSETS = [
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
@@ -120,6 +120,40 @@ self.addEventListener("fetch", (event) => {
         });
       })
     );
+    return;
+  }
+
+  // HTMLページの切り替えは、クエリ文字列が異なっても同じHTMLを再利用する。
+  // 教科ページは ?subject=... で内容を切り替えるため、検索文字列を無視してキャッシュを探す。
+  if (request.mode === "navigate" && url.origin === self.location.origin) {
+    event.respondWith((async () => {
+      const cached = await caches.match(request, { ignoreSearch: true });
+      if (cached) {
+        // 画面はキャッシュからすぐ返し、最新HTMLの取得はバックグラウンドで行う。
+        event.waitUntil(
+          fetch(request).then(async (response) => {
+            if (response && response.ok) {
+              const copy = response.clone();
+              await caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+            }
+          }).catch(() => {})
+        );
+        return cached;
+      }
+      try {
+        const response = await fetch(request);
+        if (response && response.ok) {
+          const copy = response.clone();
+          await caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      } catch (error) {
+        return new Response("オフラインです。このページはまだキャッシュされていません。", {
+          status: 503,
+          headers: { "Content-Type": "text/plain; charset=utf-8" }
+        });
+      }
+    })());
     return;
   }
 
